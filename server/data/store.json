@@ -347,6 +347,23 @@
   ],
   "bookings": [
     {
+      "id": "bk-test-1794163378717",
+      "pnr": "RMK99T",
+      "flightId": "fl-1",
+      "passengers": [
+        {
+          "id": "p-1",
+          "firstName": "Mehmet",
+          "lastName": "Demir",
+          "selectedSeat": "14C"
+        }
+      ],
+      "totalAmount": 3250,
+      "currency": "₺",
+      "status": "confirmed",
+      "createdAt": "2026-11-08T18:42:58.717Z"
+    },
+    {
       "id": "bk-test-1794163166289",
       "pnr": "RMK99T",
       "flightId": "fl-1",
@@ -538,6 +555,14 @@
     }
   ],
   "tickets": [
+    {
+      "id": "tkt-test-1794163378718",
+      "ticketNumber": "235-9876543210",
+      "bookingId": "bk-test-1794163378717",
+      "pnr": "RMK99T",
+      "seatNumber": "14C",
+      "status": "issued"
+    },
     {
       "id": "tkt-test-1794163166290",
       "ticketNumber": "235-9876543210",

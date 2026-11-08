@@ -36,9 +36,9 @@ export const Logo: React.FC<LogoProps> = ({
   const logoImage = finalImage !== undefined ? finalImage : (siteContent?.customLogoUrl || siteContent?.navbar?.customLogoUrl || '/logos/rumusky-brand-logo.png');
   
   const sizeMap = {
-    sm: { symbol: 'w-8 h-8', text: 'text-lg', sub: 'text-[9px]' },
-    md: { symbol: 'w-10 h-10', text: 'text-xl', sub: 'text-[10px]' },
-    lg: { symbol: 'w-13 h-13', text: 'text-2xl', sub: 'text-xs' }
+    sm: { symbol: 'w-8 h-8 max-w-[32px] max-h-[32px]', text: 'text-lg', sub: 'text-[9px]' },
+    md: { symbol: 'w-10 h-10 max-w-[40px] max-h-[40px]', text: 'text-xl', sub: 'text-[10px]' },
+    lg: { symbol: 'w-12 h-12 max-w-[48px] max-h-[48px]', text: 'text-2xl', sub: 'text-xs' }
   };
 
   const { symbol: symbolClass, text: textClass, sub: subClass } = sizeMap[size];
@@ -47,11 +47,11 @@ export const Logo: React.FC<LogoProps> = ({
     <div className={`inline-flex items-center gap-2.5 select-none cursor-pointer ${className}`}>
       {/* Custom Logo Image or Default Wing-R Monogram Symbol */}
       {logoImage ? (
-        <div className={`${symbolClass} rounded-xl flex items-center justify-center p-1 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${isWhite ? 'bg-white shadow-xs' : 'bg-white/95 shadow-2xs border border-slate-100'}`}>
+        <div className={`${symbolClass} rounded-xl flex items-center justify-center p-1 shrink-0 overflow-hidden transition-transform duration-200 group-hover:scale-105 ${isWhite ? 'bg-white shadow-xs' : 'bg-white/95 shadow-2xs border border-slate-100'}`}>
           <img
             src={logoImage}
             alt={companyName}
-            className="w-full h-full object-contain"
+            className="w-full h-full max-w-full max-h-full object-contain"
           />
         </div>
       ) : (

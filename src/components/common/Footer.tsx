@@ -34,12 +34,12 @@ export const Footer: React.FC = () => {
     <footer className="bg-brand-navy text-slate-300 pt-16 pb-10 border-t border-slate-800 mt-auto">
       <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6">
         {/* Main Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800/80">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 pb-12 border-b border-slate-800/80 items-start">
           
           {/* Brand Info */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <div onClick={() => setActiveView('home')} className="cursor-pointer">
-              <Logo variant="white" size="lg" />
+          <div className="lg:col-span-2 flex flex-col gap-4 pr-2">
+            <div onClick={() => setActiveView('home')} className="cursor-pointer inline-flex items-center">
+              <Logo variant="white" size="md" />
             </div>
             
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
                     onClick={() => setSelectedInfoPage(page)}
                     className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
                   >
-                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors shrink-0"></span>
                     <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
                   </button>
                 </li>
@@ -102,7 +102,7 @@ export const Footer: React.FC = () => {
                     onClick={() => setSelectedInfoPage(page)}
                     className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
                   >
-                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors shrink-0"></span>
                     <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
                   </button>
                 </li>
@@ -122,7 +122,7 @@ export const Footer: React.FC = () => {
                     onClick={() => setSelectedInfoPage(page)}
                     className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
                   >
-                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors shrink-0"></span>
                     <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
                   </button>
                 </li>
