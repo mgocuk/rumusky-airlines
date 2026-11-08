@@ -9,8 +9,12 @@ export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenge
     format: [210, 100] // Standard IATA boarding pass aspect ratio (210mm x 100mm)
   });
 
-  // Generate QR Code data URL
-  const qrDataUrl = await QRCode.toDataURL(ticket.qrCodeData, {
+  // Generate QR Code data URL with live verification link
+  const qrUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/#ticket=${ticket.pnr}&tkt=${ticket.ticketNumber}`
+    : ticket.qrCodeData;
+
+  const qrDataUrl = await QRCode.toDataURL(qrUrl, {
     margin: 1,
     width: 180,
     color: {
@@ -26,14 +30,14 @@ export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenge
   // Brand Name
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.text('RUMUSKY AIRLINES', 12, 12);
 
-  // Subtitle / Document Type
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(0, 180, 219); // #00B4DB Secondary Cyan
-  doc.text('ELEKTRONİK BİNİŞ KARTI / ELECTRONIC BOARDING PASS', 75, 12);
+  // Subtitle / Document Type - Commemorative Pass
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(245, 158, 11); // Amber / Gold
+  doc.text('HATIRA BİLETİ • GAZİANTEP ÜNİVERSİTESİ ÖZEL BİNİŞ KARTI', 60, 12);
 
   // PNR on Header Right
   doc.setTextColor(255, 255, 255);
@@ -115,11 +119,11 @@ export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenge
   doc.text(boardingTimeStr, 80, 85);
   doc.text(`${ticket.baggageKg} KG`, 115, 85);
 
-  // Footer Disclaimer
+  // Footer Disclaimer & Commemorative Note
   doc.setFontSize(6.5);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(140, 150, 165);
-  doc.text('* Kapılar uçuştan 20 dakika önce kapanır. Uçuş öncesi güvenlik kontrolleri için zamanında havalimanında olunuz.', 14, 94);
+  doc.text('* Gaziantep Üniversitesi Projesi Hatıra Belgesidir. QR kodu kameranızla okutarak canlı doğrulayabilirsiniz.', 14, 94);
 
   // --- STUB / PASSENGER COUPON (Right) ---
   doc.setFontSize(7.5);

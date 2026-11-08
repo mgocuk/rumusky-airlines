@@ -1,13 +1,26 @@
-import { SiteContentConfig, NewsItem, PermissionKey, UserRole, User, InfoPage } from '../types';
+import { SiteContentConfig, TicketDesignConfig, NewsItem, PermissionKey, UserRole, User, InfoPage } from '../types';
+
+export const DEFAULT_TICKET_DESIGN: TicketDesignConfig = {
+  badgeTitle: 'HATIRA BİLETİ',
+  badgeTitleEn: 'COMMEMORATIVE SOUVENIR PASS',
+  subTitle: 'Gaziantep Üniversitesi • Havacılık & Yazılım Projesi Özel Biniş Kartı',
+  subTitleEn: 'Gaziantep University • Aviation & Software Project Commemorative Pass',
+  universityName: 'Gaziantep Üniversitesi',
+  universityLogoUrl: '/logos/gaziantep-universitesi-logo.png',
+  airlineLogoUrl: '/logos/rumusky-brand-logo.png',
+  commemorativeNote: 'Bu bilet Gaziantep Üniversitesi projesi kapsamında üretilmiş resmi hatıra belgesidir. Gökyüzündeki güvenli ve ayrıcalıklı yolculuğunuz, bizim gökyüzümüz.',
+  commemorativeNoteEn: 'This ticket is an official commemorative souvenir produced for the Gaziantep University graduation project. Your journey, our sky.',
+  themeStyle: 'navy_gold'
+};
 
 export const INITIAL_SITE_CONTENT: SiteContentConfig = {
   companyName: 'RUMUSKY',
   companySubtitle: 'AIRLINES',
-  customLogoUrl: '',
+  customLogoUrl: '/logos/rumusky-brand-logo.png',
   navbar: {
     companyName: 'RUMUSKY',
     companySubtitle: 'AIRLINES',
-    customLogoUrl: '',
+    customLogoUrl: '/logos/rumusky-brand-logo.png',
     navSearchFlights: 'Uçuş Ara',
     navSearchFlightsEn: 'Search Flights',
     navMyBookings: 'Rezervasyonlarım',
@@ -23,6 +36,7 @@ export const INITIAL_SITE_CONTENT: SiteContentConfig = {
     navAdminButtonText: 'Admin Paneli',
     navAdminButtonTextEn: 'Admin Portal'
   },
+  ticketDesign: DEFAULT_TICKET_DESIGN,
   heroBackgroundUrl: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80',
   heroOverlayOpacity: 25,
   searchCardOpacity: 70,

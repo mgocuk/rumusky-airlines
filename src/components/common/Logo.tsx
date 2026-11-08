@@ -32,13 +32,13 @@ export const Logo: React.FC<LogoProps> = ({
   const finalImage = propLogoImage !== undefined ? propLogoImage : customImage;
 
   const companyName = finalTitle || siteContent?.companyName || siteContent?.navbar?.companyName || 'RUMUSKY';
-  const companySubtitle = finalSubtitle || siteContent?.companySubtitle || siteContent?.navbar?.companySubtitle || 'Airlines';
-  const logoImage = finalImage !== undefined ? finalImage : (siteContent?.customLogoUrl || siteContent?.navbar?.customLogoUrl || '');
+  const companySubtitle = finalSubtitle || siteContent?.companySubtitle || siteContent?.navbar?.companySubtitle || 'AIRLINES';
+  const logoImage = finalImage !== undefined ? finalImage : (siteContent?.customLogoUrl || siteContent?.navbar?.customLogoUrl || '/logos/rumusky-brand-logo.png');
   
   const sizeMap = {
-    sm: { symbol: 'w-7 h-7', text: 'text-lg', sub: 'text-[9px]' },
-    md: { symbol: 'w-9 h-9', text: 'text-xl', sub: 'text-[10px]' },
-    lg: { symbol: 'w-12 h-12', text: 'text-2xl', sub: 'text-xs' }
+    sm: { symbol: 'w-8 h-8', text: 'text-lg', sub: 'text-[9px]' },
+    md: { symbol: 'w-10 h-10', text: 'text-xl', sub: 'text-[10px]' },
+    lg: { symbol: 'w-13 h-13', text: 'text-2xl', sub: 'text-xs' }
   };
 
   const { symbol: symbolClass, text: textClass, sub: subClass } = sizeMap[size];
@@ -47,11 +47,13 @@ export const Logo: React.FC<LogoProps> = ({
     <div className={`inline-flex items-center gap-2.5 select-none cursor-pointer ${className}`}>
       {/* Custom Logo Image or Default Wing-R Monogram Symbol */}
       {logoImage ? (
-        <img
-          src={logoImage}
-          alt={companyName}
-          className={`${symbolClass} object-contain rounded-lg flex-shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-2xs`}
-        />
+        <div className={`${symbolClass} rounded-xl flex items-center justify-center p-1 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${isWhite ? 'bg-white shadow-xs' : 'bg-white/95 shadow-2xs border border-slate-100'}`}>
+          <img
+            src={logoImage}
+            alt={companyName}
+            className="w-full h-full object-contain"
+          />
+        </div>
       ) : (
         <svg
           viewBox="0 0 48 48"

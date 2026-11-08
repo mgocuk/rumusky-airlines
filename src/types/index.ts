@@ -111,11 +111,25 @@ export interface NavbarConfig {
   navAdminButtonTextEn?: string;
 }
 
+export interface TicketDesignConfig {
+  badgeTitle: string;
+  badgeTitleEn: string;
+  subTitle: string;
+  subTitleEn: string;
+  universityName: string;
+  universityLogoUrl: string;
+  airlineLogoUrl: string;
+  commemorativeNote: string;
+  commemorativeNoteEn: string;
+  themeStyle: 'navy_gold' | 'modern_blue' | 'emerald' | 'burgundy';
+}
+
 export interface SiteContentConfig {
   companyName: string;
   companySubtitle: string;
   customLogoUrl?: string;
   navbar: NavbarConfig;
+  ticketDesign?: TicketDesignConfig;
   heroBackgroundUrl: string;
   heroOverlayOpacity?: number; // 0-100, default 25-30%
   searchCardOpacity?: number; // 10-100, default 70%

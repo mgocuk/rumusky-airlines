@@ -21,9 +21,10 @@ import { NewsSection } from './components/customer/NewsSection';
 import { NewsDetailModal } from './components/customer/NewsDetailModal';
 import { InfoPageModal } from './components/customer/InfoPageModal';
 import { ShareLiveModal } from './components/common/ShareLiveModal';
+import { TicketView } from './components/customer/TicketView';
 
 export const App: React.FC = () => {
-  const { activeView, isAdmin, setAuthModalOpen, shareModalOpen, setShareModalOpen } = useApp();
+  const { activeView, setActiveView, isAdmin, setAuthModalOpen, shareModalOpen, setShareModalOpen } = useApp();
 
   useEffect(() => {
     // Secret shortcut for administrator/staff login: Alt + A or Ctrl + Shift + A
@@ -34,10 +35,13 @@ export const App: React.FC = () => {
       }
     };
 
-    // Secret URL hash trigger: #admin or #staff or #login
+    // Secret URL hash trigger: #admin or #staff or #login OR #ticket=...
     const handleHash = () => {
-      if (window.location.hash === '#admin' || window.location.hash === '#staff' || window.location.hash === '#login') {
+      const h = window.location.hash;
+      if (h === '#admin' || h === '#staff' || h === '#login') {
         setAuthModalOpen(true);
+      } else if (h.includes('ticket=') || h.includes('bilet=') || h.includes('pnr=')) {
+        setActiveView('ticket_view');
       }
     };
 
@@ -49,7 +53,7 @@ export const App: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('hashchange', handleHash);
     };
-  }, [setAuthModalOpen]);
+  }, [setAuthModalOpen, setActiveView]);
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg font-sans">
@@ -86,6 +90,7 @@ export const App: React.FC = () => {
             {activeView === 'manage' && <ManageBooking />}
             {activeView === 'account' && <AccountView />}
             {activeView === 'checkin' && <CheckinView />}
+            {activeView === 'ticket_view' && <TicketView />}
           </>
         )}
       </main>

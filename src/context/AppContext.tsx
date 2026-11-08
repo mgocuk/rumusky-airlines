@@ -35,7 +35,8 @@ export type AppView =
   | 'account' 
   | 'checkin'
   | 'news'
-  | 'admin';
+  | 'admin'
+  | 'ticket_view';
 
 interface AppContextType {
   language: Language;
@@ -89,6 +90,7 @@ interface AppContextType {
   contactPhone: string;
   selectedSeats: Record<string, string>;
   currentBooking: Booking | null;
+  setCurrentBooking: (booking: Booking | null) => void;
   activeUser: User | null;
   isAdmin: boolean;
   toggleAdminMode: () => void;
@@ -1102,6 +1104,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         contactPhone,
         selectedSeats,
         currentBooking,
+        setCurrentBooking,
         activeUser,
         isAdmin,
         toggleAdminMode,
