@@ -104,6 +104,32 @@ export const INITIAL_AIRPORTS: Airport[] = [
     timezone: 'Asia/Tokyo',
     terminalInfo: 'Terminal 3 (International)',
     isActive: true
+  },
+  {
+    id: 'apt-9',
+    iataCode: 'ESB',
+    icaoCode: 'LTAC',
+    name: 'Esenboğa Havalimanı',
+    city: 'Ankara',
+    cityEn: 'Ankara',
+    country: 'Türkiye',
+    countryEn: 'Turkey',
+    timezone: 'Europe/Istanbul',
+    terminalInfo: 'İç & Dış Hatlar Terminali',
+    isActive: true
+  },
+  {
+    id: 'apt-10',
+    iataCode: 'AYT',
+    icaoCode: 'LTAI',
+    name: 'Antalya Havalimanı',
+    city: 'Antalya',
+    cityEn: 'Antalya',
+    country: 'Türkiye',
+    countryEn: 'Turkey',
+    timezone: 'Europe/Istanbul',
+    terminalInfo: 'Terminal 1 & 2',
+    isActive: true
   }
 ];
 
@@ -201,6 +227,66 @@ export function getFutureDateString(daysAhead: number): string {
   const d = new Date();
   d.setDate(d.getDate() + daysAhead);
   return d.toISOString().split('T')[0];
+}
+
+/**
+ * Ensures that all flight dates stay continuously synchronized with today/current time.
+ * If any flight has expired in the past, it advances all schedules so the earliest
+ * flight starts tomorrow at its scheduled hour, preserving real-world flight spacing.
+ */
+export function syncFlightsWithCurrentTime(flightsList: Flight[]): Flight[] {
+  if (!flightsList || flightsList.length === 0) {
+    return getInitialFlights();
+  }
+
+  const now = new Date();
+  const todayDateStr = now.toISOString().split('T')[0];
+  const nowMs = now.getTime();
+
+  // Check if any flight has expired
+  const hasExpiredFlights = flightsList.some((f) => {
+    return new Date(f.departureTime).getTime() <= nowMs;
+  });
+
+  if (!hasExpiredFlights) {
+    return flightsList;
+  }
+
+  // Find the earliest date among all flights
+  let earliestDateStr = flightsList[0]?.departureTime?.split('T')[0] || todayDateStr;
+  flightsList.forEach((f) => {
+    const dStr = f.departureTime.split('T')[0];
+    if (dStr < earliestDateStr) {
+      earliestDateStr = dStr;
+    }
+  });
+
+  // Calculate day difference between earliest flight and tomorrow (today + 1)
+  const earliestTime = new Date(earliestDateStr).getTime();
+  const targetDate = new Date(todayDateStr);
+  targetDate.setDate(targetDate.getDate() + 1);
+  const diffDays = Math.max(1, Math.ceil((targetDate.getTime() - earliestTime) / (1000 * 60 * 60 * 24)));
+
+  return flightsList.map((f) => {
+    const depTimePart = f.departureTime.split('T')[1] || '10:00:00';
+    const arrTimePart = f.arrivalTime.split('T')[1] || '12:00:00';
+
+    const depDate = new Date(f.departureTime.split('T')[0]);
+    depDate.setDate(depDate.getDate() + diffDays);
+    const newDepDateStr = depDate.toISOString().split('T')[0];
+
+    const arrDate = new Date(f.arrivalTime.split('T')[0]);
+    arrDate.setDate(arrDate.getDate() + diffDays);
+    const newArrDateStr = arrDate.toISOString().split('T')[0];
+
+    return {
+      ...f,
+      departureTime: `${newDepDateStr}T${depTimePart}`,
+      arrivalTime: `${newArrDateStr}T${arrTimePart}`,
+      operationalStatus: 'Scheduled',
+      bookingStatus: 'open'
+    };
+  });
 }
 
 export function getInitialFlights(): Flight[] {

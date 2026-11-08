@@ -4,7 +4,7 @@ import { generateTicketPDF } from '../../utils/pdfGenerator';
 import { CheckCircle2, Search, Download, AlertCircle, Plane, Sparkles } from 'lucide-react';
 
 export const CheckinView: React.FC = () => {
-  const { checkinFlight, flights, t, language, setActiveView } = useApp();
+  const { checkinFlight, findBooking, flights, t, language, setActiveView } = useApp();
 
   const [pnr, setPnr] = useState('');
   const [surname, setSurname] = useState('');
@@ -14,6 +14,19 @@ export const CheckinView: React.FC = () => {
   const handleCheckin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const booking = findBooking(pnr, surname);
+    if (booking) {
+      const flight = flights.find((f) => f.id === booking.flightId);
+      if (flight && new Date(flight.departureTime).getTime() <= Date.now()) {
+        setError(
+          language === 'tr'
+            ? 'Bu uçuşun kalkış saati geçmişte kalmıştır. Gerçekleşen geçmiş uçuşlar için online check-in yapılamaz.'
+            : 'This flight has already departed. Online check-in is not available for past flights.'
+        );
+        return;
+      }
+    }
 
     const ticket = checkinFlight(pnr, surname);
     if (!ticket) {

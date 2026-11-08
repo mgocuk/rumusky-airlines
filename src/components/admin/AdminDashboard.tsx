@@ -13,6 +13,7 @@ import {
   BenefitItem
 } from '../../types';
 import { useToast } from '../common/Toast';
+import { getFutureDateString } from '../../data/seedData';
 import {
   BarChart,
   Bar,
@@ -28,6 +29,7 @@ import {
   Users,
   DollarSign,
   TrendingUp,
+  Clock,
   Plus,
   AlertCircle,
   CheckCircle,
@@ -219,6 +221,7 @@ export const AdminDashboard: React.FC = () => {
     updateFlightStatus,
     cancelFlight,
     cancelBooking,
+    syncAllFlights,
     resetAllData,
     toggleAdminMode,
     t,
@@ -273,8 +276,8 @@ export const AdminDashboard: React.FC = () => {
   const [newOriginIata, setNewOriginIata] = useState('IST');
   const [newDestIata, setNewDestIata] = useState('DXB');
   const [newAircraftId, setNewAircraftId] = useState(aircrafts[0]?.id || 'ac-1');
-  const [newDepDate, setNewDepDate] = useState('2026-11-15T09:00');
-  const [newArrDate, setNewArrDate] = useState('2026-11-15T13:30');
+  const [newDepDate, setNewDepDate] = useState(`${getFutureDateString(1)}T09:00`);
+  const [newArrDate, setNewArrDate] = useState(`${getFutureDateString(1)}T13:30`);
   const [newEconomyPrice, setNewEconomyPrice] = useState(3800);
   const [newBusinessPrice, setNewBusinessPrice] = useState(8900);
 
@@ -2015,23 +2018,38 @@ export const AdminDashboard: React.FC = () => {
         {/* 5. FLIGHTS TAB */}
         {activeTab === 'flights' && hasPermission('manage_flights') && (
           <div className="space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-xl font-bold font-heading text-brand-navy">
                   Uçuş Tarifesi & Operasyon Yönetimi
                 </h3>
                 <p className="text-xs text-brand-muted mt-0.5">
-                  Buradan yeni uçuş ekleyebilir veya durumunu değiştirebilirsiniz.
+                  Tüm seferler güncel zamana senkronize şekilde çalışır.
                 </p>
               </div>
 
-              <button
-                onClick={() => setShowAddFlightModal(true)}
-                className="px-4 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('admin_add_flight')}</span>
-              </button>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    syncAllFlights();
+                    showToast('Tüm uçuş saatleri bugünden itibaren güncel zamana başarıyla senkronize edildi!', 'success');
+                  }}
+                  className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  title="Geçmişte kalan veya eski tarihli seferleri bugünden ileriye taşır"
+                >
+                  <Clock className="w-4 h-4" />
+                  <span>Saatleri Şimdiye Senkronize Et</span>
+                </button>
+
+                <button
+                  onClick={() => setShowAddFlightModal(true)}
+                  className="px-4 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{t('admin_add_flight')}</span>
+                </button>
+              </div>
             </div>
 
             {/* Flights Table */}
@@ -2060,7 +2078,18 @@ export const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="p-3.5 text-slate-600">{f.aircraftModel}</td>
                         <td className="p-3.5">
-                          {f.departureTime.split('T')[0]} ({f.departureTime.split('T')[1].substring(0, 5)})
+                          <div className="font-semibold text-brand-navy">
+                            {f.departureTime.split('T')[0]} ({f.departureTime.split('T')[1].substring(0, 5)})
+                          </div>
+                          {new Date(f.departureTime).getTime() <= Date.now() ? (
+                            <span className="text-[10px] font-bold text-slate-400">
+                              (Geçmiş Sefer)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold text-emerald-600">
+                              (Gelecek Sefer)
+                            </span>
+                          )}
                         </td>
                         <td className="p-3.5 font-bold text-brand-navy">
                           {f.priceEconomy.toLocaleString('tr-TR')} ₺
@@ -2565,6 +2594,7 @@ export const AdminDashboard: React.FC = () => {
                   <input
                     type="datetime-local"
                     required
+                    min={new Date().toISOString().slice(0, 16)}
                     value={newDepDate}
                     onChange={(e) => setNewDepDate(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
@@ -2575,6 +2605,7 @@ export const AdminDashboard: React.FC = () => {
                   <input
                     type="datetime-local"
                     required
+                    min={newDepDate}
                     value={newArrDate}
                     onChange={(e) => setNewArrDate(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"

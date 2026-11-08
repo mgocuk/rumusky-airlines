@@ -45,20 +45,25 @@ export const FlightResults: React.FC = () => {
     );
   }
 
-  // Filter flights matching origin and destination
+  const nowMs = Date.now();
+
+  // Filter flights: strictly future (never in the past!), matching route, price, and open status
   let matchingFlights = flights.filter((f) => {
+    const isFuture = new Date(f.departureTime).getTime() > nowMs;
     const matchesRoute =
       f.originAirport.iataCode === searchQuery.originIata &&
       f.destinationAirport.iataCode === searchQuery.destinationIata;
 
     const matchesPrice = (searchQuery.cabinClass === 'business' ? f.priceBusiness : f.priceEconomy) <= maxPrice;
-    return matchesRoute && matchesPrice && f.bookingStatus === 'open';
+    return isFuture && matchesRoute && matchesPrice && f.bookingStatus === 'open';
   });
 
-  // If no exact match (e.g., custom airports selected during demo), show available route demo flights
+  // If no exact match (e.g., custom airports selected during demo), show upcoming active future flights
   const isFallback = matchingFlights.length === 0;
   if (isFallback) {
-    matchingFlights = flights.filter(f => f.bookingStatus === 'open').slice(0, 4);
+    matchingFlights = flights
+      .filter((f) => f.bookingStatus === 'open' && new Date(f.departureTime).getTime() > nowMs)
+      .slice(0, 4);
   }
 
   // Sorting
@@ -209,12 +214,15 @@ export const FlightResults: React.FC = () => {
               >
                 {/* Flight Route and Timings */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="px-2.5 py-1 rounded-md bg-blue-50 text-brand-blue text-xs font-extrabold">
+                  <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                    <span className="px-2.5 py-1 rounded-md bg-blue-50 text-brand-blue text-xs font-extrabold font-mono">
                       {flight.flightNumber}
                     </span>
                     <span className="text-xs text-brand-muted font-medium">
                       {flight.aircraftModel}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-brand-navy border border-slate-200">
+                      📅 {new Date(flight.departureTime).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">
                       <CheckCircle2 className="w-3 h-3" />

@@ -40,6 +40,14 @@ export const FlightSearchCard: React.FC = () => {
 
   // Close dropdowns on outside click
   useEffect(() => {
+    const todayStr = getFutureDateString(0);
+    if (departureDate < todayStr) {
+      setDepartureDate(getFutureDateString(1));
+    }
+    if (returnDate < departureDate) {
+      setReturnDate(getFutureDateString(5));
+    }
+
     const handleClickOutside = (e: MouseEvent) => {
       if (originRef.current && !originRef.current.contains(e.target as Node)) {
         setOriginOpen(false);
@@ -68,6 +76,16 @@ export const FlightSearchCard: React.FC = () => {
         language === 'tr'
           ? 'Kalkış ve varış havalimanı aynı olamaz!'
           : 'Origin and destination airports must be different!'
+      );
+      return;
+    }
+
+    const todayStr = getFutureDateString(0);
+    if (departureDate < todayStr) {
+      setValidationError(
+        language === 'tr'
+          ? 'Geçmiş tarihler için biletleme yapılamaz. Lütfen güncel veya ileri bir tarih seçiniz.'
+          : 'Cannot book flights in the past. Please select today or a future date.'
       );
       return;
     }

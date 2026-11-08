@@ -18,7 +18,7 @@ import {
   PopularDestination,
   InfoPage
 } from '../types';
-import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights, INITIAL_CAMPAIGNS, INITIAL_DESTINATIONS } from '../data/seedData';
+import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights, syncFlightsWithCurrentTime, INITIAL_CAMPAIGNS, INITIAL_DESTINATIONS } from '../data/seedData';
 import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_STAFF_USERS, INITIAL_INFO_PAGES } from '../data/seedContent';
 import { translations } from '../utils/translations';
 
@@ -111,6 +111,7 @@ interface AppContextType {
   updateFlightStatus: (flightId: string, status: OperationalStatus) => void;
   cancelFlight: (flightId: string) => void;
   cancelBooking: (bookingId: string) => void;
+  syncAllFlights: () => void;
   resetAllData: () => void;
 }
 
@@ -188,7 +189,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [flights, setFlights] = useState<Flight[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.FLIGHTS);
-    return saved ? JSON.parse(saved) : getInitialFlights();
+    const initialList = saved ? JSON.parse(saved) : getInitialFlights();
+    return syncFlightsWithCurrentTime(initialList);
   });
 
   const [campaigns, setCampaigns] = useState<Campaign[]>(() => {
@@ -677,6 +679,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const booking = findBooking(pnr, surname);
     if (!booking) return null;
 
+    const bookedFlight = flights.find((f) => f.id === booking.flightId);
+    // Cannot check in for past expired flights
+    if (bookedFlight && new Date(bookedFlight.departureTime).getTime() <= Date.now()) {
+      return null;
+    }
+
     const userTicket = tickets.find((t) => t.bookingId === booking.id);
     if (userTicket) {
       setTickets((prev) =>
@@ -689,6 +697,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const getTicketsForBooking = (bookingId: string): Ticket[] => {
     return tickets.filter((t) => t.bookingId === bookingId);
+  };
+
+  const syncAllFlights = () => {
+    setFlights((prev) => syncFlightsWithCurrentTime(prev));
   };
 
   // Admin Actions
@@ -809,6 +821,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateFlightStatus,
         cancelFlight,
         cancelBooking,
+        syncAllFlights,
         resetAllData
       }}
     >

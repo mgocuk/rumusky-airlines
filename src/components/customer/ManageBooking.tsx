@@ -92,21 +92,42 @@ export const ManageBooking: React.FC = () => {
       )}
 
       {/* Found Booking Details */}
-      {foundBooking && bookedFlight && (
-        <div className="bg-white rounded-3xl border border-brand-border shadow-elevated overflow-hidden animate-fade-in">
-          <div className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Plane className="w-5 h-5 text-brand-cyan" />
-              <span className="font-heading font-bold text-sm">
-                PNR: {foundBooking.pnr} • {bookedFlight.flightNumber}
-              </span>
-            </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Onaylandı
-            </span>
-          </div>
+      {foundBooking && bookedFlight && (() => {
+        const isPastFlight = new Date(bookedFlight.departureTime).getTime() <= Date.now();
 
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+        return (
+          <div className="bg-white rounded-3xl border border-brand-border shadow-elevated overflow-hidden animate-fade-in">
+            <div className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Plane className="w-5 h-5 text-brand-cyan" />
+                <span className="font-heading font-bold text-sm">
+                  PNR: {foundBooking.pnr} • {bookedFlight.flightNumber}
+                </span>
+              </div>
+              {isPastFlight ? (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-500/30 text-slate-300 border border-slate-500/40">
+                  Geçmiş Sefer (Tamamlandı)
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Onaylandı (Aktif Sefer)
+                </span>
+              )}
+            </div>
+
+            {isPastFlight ? (
+              <div className="mx-6 mt-4 p-3 bg-slate-100 rounded-xl border border-slate-200 text-slate-700 text-xs font-medium flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span>Bu uçuşun kalkış zamanı geçmişte kalmıştır. Gerçekleşmiş geçmiş uçuşunuzun e-bilet dökümünü aşağıdan indirebilirsiniz.</span>
+              </div>
+            ) : (
+              <div className="mx-6 mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Uçuşunuz güncel ve onaylanmıştır. Uçuş saatinden en az 2 saat önce havalimanında bulunmanız gerekmektedir.</span>
+              </div>
+            )}
+
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
               <div className="text-2xl font-black text-brand-navy">{bookedFlight.originAirport.iataCode}</div>
               <div className="text-xs text-brand-muted">{bookedFlight.originAirport.city}</div>
@@ -149,7 +170,7 @@ export const ManageBooking: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      ); })()}
     </div>
   );
 };
