@@ -19,6 +19,7 @@ import { FlightDetailsModal } from './components/customer/FlightDetailsModal';
 import { AuthModal } from './components/common/AuthModal';
 import { NewsSection } from './components/customer/NewsSection';
 import { NewsDetailModal } from './components/customer/NewsDetailModal';
+import { InfoPageModal } from './components/customer/InfoPageModal';
 
 export const App: React.FC = () => {
   const { activeView, isAdmin } = useApp();
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
       <FlightDetailsModal />
       <AuthModal />
       <NewsDetailModal />
+      <InfoPageModal />
 
       {/* Universal Footer */}
       {!isAdmin && activeView !== 'admin' && activeView !== 'seats' && <Footer />}

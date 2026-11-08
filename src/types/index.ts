@@ -49,6 +49,48 @@ export interface BenefitItem {
   icon: string;
 }
 
+export interface InfoPageSection {
+  heading: string;
+  headingEn: string;
+  body: string;
+  bodyEn: string;
+}
+
+export interface InfoPage {
+  id: string;
+  slug: string;
+  category: 'rumusky' | 'travel_info' | 'help_support' | 'legal';
+  menuLabel: string;
+  menuLabelEn: string;
+  title: string;
+  titleEn: string;
+  badge?: string;
+  badgeEn?: string;
+  summary: string;
+  summaryEn: string;
+  content: string;
+  contentEn: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  lastUpdated?: string;
+  sections?: InfoPageSection[];
+}
+
+export interface FooterConfig {
+  desc: string;
+  descEn: string;
+  safetyBadge: string;
+  safetyBadgeEn: string;
+  col1Title: string;
+  col1TitleEn: string;
+  col2Title: string;
+  col2TitleEn: string;
+  col3Title: string;
+  col3TitleEn: string;
+  copyright: string;
+  copyrightEn: string;
+}
+
 export interface SiteContentConfig {
   heroBackgroundUrl: string;
   heroBadgeText: string;
@@ -66,6 +108,7 @@ export interface SiteContentConfig {
   };
   footerDesc: string;
   footerDescEn: string;
+  footer: FooterConfig;
 }
 
 export interface Airport {

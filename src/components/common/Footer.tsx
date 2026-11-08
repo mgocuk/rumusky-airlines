@@ -1,10 +1,32 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Logo } from './Logo';
-import { ShieldCheck, Heart, Plane, Smartphone, Apple, Play } from 'lucide-react';
+import { ShieldCheck, Apple, Play } from 'lucide-react';
+import { INITIAL_SITE_CONTENT } from '../../data/seedContent';
 
 export const Footer: React.FC = () => {
-  const { t, setActiveView, siteContent, language } = useApp();
+  const {
+    t,
+    setActiveView,
+    siteContent,
+    language,
+    infoPages,
+    setSelectedInfoPage
+  } = useApp();
+
+  const footer = siteContent.footer || INITIAL_SITE_CONTENT.footer;
+
+  const desc = language === 'en' ? (footer.descEn || siteContent.footerDescEn) : (footer.desc || siteContent.footerDesc);
+  const safetyBadge = language === 'en' ? footer.safetyBadgeEn : footer.safetyBadge;
+  const col1Title = language === 'en' ? footer.col1TitleEn : footer.col1Title;
+  const col2Title = language === 'en' ? footer.col2TitleEn : footer.col2Title;
+  const col3Title = language === 'en' ? footer.col3TitleEn : footer.col3Title;
+  const copyright = language === 'en' ? footer.copyrightEn : footer.copyright;
+
+  const rumuskyPages = infoPages.filter((p) => p.category === 'rumusky');
+  const travelPages = infoPages.filter((p) => p.category === 'travel_info');
+  const helpPages = infoPages.filter((p) => p.category === 'help_support');
+  const legalPages = infoPages.filter((p) => p.category === 'legal');
 
   return (
     <footer className="bg-brand-navy text-slate-300 pt-16 pb-10 border-t border-slate-800 mt-auto">
@@ -17,14 +39,14 @@ export const Footer: React.FC = () => {
             <div onClick={() => setActiveView('home')} className="cursor-pointer">
               <Logo variant="white" size="lg" />
             </div>
+            
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              {language === 'en' 
-                ? (siteContent.footerDescEn || t('footer_company_desc'))
-                : (siteContent.footerDesc || t('footer_company_desc'))}
+              {desc}
             </p>
+
             <div className="flex items-center gap-2 text-xs text-sky-400 font-medium">
-              <ShieldCheck className="w-4 h-4" />
-              <span>IATA & ICAO Standartlarında Güvenli Uçuş Operasyonları</span>
+              <ShieldCheck className="w-4 h-4 shrink-0 text-brand-cyan" />
+              <span>{safetyBadge}</span>
             </div>
 
             {/* Simulated App Badges */}
@@ -46,54 +68,81 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Links: About */}
+          {/* Links Column 1: RUMUSKY */}
           <div>
             <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-4 font-heading">
-              {t('footer_about')}
+              {col1Title}
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_about_us')}</button></li>
-              <li><button onClick={() => setActiveView('news')} className="hover:text-white transition-colors text-left">{t('footer_press')}</button></li>
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_career')}</button></li>
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_contact')}</button></li>
+              {rumuskyPages.map((page) => (
+                <li key={page.id}>
+                  <button
+                    onClick={() => setSelectedInfoPage(page)}
+                    className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Links: Travel Info */}
+          {/* Links Column 2: SEYAHAT BİLGİLERİ */}
           <div>
             <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-4 font-heading">
-              {t('footer_travel_info')}
+              {col2Title}
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_baggage_rules')}</button></li>
-              <li><button onClick={() => setActiveView('checkin')} className="hover:text-white transition-colors text-left">{t('footer_online_checkin')}</button></li>
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_seat_selection')}</button></li>
-              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_special_services')}</button></li>
+              {travelPages.map((page) => (
+                <li key={page.id}>
+                  <button
+                    onClick={() => setSelectedInfoPage(page)}
+                    className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Links: Support */}
+          {/* Links Column 3: YARDIM & DESTEK */}
           <div>
             <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-4 font-heading">
-              {t('footer_help')}
+              {col3Title}
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_faq')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_support_center')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_ticket_rules')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_cancel_refund')}</a></li>
+              {helpPages.map((page) => (
+                <li key={page.id}>
+                  <button
+                    onClick={() => setSelectedInfoPage(page)}
+                    className="hover:text-white transition-colors text-left group flex items-center gap-1.5"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-brand-cyan transition-colors"></span>
+                    <span>{language === 'en' ? page.menuLabelEn : page.menuLabel}</span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar: Copyright & Legal Links */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>{t('footer_copyright')}</div>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-slate-400 cursor-pointer">Gizlilik Politikası</span>
-            <span className="hover:text-slate-400 cursor-pointer">Kullanım Şartları</span>
-            <span className="hover:text-slate-400 cursor-pointer">Çerez Bildirimi</span>
+          <div>{copyright}</div>
+          <div className="flex flex-wrap items-center gap-5 sm:gap-6">
+            {legalPages.map((page) => (
+              <button
+                key={page.id}
+                onClick={() => setSelectedInfoPage(page)}
+                className="hover:text-slate-300 transition-colors cursor-pointer text-left font-medium"
+              >
+                {language === 'en' ? page.menuLabelEn : page.menuLabel}
+              </button>
+            ))}
           </div>
         </div>
       </div>

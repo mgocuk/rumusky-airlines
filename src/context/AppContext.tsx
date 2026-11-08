@@ -15,10 +15,11 @@ import {
   SiteContentConfig,
   NewsItem,
   Campaign,
-  PopularDestination
+  PopularDestination,
+  InfoPage
 } from '../types';
 import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights, INITIAL_CAMPAIGNS, INITIAL_DESTINATIONS } from '../data/seedData';
-import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_STAFF_USERS } from '../data/seedContent';
+import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_STAFF_USERS, INITIAL_INFO_PAGES } from '../data/seedContent';
 import { translations } from '../utils/translations';
 
 export type AppView = 
@@ -55,6 +56,12 @@ interface AppContextType {
   deleteNewsItem: (id: string) => void;
   selectedNewsArticle: NewsItem | null;
   setSelectedNewsArticle: (item: NewsItem | null) => void;
+  // Info Pages & Footer Modals
+  infoPages: InfoPage[];
+  updateInfoPage: (id: string, updated: Partial<InfoPage>) => void;
+  selectedInfoPage: InfoPage | null;
+  setSelectedInfoPage: (page: InfoPage | null) => void;
+  openInfoPageBySlug: (slug: string) => void;
   // Role & Permissions (RBAC)
   rolePermissions: Record<UserRole, PermissionKey[]>;
   updateRolePermissions: (role: UserRole, perms: PermissionKey[]) => void;
@@ -114,6 +121,7 @@ const STORAGE_KEYS = {
   DESTINATIONS: 'rumusky_destinations',
   SITE_CONTENT: 'rumusky_site_content',
   NEWS: 'rumusky_news',
+  INFO_PAGES: 'rumusky_info_pages',
   ROLE_PERMISSIONS: 'rumusky_role_permissions',
   STAFF_USERS: 'rumusky_staff_users',
   USER: 'rumusky_user'
@@ -174,6 +182,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const saved = localStorage.getItem(STORAGE_KEYS.NEWS);
     return saved ? JSON.parse(saved) : INITIAL_NEWS;
   });
+
+  const [infoPages, setInfoPages] = useState<InfoPage[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.INFO_PAGES);
+    return saved ? JSON.parse(saved) : INITIAL_INFO_PAGES;
+  });
+
+  const [selectedInfoPage, setSelectedInfoPage] = useState<InfoPage | null>(null);
 
   const [rolePermissions, setRolePermissions] = useState<Record<UserRole, PermissionKey[]>>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ROLE_PERMISSIONS);
@@ -237,6 +252,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [news]);
 
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.INFO_PAGES, JSON.stringify(infoPages));
+  }, [infoPages]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
   }, [campaigns]);
 
@@ -286,6 +305,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteNewsItem = (id: string) => {
     setNews((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const updateInfoPage = (id: string, updated: Partial<InfoPage>) => {
+    setInfoPages((prev) =>
+      prev.map((p) =>
+        p.id === id || p.slug === id
+          ? { ...p, ...updated, lastUpdated: new Date().toISOString().split('T')[0] }
+          : p
+      )
+    );
+  };
+
+  const openInfoPageBySlug = (slug: string) => {
+    const page = infoPages.find((p) => p.slug === slug || p.id === slug);
+    if (page) {
+      setSelectedInfoPage(page);
+    }
   };
 
   const updateCampaign = (id: string, updated: Partial<Campaign>) => {
@@ -572,6 +608,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDestinations(INITIAL_DESTINATIONS);
     setSiteContent(INITIAL_SITE_CONTENT);
     setNews(INITIAL_NEWS);
+    setInfoPages(INITIAL_INFO_PAGES);
+    setSelectedInfoPage(null);
     setRolePermissions(DEFAULT_ROLE_PERMISSIONS);
     setStaffUsers(INITIAL_STAFF_USERS);
     setBookings([]);
@@ -602,6 +640,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteNewsItem,
         selectedNewsArticle,
         setSelectedNewsArticle,
+        infoPages,
+        updateInfoPage,
+        selectedInfoPage,
+        setSelectedInfoPage,
+        openInfoPageBySlug,
         rolePermissions,
         updateRolePermissions,
         hasPermission,

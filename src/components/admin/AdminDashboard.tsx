@@ -49,7 +49,9 @@ import {
   Unlock,
   UserPlus,
   Menu,
-  X
+  X,
+  FileText,
+  BookOpen
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -66,6 +68,9 @@ export const AdminDashboard: React.FC = () => {
     addNewsItem,
     updateNewsItem,
     deleteNewsItem,
+    infoPages,
+    updateInfoPage,
+    setSelectedInfoPage,
     updateCampaign,
     updateDestination,
     rolePermissions,
@@ -90,7 +95,7 @@ export const AdminDashboard: React.FC = () => {
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'flights' | 'bookings' | 'cms' | 'news' | 'airports' | 'rbac' | 'settings'
+    'overview' | 'flights' | 'bookings' | 'cms' | 'footer_pages' | 'news' | 'airports' | 'rbac' | 'settings'
   >('overview');
 
   const [mobileAdminNavOpen, setMobileAdminNavOpen] = useState(false);
@@ -147,6 +152,52 @@ export const AdminDashboard: React.FC = () => {
   const [cmsAnnounceText, setCmsAnnounceText] = useState(siteContent.announcementBanner.text);
   const [cmsAnnounceTextEn, setCmsAnnounceTextEn] = useState(siteContent.announcementBanner.textEn);
   const [cmsAnnounceBadge, setCmsAnnounceBadge] = useState(siteContent.announcementBanner.badge);
+
+  // Footer & 15 Info Pages States
+  const [selectedEditingPageId, setSelectedEditingPageId] = useState<string>(infoPages[0]?.id || 'page-about');
+  const activeEditingPage = infoPages.find((p) => p.id === selectedEditingPageId) || infoPages[0];
+
+  const [pageMenuLabel, setPageMenuLabel] = useState(activeEditingPage?.menuLabel || '');
+  const [pageMenuLabelEn, setPageMenuLabelEn] = useState(activeEditingPage?.menuLabelEn || '');
+  const [pageTitle, setPageTitle] = useState(activeEditingPage?.title || '');
+  const [pageTitleEn, setPageTitleEn] = useState(activeEditingPage?.titleEn || '');
+  const [pageBadge, setPageBadge] = useState(activeEditingPage?.badge || '');
+  const [pageBadgeEn, setPageBadgeEn] = useState(activeEditingPage?.badgeEn || '');
+  const [pageSummary, setPageSummary] = useState(activeEditingPage?.summary || '');
+  const [pageSummaryEn, setPageSummaryEn] = useState(activeEditingPage?.summaryEn || '');
+  const [pageContent, setPageContent] = useState(activeEditingPage?.content || '');
+  const [pageContentEn, setPageContentEn] = useState(activeEditingPage?.contentEn || '');
+  const [pageContactEmail, setPageContactEmail] = useState(activeEditingPage?.contactEmail || '');
+  const [pageContactPhone, setPageContactPhone] = useState(activeEditingPage?.contactPhone || '');
+
+  // Footer Global State
+  const initialFooter = siteContent.footer || {
+    desc: siteContent.footerDesc,
+    descEn: siteContent.footerDescEn,
+    safetyBadge: 'IATA & ICAO Standartlarında Güvenli Uçuş Operasyonları',
+    safetyBadgeEn: 'IATA & ICAO Standardized Flight Safety Operations',
+    col1Title: 'RUMUSKY',
+    col1TitleEn: 'RUMUSKY',
+    col2Title: 'SEYAHAT BİLGİLERİ',
+    col2TitleEn: 'TRAVEL INFO',
+    col3Title: 'YARDIM & DESTEK',
+    col3TitleEn: 'HELP & SUPPORT',
+    copyright: '© 2026 RUMUSKY AIRLINES. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.',
+    copyrightEn: '© 2026 RUMUSKY AIRLINES. All rights reserved. Academic Project & Live Demonstration.'
+  };
+
+  const [footerDesc, setFooterDesc] = useState(initialFooter.desc);
+  const [footerDescEn, setFooterDescEn] = useState(initialFooter.descEn);
+  const [footerSafety, setFooterSafety] = useState(initialFooter.safetyBadge);
+  const [footerSafetyEn, setFooterSafetyEn] = useState(initialFooter.safetyBadgeEn);
+  const [footerCol1, setFooterCol1] = useState(initialFooter.col1Title);
+  const [footerCol1En, setFooterCol1En] = useState(initialFooter.col1TitleEn);
+  const [footerCol2, setFooterCol2] = useState(initialFooter.col2Title);
+  const [footerCol2En, setFooterCol2En] = useState(initialFooter.col2TitleEn);
+  const [footerCol3, setFooterCol3] = useState(initialFooter.col3Title);
+  const [footerCol3En, setFooterCol3En] = useState(initialFooter.col3TitleEn);
+  const [footerCopyright, setFooterCopyright] = useState(initialFooter.copyright);
+  const [footerCopyrightEn, setFooterCopyrightEn] = useState(initialFooter.copyrightEn);
 
   // Settings state
   const [vatRate, setVatRate] = useState(18);
@@ -241,6 +292,68 @@ export const AdminDashboard: React.FC = () => {
       }
     });
     showToast('Site görselleri ve başlık metinleri canlı olarak güncellendi!', 'success');
+  };
+
+  const handleSelectEditingPage = (pageId: string) => {
+    setSelectedEditingPageId(pageId);
+    const target = infoPages.find((p) => p.id === pageId);
+    if (target) {
+      setPageMenuLabel(target.menuLabel);
+      setPageMenuLabelEn(target.menuLabelEn);
+      setPageTitle(target.title);
+      setPageTitleEn(target.titleEn);
+      setPageBadge(target.badge || '');
+      setPageBadgeEn(target.badgeEn || '');
+      setPageSummary(target.summary);
+      setPageSummaryEn(target.summaryEn);
+      setPageContent(target.content);
+      setPageContentEn(target.contentEn);
+      setPageContactEmail(target.contactEmail || '');
+      setPageContactPhone(target.contactPhone || '');
+    }
+  };
+
+  const handleSaveActivePage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeEditingPage) return;
+    updateInfoPage(activeEditingPage.id, {
+      menuLabel: pageMenuLabel,
+      menuLabelEn: pageMenuLabelEn,
+      title: pageTitle,
+      titleEn: pageTitleEn,
+      badge: pageBadge,
+      badgeEn: pageBadgeEn,
+      summary: pageSummary,
+      summaryEn: pageSummaryEn,
+      content: pageContent,
+      contentEn: pageContentEn,
+      contactEmail: pageContactEmail,
+      contactPhone: pageContactPhone
+    });
+    showToast(`"${pageTitle}" sayfası ve menü link adı başarıyla güncellendi!`, 'success');
+  };
+
+  const handleSaveFooterGlobal = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateSiteContent({
+      footerDesc: footerDesc,
+      footerDescEn: footerDescEn,
+      footer: {
+        desc: footerDesc,
+        descEn: footerDescEn,
+        safetyBadge: footerSafety,
+        safetyBadgeEn: footerSafetyEn,
+        col1Title: footerCol1,
+        col1TitleEn: footerCol1En,
+        col2Title: footerCol2,
+        col2TitleEn: footerCol2En,
+        col3Title: footerCol3,
+        col3TitleEn: footerCol3En,
+        copyright: footerCopyright,
+        copyrightEn: footerCopyrightEn
+      }
+    });
+    showToast('Footer genel başlıkları, güvenlik rozeti ve telif metinleri güncellendi!', 'success');
   };
 
   const handleCreateNews = (e: React.FormEvent) => {
@@ -381,6 +494,7 @@ export const AdminDashboard: React.FC = () => {
             { id: 'flights', label: `Uçuşlar (${flights.length})`, icon: Plane, perm: 'manage_flights' },
             { id: 'bookings', label: `Rezervasyonlar (${bookings.length})`, icon: Calendar, perm: 'manage_bookings' },
             { id: 'cms', label: 'Site Görselleri & Metinler', icon: ImageIcon, perm: 'manage_cms' },
+            { id: 'footer_pages', label: `Kurumsal Sayfalar & Footer (${infoPages.length})`, icon: FileText, perm: 'manage_cms' },
             { id: 'news', label: `Haberler (${news.length})`, icon: Newspaper, perm: 'manage_news' },
             { id: 'airports', label: `Havalimanları & Filo`, icon: Building, perm: 'manage_airports' },
             { id: 'rbac', label: 'Rol & Yetki Matrisi (SüperAdmin)', icon: Lock, perm: 'manage_roles' },
@@ -750,6 +864,502 @@ export const AdminDashboard: React.FC = () => {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* 2.5 KURUMSAL SAYFALAR & FOOTER YÖNETİMİ TAB */}
+        {activeTab === 'footer_pages' && hasPermission('manage_cms') && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Header info */}
+            <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-brand-blue mb-2">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Footer & 15 Bilgi Sayfası Yönetimi</span>
+                </div>
+                <h3 className="text-xl font-bold font-heading text-brand-navy">
+                  Kurumsal Sayfalar & Tıklanınca Açılan Ekranların İçerikleri
+                </h3>
+                <p className="text-xs text-brand-muted mt-1 max-w-2xl">
+                  Footer'daki tüm bağlantıların isimlerini, tıklandığında açılan pencerelerin detaylı metinlerini ve footer başlıklarını buradan canlı olarak düzenleyin.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedInfoPage(activeEditingPage)}
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors border border-slate-200 shadow-2xs"
+                >
+                  <Eye className="w-4 h-4 text-brand-blue" />
+                  <span>Seçili Sayfayı Canlı Önizle</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 15 Pages Master-Detail Editor */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left Column: 15 Pages Selector Grouped by Category */}
+              <div className="lg:col-span-4 space-y-4">
+                <div className="bg-white p-4 rounded-2xl border border-brand-border shadow-subtle">
+                  <h4 className="text-xs font-extrabold text-brand-navy uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <span>Düzenlenecek Sayfayı Seçin</span>
+                    <span className="text-[10px] text-brand-muted lowercase font-normal">{infoPages.length} sayfa aktif</span>
+                  </h4>
+
+                  {/* Categories */}
+                  {[
+                    { cat: 'rumusky', label: '1. RUMUSKY Grubu' },
+                    { cat: 'travel_info', label: '2. Seyahat Bilgileri' },
+                    { cat: 'help_support', label: '3. Yardım & Destek' },
+                    { cat: 'legal', label: '4. Yasal & Sözleşmeler' }
+                  ].map((group) => {
+                    const pagesInGroup = infoPages.filter((p) => p.category === group.cat);
+                    return (
+                      <div key={group.cat} className="mb-4 last:mb-0">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1 bg-slate-50 rounded-md mb-1.5">
+                          {group.label}
+                        </div>
+                        <div className="space-y-1">
+                          {pagesInGroup.map((p) => {
+                            const isSelected = p.id === selectedEditingPageId;
+                            return (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => handleSelectEditingPage(p.id)}
+                                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                                  isSelected
+                                    ? 'bg-brand-navy text-white shadow-xs font-bold'
+                                    : 'text-slate-700 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span className="truncate">{p.menuLabel}</span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                  {p.slug}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Page Detail Form */}
+              <div className="lg:col-span-8">
+                <form
+                  onSubmit={handleSaveActivePage}
+                  className="bg-white p-6 sm:p-7 rounded-2xl border border-brand-border shadow-subtle space-y-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-brand-cyan"></span>
+                        <h4 className="font-heading font-extrabold text-base text-brand-navy">
+                          {pageTitle || activeEditingPage?.title}
+                        </h4>
+                      </div>
+                      <span className="text-[11px] text-brand-muted">
+                        Slug: <code className="text-brand-blue font-mono">{activeEditingPage?.slug}</code> • Kategori: {activeEditingPage?.category}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInfoPage(activeEditingPage)}
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-brand-blue" />
+                        <span>Önizle</span>
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Sayfayı Kaydet</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Menu Link Labels (Footer'da görünen isimler) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-blue-50/40 p-4 rounded-xl border border-blue-100/60">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-navy block mb-1">
+                        Footer Menü Link Adı (Türkçe)
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={pageMenuLabel}
+                        onChange={(e) => setPageMenuLabel(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-navy focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                        placeholder="Örn: Hakkımızda"
+                      />
+                      <span className="text-[10px] text-slate-500 mt-0.5 block">Footer kolonunda görünen tıklanabilir link yazısı</span>
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-navy block mb-1">
+                        Footer Menü Link Adı (İngilizce)
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={pageMenuLabelEn}
+                        onChange={(e) => setPageMenuLabelEn(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-brand-navy focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                        placeholder="e.g. About Us"
+                      />
+                      <span className="text-[10px] text-slate-500 mt-0.5 block">English link label in footer</span>
+                    </div>
+                  </div>
+
+                  {/* Modal Page Titles */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Açılan Ekranın Başlığı (Türkçe)
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={pageTitle}
+                        onChange={(e) => setPageTitle(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-brand-navy"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Açılan Ekranın Başlığı (İngilizce)
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={pageTitleEn}
+                        onChange={(e) => setPageTitleEn(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-brand-navy"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Badge & Subtitle */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Rozet / Kategori Vurgusu (Türkçe)
+                      </label>
+                      <input
+                        type="text"
+                        value={pageBadge}
+                        onChange={(e) => setPageBadge(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        placeholder="Örn: Kurumsal Vizyonumuz"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Rozet / Kategori Vurgusu (İngilizce)
+                      </label>
+                      <input
+                        type="text"
+                        value={pageBadgeEn}
+                        onChange={(e) => setPageBadgeEn(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        placeholder="e.g. Corporate Vision"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Kısa Özet / Alt Başlık (Türkçe)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={pageSummary}
+                        onChange={(e) => setPageSummary(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs leading-relaxed"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        Kısa Özet / Alt Başlık (İngilizce)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={pageSummaryEn}
+                        onChange={(e) => setPageSummaryEn(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs leading-relaxed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Detailed Content */}
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Açılan Ekranın Tam Detaylı Metni (Türkçe)
+                    </label>
+                    <textarea
+                      rows={6}
+                      required
+                      value={pageContent}
+                      onChange={(e) => setPageContent(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-normal leading-relaxed focus:bg-white"
+                      placeholder="Maddeler, paragraflar ve açıklamaları yazabilirsiniz..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Açılan Ekranın Tam Detaylı Metni (İngilizce)
+                    </label>
+                    <textarea
+                      rows={6}
+                      required
+                      value={pageContentEn}
+                      onChange={(e) => setPageContentEn(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-normal leading-relaxed focus:bg-white"
+                      placeholder="Full English text paragraphs..."
+                    />
+                  </div>
+
+                  {/* Optional Contact fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        İletişim E-Postası (Varsa)
+                      </label>
+                      <input
+                        type="email"
+                        value={pageContactEmail}
+                        onChange={(e) => setPageContactEmail(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                        placeholder="Örn: iletisim@rumusky.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                        İletişim Telefonu (Varsa)
+                      </label>
+                      <input
+                        type="text"
+                        value={pageContactPhone}
+                        onChange={(e) => setPageContactPhone(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                        placeholder="Örn: +90 (850) 800 78 69"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3">
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Bu Sayfanın Değişikliklerini Kaydet</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+
+            {/* Global Footer Settings Section */}
+            <form
+              onSubmit={handleSaveFooterGlobal}
+              className="bg-white p-6 sm:p-7 rounded-2xl border border-brand-border shadow-subtle space-y-6"
+            >
+              <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                <Settings className="w-5 h-5 text-brand-blue" />
+                <div>
+                  <h4 className="font-heading font-extrabold text-base text-brand-navy">
+                    Footer Genel Başlıkları, Güvenlik Rozeti & Telif Metinleri
+                  </h4>
+                  <p className="text-xs text-brand-muted">
+                    Footer'ın en altındaki telif yazısı, emniyet rozeti ve 3 kolonun ana başlıklarını buradan güncelleyin.
+                  </p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    Sol Kolon Şirket Açıklaması (Türkçe)
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={footerDesc}
+                    onChange={(e) => setFooterDesc(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    Sol Kolon Şirket Açıklaması (İngilizce)
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={footerDescEn}
+                    onChange={(e) => setFooterDescEn(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Safety Badge */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    Emniyet & Standart Rozet Metni (Türkçe)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={footerSafety}
+                    onChange={(e) => setFooterSafety(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    Emniyet & Standart Rozet Metni (İngilizce)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={footerSafetyEn}
+                    onChange={(e) => setFooterSafetyEn(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* Column Titles */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    1. Kolon Başlığı (TR / EN)
+                  </label>
+                  <div className="space-y-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={footerCol1}
+                      onChange={(e) => setFooterCol1(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold"
+                      placeholder="TR Başlık"
+                    />
+                    <input
+                      type="text"
+                      required
+                      value={footerCol1En}
+                      onChange={(e) => setFooterCol1En(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      placeholder="EN Başlık"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    2. Kolon Başlığı (TR / EN)
+                  </label>
+                  <div className="space-y-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={footerCol2}
+                      onChange={(e) => setFooterCol2(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold"
+                      placeholder="TR Başlık"
+                    />
+                    <input
+                      type="text"
+                      required
+                      value={footerCol2En}
+                      onChange={(e) => setFooterCol2En(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      placeholder="EN Başlık"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    3. Kolon Başlığı (TR / EN)
+                  </label>
+                  <div className="space-y-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={footerCol3}
+                      onChange={(e) => setFooterCol3(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold"
+                      placeholder="TR Başlık"
+                    />
+                    <input
+                      type="text"
+                      required
+                      value={footerCol3En}
+                      onChange={(e) => setFooterCol3En(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      placeholder="EN Başlık"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Copyright */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    En Alt Telif / Copyright Metni (Türkçe)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={footerCopyright}
+                    onChange={(e) => setFooterCopyright(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                    En Alt Telif / Copyright Metni (İngilizce)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={footerCopyrightEn}
+                    onChange={(e) => setFooterCopyrightEn(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors"
+                >
+                  <Save className="w-4 h-4 text-brand-cyan" />
+                  <span>Footer Başlıkları & Telif Metinlerini Kaydet</span>
+                </button>
+              </div>
+            </form>
           </div>
         )}
 
