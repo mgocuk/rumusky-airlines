@@ -1,51 +1,31 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Lock, Mail, Shield, Sparkles, ArrowRight, CheckCircle2, UserCheck } from 'lucide-react';
+import { X, Lock, Mail, Shield, ArrowRight, AlertCircle } from 'lucide-react';
 import { Logo } from './Logo';
 
 export const AuthModal: React.FC = () => {
   const { authModalOpen, setAuthModalOpen, loginStaff, language } = useApp();
-  const [email, setEmail] = useState('admin@rumusky.com');
-  const [password, setPassword] = useState('••••••••');
-  const [selectedRole, setSelectedRole] = useState<'super_admin' | 'flight_manager' | 'booking_manager' | 'content_manager'>('super_admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   if (!authModalOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loginStaff(email, selectedRole);
+    setErrorMessage('');
+    const result = loginStaff(email, password);
+    if (!result.success) {
+      setErrorMessage(result.message || (language === 'en' ? 'Unauthorized email or invalid credentials.' : 'Yetkisiz e-posta adresi veya geçersiz giriş bilgisi.'));
+    }
   };
 
-  const staffPresets = [
-    {
-      role: 'super_admin' as const,
-      title: 'Süper Admin (Tam Yetki)',
-      titleEn: 'Super Admin (Full Access)',
-      email: 'admin@rumusky.com',
-      badge: 'Tüm Yetkiler Açık'
-    },
-    {
-      role: 'flight_manager' as const,
-      title: 'Uçuş Şefi & Operasyon',
-      titleEn: 'Flight Ops Manager',
-      email: 'ops@rumusky.com',
-      badge: 'Sefer & Filo Yetkisi'
-    },
-    {
-      role: 'booking_manager' as const,
-      title: 'Rezervasyon & Bilet Sorumlusu',
-      titleEn: 'Booking & Ticketing Lead',
-      email: 'booking@rumusky.com',
-      badge: 'Bilet İptal / İade'
-    },
-    {
-      role: 'content_manager' as const,
-      title: 'İçerik Editörü & Basın',
-      titleEn: 'CMS & Press Editor',
-      email: 'editor@rumusky.com',
-      badge: 'CMS & Haber Yönetimi'
-    }
-  ];
+  const handleClose = () => {
+    setEmail('');
+    setPassword('');
+    setErrorMessage('');
+    setAuthModalOpen(false);
+  };
 
   return (
     <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
@@ -53,7 +33,7 @@ export const AuthModal: React.FC = () => {
         
         {/* Close Button */}
         <button
-          onClick={() => setAuthModalOpen(false)}
+          onClick={handleClose}
           className="absolute top-5 right-5 p-2 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-colors"
           title="Kapat"
         >
@@ -65,80 +45,42 @@ export const AuthModal: React.FC = () => {
           <Logo size="md" className="mx-auto mb-3" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-brand-navy text-brand-cyan mb-2">
             <Shield className="w-3.5 h-3.5" />
-            <span>{language === 'en' ? 'Authorized Staff Portal' : 'Yetkili Personel Girişi'}</span>
+            <span>{language === 'en' ? 'Staff & Operations Portal' : 'Yetkili Personel Portalı'}</span>
           </div>
           <h3 className="text-xl font-heading font-extrabold text-brand-navy">
-            {language === 'en' ? 'Admin & Management Login' : 'Admin & Yönetici Giriş Paneli'}
+            {language === 'en' ? 'Admin & Staff Login' : 'Yetkili & Admin Girişi'}
           </h3>
           <p className="text-xs text-brand-muted mt-1.5 leading-relaxed">
             {language === 'en'
-              ? 'This portal is restricted to authorized operations, flight dispatchers, and Super Admins. Passengers do not need an account to book flights.'
-              : 'Bu ekran yalnızca RUMUSKY yetkili personeli ve Süper Admin girişi içindir. Yolcularımızın bilet satın alırken üye olmasına gerek yoktur.'}
+              ? 'Please enter your corporate email address. Your role and permissions will be automatically configured upon login.'
+              : 'Lütfen kurumsal e-posta adresinizi giriniz. Sistem yetkileriniz girilen e-postaya göre otomatik olarak tanımlanacaktır.'}
           </p>
         </div>
 
-        {/* One-Click Staff Role Selector for Presentation / Testing */}
-        <div className="mb-5 space-y-2">
-          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>{language === 'en' ? 'Quick Staff Credentials:' : 'Hızlı Giriş Rolü Seçin:'}</span>
-            <span className="text-[10px] text-brand-blue font-semibold">Test için hazır</span>
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2 animate-shake">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+            <span>{errorMessage}</span>
           </div>
-
-          <div className="grid grid-cols-1 gap-2">
-            {staffPresets.map((preset) => {
-              const isSelected = selectedRole === preset.role;
-              return (
-                <button
-                  key={preset.role}
-                  type="button"
-                  onClick={() => {
-                    setSelectedRole(preset.role);
-                    setEmail(preset.email);
-                  }}
-                  className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
-                    isSelected
-                      ? 'bg-blue-50/80 border-brand-blue shadow-2xs'
-                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
-                      isSelected ? 'bg-brand-blue text-white' : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      <UserCheck className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-brand-navy leading-tight">
-                        {language === 'en' ? preset.titleEn : preset.title}
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-mono">
-                        {preset.email}
-                      </div>
-                    </div>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    isSelected ? 'bg-brand-blue text-white' : 'bg-slate-200/60 text-slate-600'
-                  }`}>
-                    {preset.badge}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
-              {language === 'en' ? 'Staff Email' : 'Yetkili E-Posta'}
+              {language === 'en' ? 'Corporate Email' : 'Kurumsal E-Posta'}
             </label>
             <div className="relative">
               <input
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errorMessage) setErrorMessage('');
+                }}
+                placeholder={language === 'en' ? 'name@rumusky.com' : 'ad.soyad@rumusky.com'}
                 className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-brand-border text-xs font-semibold focus:border-brand-blue focus:outline-hidden pl-9 font-mono"
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -154,7 +96,11 @@ export const AuthModal: React.FC = () => {
                 type="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errorMessage) setErrorMessage('');
+                }}
+                placeholder="••••••••"
                 className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-brand-border text-xs font-semibold focus:border-brand-blue focus:outline-hidden pl-9"
               />
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -163,18 +109,18 @@ export const AuthModal: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-heading font-extrabold shadow-md transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-heading font-extrabold shadow-md transition-all flex items-center justify-center gap-2 mt-2"
           >
             <span>{language === 'en' ? 'Enter Management Panel' : 'Yönetim Paneline Giriş Yap'}</span>
             <ArrowRight className="w-4 h-4 text-brand-cyan" />
           </button>
         </form>
 
-        <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+        <div className="mt-5 pt-3 border-t border-slate-100 text-center">
           <p className="text-[10px] text-slate-400">
             {language === 'en'
-              ? 'Passengers can book flights and download tickets without registration.'
-              : 'Yolcular doğrudan uçuş arayarak üyelik olmadan bilet alabilirler.'}
+              ? 'Passenger booking flow is public and requires no login.'
+              : 'Yolcular için biletleme ve check-in adımları üyelik gerektirmeden herkese açıktır.'}
           </p>
         </div>
 

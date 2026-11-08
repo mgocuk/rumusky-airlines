@@ -112,9 +112,8 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Admin / Staff State */}
-          {activeUser && activeUser.role !== 'customer' ? (
-            /* Logged in as Staff/Admin */
+          {/* Admin / Staff State (Only shown when explicitly logged in as staff/admin) */}
+          {activeUser && activeUser.role !== 'customer' && (
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
               <button
                 onClick={toggleAdminMode}
@@ -150,18 +149,6 @@ export const Navbar: React.FC = () => {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            </div>
-          ) : (
-            /* Not logged in (Clean Guest State for Normal Passengers) */
-            <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy text-xs font-bold flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all"
-                title="Yalnızca Yetkili Personel ve Süper Admin Girişi"
-              >
-                <Shield className="w-3.5 h-3.5 text-brand-blue" />
-                <span>Admin Girişi</span>
-              </button>
             </div>
           )}
         </div>
@@ -200,43 +187,30 @@ export const Navbar: React.FC = () => {
             </button>
           ))}
           
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-            {activeUser && activeUser.role !== 'customer' ? (
-              <div className="w-full flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    toggleAdminMode();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-brand-navy text-white flex items-center gap-2 shadow-xs"
-                >
-                  <Shield className="w-4 h-4 text-brand-cyan" />
-                  {isAdmin ? 'Müşteri Moduna Dön' : 'Yönetici Paneline Geç'}
-                </button>
-                <button
-                  onClick={() => {
-                    logoutUser();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Çıkış</span>
-                </button>
-              </div>
-            ) : (
+          {activeUser && activeUser.role !== 'customer' && (
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
               <button
                 onClick={() => {
-                  setAuthModalOpen(true);
+                  toggleAdminMode();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy flex items-center justify-center gap-2 border border-slate-200"
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-brand-navy text-white flex items-center gap-2 shadow-xs"
               >
-                <Shield className="w-4 h-4 text-brand-blue" />
-                <span>Yetkili & Admin Girişi</span>
+                <Shield className="w-4 h-4 text-brand-cyan" />
+                {isAdmin ? 'Müşteri Moduna Dön' : 'Yönetici Paneline Geç'}
               </button>
-            )}
-          </div>
+              <button
+                onClick={() => {
+                  logoutUser();
+                  setMobileMenuOpen(false);
+                }}
+                className="px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Çıkış</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>

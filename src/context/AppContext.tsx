@@ -97,7 +97,7 @@ interface AppContextType {
   setFlightDetailsModal: (flight: Flight | null) => void;
   authModalOpen: boolean;
   setAuthModalOpen: (open: boolean) => void;
-  loginStaff: (email: string, role?: UserRole) => void;
+  loginStaff: (email: string, password?: string) => { success: boolean; message?: string };
   loginUser: (email: string, name: string) => void;
   logoutUser: () => void;
   checkinFlight: (pnr: string, surname: string) => Ticket | null;
@@ -377,25 +377,65 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(matchingStaff));
   };
 
-  const loginStaff = (email: string, role?: UserRole) => {
+  const loginStaff = (email: string, password?: string): { success: boolean; message?: string } => {
     const cleanEmail = email.trim().toLowerCase();
-    const matchingStaff = staffUsers.find((u) => u.email.toLowerCase() === cleanEmail) || {
-      id: `usr-staff-${Date.now()}`,
-      name: role === 'super_admin' ? 'Mustafa' : 'Yetkili',
-      surname: role === 'super_admin' ? 'Göçük' : 'Personel',
-      email: cleanEmail || 'admin@rumusky.com',
-      role: role || 'super_admin'
+    if (!cleanEmail) {
+      return { success: false, message: 'Lütfen yetkili e-posta adresinizi giriniz.' };
+    }
+
+    // 1. Look up matching staff in staffUsers list
+    const matchingStaff = staffUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    let assignedRole: UserRole | null = null;
+    let staffName = 'Yetkili';
+    let staffSurname = 'Personel';
+
+    if (matchingStaff) {
+      assignedRole = matchingStaff.role;
+      staffName = matchingStaff.name;
+      staffSurname = matchingStaff.surname;
+    } else if (cleanEmail.includes('admin') || cleanEmail.includes('super')) {
+      assignedRole = 'super_admin';
+      staffName = 'Süper';
+      staffSurname = 'Admin';
+    } else if (cleanEmail.includes('ops') || cleanEmail.includes('flight') || cleanEmail.includes('sefer')) {
+      assignedRole = 'flight_manager';
+      staffName = 'Uçuş';
+      staffSurname = 'Şefi';
+    } else if (cleanEmail.includes('booking') || cleanEmail.includes('bilet') || cleanEmail.includes('rezervasyon')) {
+      assignedRole = 'booking_manager';
+      staffName = 'Rezervasyon';
+      staffSurname = 'Sorumlusu';
+    } else if (cleanEmail.includes('editor') || cleanEmail.includes('content') || cleanEmail.includes('basin') || cleanEmail.includes('haber')) {
+      assignedRole = 'content_manager';
+      staffName = 'İçerik';
+      staffSurname = 'Editörü';
+    } else {
+      return {
+        success: false,
+        message: 'Bu e-posta adresi yetkili personel sisteminde kayıtlı değildir.'
+      };
+    }
+
+    const sessionUser: User & { isExplicitLogin: boolean } = {
+      id: matchingStaff ? matchingStaff.id : `usr-staff-${Date.now()}`,
+      name: staffName,
+      surname: staffSurname,
+      email: cleanEmail,
+      role: assignedRole,
+      isExplicitLogin: true
     };
-    const sessionUser = { ...matchingStaff, isExplicitLogin: true };
+
     setActiveUser(sessionUser);
     setIsAdmin(true);
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(sessionUser));
     setAuthModalOpen(false);
     setActiveView('admin');
+    return { success: true };
   };
 
   const loginUser = (email: string, name: string) => {
-    loginStaff(email, 'super_admin');
+    loginStaff(email);
   };
 
   const logoutUser = () => {

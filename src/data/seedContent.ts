@@ -699,8 +699,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
 export const INITIAL_STAFF_USERS: User[] = [
   {
     id: 'usr-admin-1',
-    name: 'Mustafa',
-    surname: 'Göçük',
+    name: 'Süper',
+    surname: 'Admin',
     email: 'admin@rumusky.com',
     role: 'super_admin',
     phone: '+90 555 100 2030'

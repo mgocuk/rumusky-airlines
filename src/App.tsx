@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useApp } from './context/AppContext';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
@@ -22,7 +22,33 @@ import { NewsDetailModal } from './components/customer/NewsDetailModal';
 import { InfoPageModal } from './components/customer/InfoPageModal';
 
 export const App: React.FC = () => {
-  const { activeView, isAdmin } = useApp();
+  const { activeView, isAdmin, setAuthModalOpen } = useApp();
+
+  useEffect(() => {
+    // Secret shortcut for administrator/staff login: Alt + A or Ctrl + Shift + A
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.altKey && (e.key === 'a' || e.key === 'A')) || (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a'))) {
+        e.preventDefault();
+        setAuthModalOpen(true);
+      }
+    };
+
+    // Secret URL hash trigger: #admin or #staff or #login
+    const handleHash = () => {
+      if (window.location.hash === '#admin' || window.location.hash === '#staff' || window.location.hash === '#login') {
+        setAuthModalOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('hashchange', handleHash);
+    handleHash();
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, [setAuthModalOpen]);
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg font-sans">

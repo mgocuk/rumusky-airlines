@@ -11,7 +11,9 @@ export const Footer: React.FC = () => {
     siteContent,
     language,
     infoPages,
-    setSelectedInfoPage
+    setSelectedInfoPage,
+    setAuthModalOpen,
+    activeUser
   } = useApp();
 
   const footer = siteContent.footer || INITIAL_SITE_CONTENT.footer;
@@ -143,6 +145,15 @@ export const Footer: React.FC = () => {
                 {language === 'en' ? page.menuLabelEn : page.menuLabel}
               </button>
             ))}
+            {!activeUser && (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                title="Yetkili Personel Girişi (Kısayol: Alt + A)"
+                className="hover:text-slate-300 transition-colors cursor-pointer text-left font-medium opacity-60 hover:opacity-100"
+              >
+                {language === 'en' ? 'Staff Portal' : 'Personel Portalı'}
+              </button>
+            )}
           </div>
         </div>
       </div>
