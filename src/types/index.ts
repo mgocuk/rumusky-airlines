@@ -130,11 +130,22 @@ export interface Aircraft {
   model: string;
   registrationNumber: string;
   manufacturer: string;
+  aircraftType?: string; // e.g. 'Dar Gövde (Narrow-Body)' | 'Geniş Gövde (Wide-Body)'
   totalCapacity: number;
   economyRows: number;
   businessRows: number;
   seatsPerRow: string[]; // e.g. ['A', 'B', 'C', 'D', 'E', 'F']
   isActive: boolean;
+  imageUrl?: string;
+  cabinImageUrl?: string;
+  rangeKm?: number;
+  cruiseSpeedKmh?: number;
+  wingspanM?: number;
+  lengthM?: number;
+  engineType?: string;
+  features?: string[];
+  description?: string;
+  descriptionEn?: string;
 }
 
 export interface FlightSeat {

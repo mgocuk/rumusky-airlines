@@ -14,11 +14,12 @@ import {
 } from 'lucide-react';
 
 export const FlightDetailsModal: React.FC = () => {
-  const { flightDetailsModal, setFlightDetailsModal, selectFlightForBooking, t, language } = useApp();
+  const { flightDetailsModal, setFlightDetailsModal, selectFlightForBooking, t, language, aircrafts } = useApp();
 
   if (!flightDetailsModal) return null;
 
   const f = flightDetailsModal;
+  const matchingAircraft = aircrafts.find((ac) => ac.id === f.aircraftId || ac.model === f.aircraftModel);
 
   const handleBookNow = () => {
     selectFlightForBooking(f);
@@ -86,6 +87,65 @@ export const FlightDetailsModal: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Assigned Aircraft Spotlight */}
+        {matchingAircraft && (
+          <div className="mb-6 rounded-2xl overflow-hidden border border-brand-border bg-slate-50 shadow-2xs">
+            <div className="relative h-40 bg-slate-900">
+              <img
+                src={matchingAircraft.imageUrl || 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80'}
+                alt={matchingAircraft.model}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/30 to-transparent" />
+              <div className="absolute bottom-3 left-4 right-4 text-white flex items-end justify-between">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-brand-cyan block">
+                    Uçuş Uçağınız • {matchingAircraft.manufacturer}
+                  </span>
+                  <span className="text-base sm:text-lg font-black font-heading leading-tight">
+                    {matchingAircraft.model}
+                  </span>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-white/20 backdrop-blur-md text-white border border-white/30">
+                  {matchingAircraft.registrationNumber}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-2 rounded-xl bg-white border border-slate-200">
+                  <span className="text-[10px] text-slate-400 block font-bold">KAPASİTE</span>
+                  <span className="font-extrabold text-brand-navy">{matchingAircraft.totalCapacity} Yolcu</span>
+                </div>
+                <div className="p-2 rounded-xl bg-white border border-slate-200">
+                  <span className="text-[10px] text-slate-400 block font-bold">MENZİL</span>
+                  <span className="font-extrabold text-brand-navy">{matchingAircraft.rangeKm?.toLocaleString() || '6,300'} km</span>
+                </div>
+                <div className="p-2 rounded-xl bg-white border border-slate-200">
+                  <span className="text-[10px] text-slate-400 block font-bold">SEYİR HIZI</span>
+                  <span className="font-extrabold text-brand-navy">{matchingAircraft.cruiseSpeedKmh || '850'} km/s</span>
+                </div>
+              </div>
+
+              {matchingAircraft.features && matchingAircraft.features.length > 0 && (
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
+                    Bu Uçaktaki Konfor Donanımları:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {matchingAircraft.features.map((feat, idx) => (
+                      <span key={idx} className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 text-brand-blue border border-blue-100">
+                        ✓ {feat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* In-Flight Amenities */}
         <div className="mb-6">

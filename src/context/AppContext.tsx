@@ -62,6 +62,11 @@ interface AppContextType {
   selectedInfoPage: InfoPage | null;
   setSelectedInfoPage: (page: InfoPage | null) => void;
   openInfoPageBySlug: (slug: string) => void;
+  // Aircraft & Fleet Management
+  addAircraft: (aircraft: Omit<Aircraft, 'id'>) => void;
+  updateAircraft: (id: string, updated: Partial<Aircraft>) => void;
+  deleteAircraft: (id: string) => void;
+  toggleAircraftActive: (id: string) => void;
   // Role & Permissions (RBAC)
   rolePermissions: Record<UserRole, PermissionKey[]>;
   updateRolePermissions: (role: UserRole, perms: PermissionKey[]) => void;
@@ -156,7 +161,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [aircrafts, setAircrafts] = useState<Aircraft[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.AIRCRAFTS);
-    return saved ? JSON.parse(saved) : INITIAL_AIRCRAFTS;
+    if (saved) {
+      try {
+        const parsed: Aircraft[] = JSON.parse(saved);
+        // Ensure initial aircrafts have the new rich photo and spec fields
+        const enriched = parsed.map((ac) => {
+          const match = INITIAL_AIRCRAFTS.find((init) => init.id === ac.id);
+          if (match && !ac.imageUrl) {
+            return { ...match, ...ac, imageUrl: match.imageUrl, cabinImageUrl: match.cabinImageUrl, features: match.features, rangeKm: match.rangeKm, cruiseSpeedKmh: match.cruiseSpeedKmh, engineType: match.engineType, description: match.description };
+          }
+          return ac;
+        });
+        // If initial wide-body like ac-3 is missing in saved, append it
+        INITIAL_AIRCRAFTS.forEach((init) => {
+          if (!enriched.some((ac) => ac.id === init.id)) {
+            enriched.push(init);
+          }
+        });
+        return enriched;
+      } catch (e) {
+        // fallback
+      }
+    }
+    return INITIAL_AIRCRAFTS;
   });
 
   const [flights, setFlights] = useState<Flight[]>(() => {
@@ -255,6 +282,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Local Storage Sync
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.AIRCRAFTS, JSON.stringify(aircrafts));
+  }, [aircrafts]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.FLIGHTS, JSON.stringify(flights));
   }, [flights]);
 
@@ -345,6 +376,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (page) {
       setSelectedInfoPage(page);
     }
+  };
+
+  const addAircraft = (newAc: Omit<Aircraft, 'id'>) => {
+    const created: Aircraft = {
+      ...newAc,
+      id: `ac-${Date.now()}`
+    };
+    setAircrafts((prev) => [created, ...prev]);
+  };
+
+  const updateAircraft = (id: string, updated: Partial<Aircraft>) => {
+    setAircrafts((prev) => prev.map((ac) => (ac.id === id ? { ...ac, ...updated } : ac)));
+  };
+
+  const deleteAircraft = (id: string) => {
+    setAircrafts((prev) => prev.filter((ac) => ac.id !== id));
+  };
+
+  const toggleAircraftActive = (id: string) => {
+    setAircrafts((prev) => prev.map((ac) => (ac.id === id ? { ...ac, isActive: !ac.isActive } : ac)));
   };
 
   const updateCampaign = (id: string, updated: Partial<Campaign>) => {
@@ -697,6 +748,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setActiveView,
         airports,
         aircrafts,
+        addAircraft,
+        updateAircraft,
+        deleteAircraft,
+        toggleAircraftActive,
         flights,
         bookings,
         tickets,

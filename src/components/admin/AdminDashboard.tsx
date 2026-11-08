@@ -4,6 +4,7 @@ import {
   Flight,
   OperationalStatus,
   Airport,
+  Aircraft,
   UserRole,
   PermissionKey,
   NewsItem,
@@ -53,7 +54,17 @@ import {
   FileText,
   BookOpen,
   Upload,
-  Sparkles
+  Sparkles,
+  Layers,
+  Gauge,
+  Compass,
+  Maximize2,
+  Tag,
+  Wifi,
+  Coffee,
+  Zap,
+  Wind,
+  VolumeX
 } from 'lucide-react';
 
 const PRESET_HERO_BACKGROUNDS = [
@@ -79,12 +90,109 @@ const PRESET_HERO_BACKGROUNDS = [
   }
 ];
 
+const AIRCRAFT_TEMPLATES = [
+  {
+    name: 'Airbus A321-200neo',
+    model: 'Airbus A321-200neo',
+    manufacturer: 'Airbus',
+    type: 'Dar Gövde (Narrow-Body)',
+    economyRows: 31,
+    businessRows: 4,
+    seatsPerRow: 'A, B, C, D, E, F',
+    rangeKm: 7400,
+    speedKmh: 876,
+    wingspan: 35.8,
+    length: 44.5,
+    engine: 'CFM LEAP-1A32 Yüksek Baypaslı Sessiz TurboFan',
+    imageUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80',
+    cabinImageUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=80',
+    features: ['Uydu Bağlantılı Hızlı Wi-Fi', 'Kişisel 4K Dokunmatik Ekran', 'USB-C Hızlı Şarj', 'HEPA %99.97 Filtreleme', 'Mood LED Aydınlatma'],
+    desc: 'Yüksek yolcu kapasitesi ve düşük karbon salınımıyla filonun en verimli dar gövdeli amiral gemisi.',
+    descEn: 'Our most fuel-efficient narrow-body flagship offering high capacity and low carbon emissions.'
+  },
+  {
+    name: 'Boeing 787-9 Dreamliner',
+    model: 'Boeing 787-9 Dreamliner',
+    manufacturer: 'Boeing',
+    type: 'Geniş Gövde (Wide-Body)',
+    economyRows: 32,
+    businessRows: 6,
+    seatsPerRow: 'A, B, C, D, E, F',
+    rangeKm: 14140,
+    speedKmh: 903,
+    wingspan: 60.1,
+    length: 62.8,
+    engine: 'General Electric GEnx-1B Yüksek İtişli Kompozit Motor',
+    imageUrl: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?auto=format&fit=crop&w=1200&q=80',
+    cabinImageUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=80',
+    features: ['180° Tam Yatar (Lie-Flat) Business Süitler', 'Düğmeyle Karartılan Elektronik Pencereler', 'Yüksek Kabin Nemi & Jetlag Azaltıcı Basınç', '13.3 inç 4K Ultra HD Ekran', 'Yüksek Hızlı Ka-Band Wi-Fi'],
+    desc: 'Kıtalararası uzun menzilli uçuşlarda kompozit gövdesi ve yüksek kabin nemiyle jetlag etkisini minimuma indiren rüya uçak.',
+    descEn: 'Dreamliner with composite body and optimized cabin pressure for ultimate long-haul comfort.'
+  },
+  {
+    name: 'Airbus A350-900 XWB',
+    model: 'Airbus A350-900 XWB',
+    manufacturer: 'Airbus',
+    type: 'Geniş Gövde (Wide-Body)',
+    economyRows: 34,
+    businessRows: 6,
+    seatsPerRow: 'A, B, C, D, E, F',
+    rangeKm: 15000,
+    speedKmh: 910,
+    wingspan: 64.75,
+    length: 66.8,
+    engine: 'Rolls-Royce Trent XWB Sessiz Dev Motor',
+    imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80',
+    cabinImageUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=80',
+    features: ['Ekstra Geniş Kabin (XWB)', '180° Lie-Flat Business Yatak', '3-4 Dakikada Bir %100 Temizlenen Kabin Havası', '4K Eğlence Ekranları & Bluetooth Ses', 'Ultra Sessiz Uçuş Deneyimi'],
+    desc: 'Havacılığın en sessiz geniş gövdeli kabinine sahip, Rolls-Royce motorlu ultra uzun menzil devi.',
+    descEn: 'Ultra-long range wide-body aircraft with the quietest twin-aisle cabin in modern aviation.'
+  },
+  {
+    name: 'Boeing 737 MAX 8',
+    model: 'Boeing 737 MAX 8',
+    manufacturer: 'Boeing',
+    type: 'Dar Gövde (Narrow-Body)',
+    economyRows: 27,
+    businessRows: 4,
+    seatsPerRow: 'A, B, C, D, E, F',
+    rangeKm: 6570,
+    speedKmh: 840,
+    wingspan: 35.9,
+    length: 39.5,
+    engine: 'CFM LEAP-1B Çift Kademeli Çevre Dostu Motor',
+    imageUrl: 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=1200&q=80',
+    cabinImageUrl: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=1200&q=80',
+    features: ['Gelişmiş Winglet Teknolojisi', 'Boeing Sky Interior Gökyüzü Işıklandırması', 'Genişletilmiş Baş Üstü Dolaplar', 'USB-C Hızlı Şarj', 'HEPA Hava Filtresi'],
+    desc: 'Gelişmiş winglet tasarımı ve yeni LEAP motorlarıyla yüksek yakıt tasarrufu sağlayan modern bölgesel uçak.',
+    descEn: 'Modern regional airliner with advanced winglets and LEAP engines for exceptional fuel economy.'
+  }
+];
+
+const COMMON_AIRCRAFT_FEATURES = [
+  'Uydu Bağlantılı Hızlı Wi-Fi',
+  'Kişisel 4K Dokunmatik Ekran',
+  'USB-A & Type-C 60W Hızlı Şarj',
+  '180° Tam Yatar (Lie-Flat) Business Koltuklar',
+  'HEPA %99.97 Tıbbi Sınıf Hava Filtresi',
+  'Ekstra Akustik Yalıtım & Sessiz Kabin',
+  'Elektronik Karartmalı Akıllı Pencereler',
+  'Mood LED Dinamik Kabin Aydınlatması',
+  'Genişletilmiş Baş Üstü Bagaj Dolapları',
+  'Gürültü Önleyici Kulaklık Desteği',
+  'Özel Ergonomik Baş ve Boyun Desteği'
+];
+
 export const AdminDashboard: React.FC = () => {
   const {
     flights,
     bookings,
     airports,
     aircrafts,
+    addAircraft,
+    updateAircraft,
+    deleteAircraft,
+    toggleAircraftActive,
     campaigns,
     destinations,
     siteContent,
@@ -120,7 +228,7 @@ export const AdminDashboard: React.FC = () => {
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'flights' | 'bookings' | 'cms' | 'footer_pages' | 'news' | 'airports' | 'rbac' | 'settings'
+    'overview' | 'flights' | 'fleet' | 'bookings' | 'cms' | 'footer_pages' | 'news' | 'airports' | 'rbac' | 'settings'
   >('overview');
 
   const [mobileAdminNavOpen, setMobileAdminNavOpen] = useState(false);
@@ -130,6 +238,34 @@ export const AdminDashboard: React.FC = () => {
   const [showAddAirportModal, setShowAddAirportModal] = useState(false);
   const [showAddNewsModal, setShowAddNewsModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+  const [showAddAircraftModal, setShowAddAircraftModal] = useState(false);
+  const [editingAircraft, setEditingAircraft] = useState<Aircraft | null>(null);
+
+  // New Aircraft Form states
+  const [acModel, setAcModel] = useState('Airbus A321-200neo');
+  const [acReg, setAcReg] = useState('TC-RML');
+  const [acManufacturer, setAcManufacturer] = useState('Airbus');
+  const [acType, setAcType] = useState('Dar Gövde (Narrow-Body)');
+  const [acEconomyRows, setAcEconomyRows] = useState(31);
+  const [acBusinessRows, setAcBusinessRows] = useState(4);
+  const [acSeatsPerRow, setAcSeatsPerRow] = useState('A, B, C, D, E, F');
+  const [acImageUrl, setAcImageUrl] = useState('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80');
+  const [acCabinImageUrl, setAcCabinImageUrl] = useState('https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=80');
+  const [acRangeKm, setAcRangeKm] = useState(7400);
+  const [acCruiseSpeed, setAcCruiseSpeed] = useState(876);
+  const [acWingspan, setAcWingspan] = useState(35.8);
+  const [acLength, setAcLength] = useState(44.5);
+  const [acEngineType, setAcEngineType] = useState('CFM LEAP-1A32 Yüksek Baypaslı Sessiz TurboFan');
+  const [acFeatures, setAcFeatures] = useState<string[]>([
+    'Uydu Bağlantılı Hızlı Wi-Fi',
+    'Kişisel 4K Dokunmatik Ekran',
+    'USB-A & Type-C 60W Hızlı Şarj',
+    'HEPA %99.97 Tıbbi Sınıf Hava Filtresi',
+    'Ekstra Akustik Yalıtım & Sessiz Kabin'
+  ]);
+  const [acCustomFeature, setAcCustomFeature] = useState('');
+  const [acDesc, setAcDesc] = useState('Yüksek yolcu kapasitesi ve düşük yakıt tüketimiyle filomuzun amiral gemisi.');
+  const [acDescEn, setAcDescEn] = useState('Our flagship narrow-body aircraft offering high passenger capacity and superior efficiency.');
   const [editingNewsItem, setEditingNewsItem] = useState<NewsItem | null>(null);
 
   // New Flight Form state
@@ -311,6 +447,153 @@ export const AdminDashboard: React.FC = () => {
     airports.push(newApt);
     setShowAddAirportModal(false);
     showToast(`${newApt.iataCode} havalimanı sisteme kaydedildi!`, 'success');
+  };
+
+  const handleApplyAircraftTemplate = (tpl: typeof AIRCRAFT_TEMPLATES[0]) => {
+    setAcModel(tpl.model);
+    setAcManufacturer(tpl.manufacturer);
+    setAcType(tpl.type);
+    setAcEconomyRows(tpl.economyRows);
+    setAcBusinessRows(tpl.businessRows);
+    setAcSeatsPerRow(tpl.seatsPerRow);
+    setAcRangeKm(tpl.rangeKm);
+    setAcCruiseSpeed(tpl.speedKmh);
+    setAcWingspan(tpl.wingspan);
+    setAcLength(tpl.length);
+    setAcEngineType(tpl.engine);
+    setAcImageUrl(tpl.imageUrl);
+    setAcCabinImageUrl(tpl.cabinImageUrl);
+    setAcFeatures([...tpl.features]);
+    setAcDesc(tpl.desc);
+    setAcDescEn(tpl.descEn);
+    showToast(`${tpl.name} şablonu yüklendi!`, 'info');
+  };
+
+  const handleToggleAcFeature = (feat: string) => {
+    if (acFeatures.includes(feat)) {
+      setAcFeatures(acFeatures.filter((f) => f !== feat));
+    } else {
+      setAcFeatures([...acFeatures, feat]);
+    }
+  };
+
+  const handleAddCustomAcFeature = () => {
+    const trimmed = acCustomFeature.trim();
+    if (trimmed && !acFeatures.includes(trimmed)) {
+      setAcFeatures([...acFeatures, trimmed]);
+      setAcCustomFeature('');
+    }
+  };
+
+  const handleSaveAircraft = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanLetters = acSeatsPerRow
+      .split(',')
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+
+    const seatsCount = cleanLetters.length || 6;
+    const computedTotal = (Number(acEconomyRows) + Number(acBusinessRows)) * seatsCount;
+
+    if (editingAircraft) {
+      updateAircraft(editingAircraft.id, {
+        model: acModel,
+        registrationNumber: acReg.toUpperCase().trim(),
+        manufacturer: acManufacturer,
+        aircraftType: acType,
+        totalCapacity: computedTotal,
+        economyRows: Number(acEconomyRows),
+        businessRows: Number(acBusinessRows),
+        seatsPerRow: cleanLetters,
+        imageUrl: acImageUrl,
+        cabinImageUrl: acCabinImageUrl,
+        rangeKm: Number(acRangeKm),
+        cruiseSpeedKmh: Number(acCruiseSpeed),
+        wingspanM: Number(acWingspan),
+        lengthM: Number(acLength),
+        engineType: acEngineType,
+        features: acFeatures,
+        description: acDesc,
+        descriptionEn: acDescEn
+      });
+      showToast(`${acModel} (${acReg}) başarıyla güncellendi!`, 'success');
+      setEditingAircraft(null);
+    } else {
+      addAircraft({
+        model: acModel,
+        registrationNumber: acReg.toUpperCase().trim(),
+        manufacturer: acManufacturer,
+        aircraftType: acType,
+        totalCapacity: computedTotal,
+        economyRows: Number(acEconomyRows),
+        businessRows: Number(acBusinessRows),
+        seatsPerRow: cleanLetters,
+        isActive: true,
+        imageUrl: acImageUrl,
+        cabinImageUrl: acCabinImageUrl,
+        rangeKm: Number(acRangeKm),
+        cruiseSpeedKmh: Number(acCruiseSpeed),
+        wingspanM: Number(acWingspan),
+        lengthM: Number(acLength),
+        engineType: acEngineType,
+        features: acFeatures,
+        description: acDesc,
+        descriptionEn: acDescEn
+      });
+      showToast(`Yeni uçak ${acModel} (${acReg}) filoya başarıyla eklendi!`, 'success');
+    }
+
+    setShowAddAircraftModal(false);
+  };
+
+  const handleEditAircraft = (ac: Aircraft) => {
+    setEditingAircraft(ac);
+    setAcModel(ac.model);
+    setAcReg(ac.registrationNumber);
+    setAcManufacturer(ac.manufacturer);
+    setAcType(ac.aircraftType || 'Dar Gövde (Narrow-Body)');
+    setAcEconomyRows(ac.economyRows);
+    setAcBusinessRows(ac.businessRows);
+    setAcSeatsPerRow(ac.seatsPerRow.join(', '));
+    setAcImageUrl(ac.imageUrl || '');
+    setAcCabinImageUrl(ac.cabinImageUrl || '');
+    setAcRangeKm(ac.rangeKm || 6500);
+    setAcCruiseSpeed(ac.cruiseSpeedKmh || 850);
+    setAcWingspan(ac.wingspanM || 35.8);
+    setAcLength(ac.lengthM || 37.5);
+    setAcEngineType(ac.engineType || '');
+    setAcFeatures(ac.features || []);
+    setAcDesc(ac.description || '');
+    setAcDescEn(ac.descriptionEn || '');
+    setShowAddAircraftModal(true);
+  };
+
+  const handleOpenNewAircraftModal = () => {
+    setEditingAircraft(null);
+    setAcModel('Airbus A321-200neo');
+    setAcReg(`TC-R${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`);
+    setAcManufacturer('Airbus');
+    setAcType('Dar Gövde (Narrow-Body)');
+    setAcEconomyRows(31);
+    setAcBusinessRows(4);
+    setAcSeatsPerRow('A, B, C, D, E, F');
+    setAcImageUrl('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80');
+    setAcCabinImageUrl('https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1200&q=80');
+    setAcRangeKm(7400);
+    setAcCruiseSpeed(876);
+    setAcWingspan(35.8);
+    setAcLength(44.5);
+    setAcEngineType('CFM LEAP-1A32 Yüksek Baypaslı Sessiz TurboFan');
+    setAcFeatures([
+      'Uydu Bağlantılı Hızlı Wi-Fi',
+      'Kişisel 4K Dokunmatik Ekran',
+      'USB-A & Type-C 60W Hızlı Şarj',
+      'HEPA %99.97 Tıbbi Sınıf Hava Filtresi',
+      'Ekstra Akustik Yalıtım & Sessiz Kabin'
+    ]);
+    setAcDesc('Yüksek yolcu kapasitesi ve düşük karbon salınımıyla filomuzun amiral gemisi.');
+    setAcDescEn('Our flagship narrow-body aircraft offering high passenger capacity and superior efficiency.');
+    setShowAddAircraftModal(true);
   };
 
   const handleSaveCMS = (e: React.FormEvent) => {
@@ -531,11 +814,12 @@ export const AdminDashboard: React.FC = () => {
           {[
             { id: 'overview', label: 'Genel Bakış', icon: TrendingUp, perm: null },
             { id: 'flights', label: `Uçuşlar (${flights.length})`, icon: Plane, perm: 'manage_flights' },
+            { id: 'fleet', label: `Uçak Filosu (${aircrafts.length})`, icon: Layers, perm: 'manage_aircraft' },
+            { id: 'airports', label: `Havalimanları (${airports.length})`, icon: Building, perm: 'manage_airports' },
             { id: 'bookings', label: `Rezervasyonlar (${bookings.length})`, icon: Calendar, perm: 'manage_bookings' },
             { id: 'cms', label: 'Site Görselleri & Metinler', icon: ImageIcon, perm: 'manage_cms' },
             { id: 'footer_pages', label: `Kurumsal Sayfalar & Footer (${infoPages.length})`, icon: FileText, perm: 'manage_cms' },
             { id: 'news', label: `Haberler (${news.length})`, icon: Newspaper, perm: 'manage_news' },
-            { id: 'airports', label: `Havalimanları & Filo`, icon: Building, perm: 'manage_airports' },
             { id: 'rbac', label: 'Rol & Yetki Matrisi (SüperAdmin)', icon: Lock, perm: 'manage_roles' },
             { id: 'settings', label: 'Sistem Parametreleri', icon: Settings, perm: 'manage_settings' }
           ].map((tab) => {
@@ -1892,7 +2176,216 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* 7. AIRPORTS & AIRCRAFT TAB */}
+        {/* FLEET & AIRCRAFT TAB */}
+        {activeTab === 'fleet' && hasPermission('manage_aircraft') && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Header with Stats & Actions */}
+            <div className="bg-white p-6 rounded-3xl border border-brand-border shadow-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-50 text-brand-blue mb-2">
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>RUMUSKY AIRLINES FLIGHT FLEET</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold font-heading text-brand-navy">
+                  Uçak Filosu ve Kabin Yönetimi
+                </h3>
+                <p className="text-xs text-brand-muted mt-1">
+                  Filodaki tüm uçak modelleri, dış & kabin fotoğrafları, menzil, hız, motor ve konfor donanımları.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleOpenNewAircraftModal}
+                  className="px-4 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Yeni Uçak Ekle</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Fleet Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-2xl border border-brand-border shadow-xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase block">Toplam Uçak</span>
+                <span className="text-2xl font-black text-brand-navy mt-1 block">{aircrafts.length} Uçak</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-brand-border shadow-xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase block">Aktif Operasyon</span>
+                <span className="text-2xl font-black text-emerald-600 mt-1 block">{aircrafts.filter(a => a.isActive).length} Görevde</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-brand-border shadow-xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase block">Toplam Koltuk Kapasitesi</span>
+                <span className="text-2xl font-black text-brand-blue mt-1 block">
+                  {aircrafts.reduce((acc, a) => acc + (a.totalCapacity || 180), 0).toLocaleString()} Koltuk
+                </span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-brand-border shadow-xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase block">Ortalama Menzil</span>
+                <span className="text-2xl font-black text-purple-600 mt-1 block">
+                  {Math.round(aircrafts.reduce((acc, a) => acc + (a.rangeKm || 6000), 0) / (aircrafts.length || 1)).toLocaleString()} km
+                </span>
+              </div>
+            </div>
+
+            {/* Aircraft Cards Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {aircrafts.map((ac) => (
+                <div
+                  key={ac.id}
+                  className="bg-white rounded-3xl border border-brand-border shadow-subtle overflow-hidden flex flex-col justify-between hover:border-brand-blue/40 transition-all group"
+                >
+                  {/* Photo & Badge Banner */}
+                  <div className="relative h-48 sm:h-56 bg-slate-900 overflow-hidden">
+                    <img
+                      src={ac.imageUrl || 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80'}
+                      alt={ac.model}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/30 to-black/30" />
+
+                    {/* Top status & Registration badge */}
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                      <span className="px-3 py-1 rounded-full text-xs font-mono font-black bg-white/90 backdrop-blur-md text-brand-navy shadow-xs border border-white/40">
+                        {ac.registrationNumber}
+                      </span>
+                      <button
+                        onClick={() => {
+                          toggleAircraftActive(ac.id);
+                          showToast(`${ac.model} durumu değiştirildi!`, 'info');
+                        }}
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                          ac.isActive
+                            ? 'bg-emerald-500/90 hover:bg-emerald-600 text-white'
+                            : 'bg-rose-500/90 hover:bg-rose-600 text-white'
+                        }`}
+                      >
+                        {ac.isActive ? '● Uçuşa Hazır (Aktif)' : '○ Bakımda (Pasif)'}
+                      </button>
+                    </div>
+
+                    {/* Bottom overlay info */}
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-brand-cyan">
+                        {ac.manufacturer} • {ac.aircraftType || 'Dar Gövde'}
+                      </span>
+                      <h4 className="text-xl sm:text-2xl font-black font-heading leading-tight drop-shadow-md">
+                        {ac.model}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Body Specs */}
+                  <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    {/* Technical Pills Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Kapasite</span>
+                        <span className="font-extrabold text-brand-navy">{ac.totalCapacity} Yolcu</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Maks. Menzil</span>
+                        <span className="font-extrabold text-brand-navy">{ac.rangeKm?.toLocaleString() || '6,300'} km</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Seyir Hızı</span>
+                        <span className="font-extrabold text-brand-navy">{ac.cruiseSpeedKmh || '850'} km/s</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Kabin Düzeni</span>
+                        <span className="font-extrabold text-brand-navy">{ac.businessRows}B + {ac.economyRows}E</span>
+                      </div>
+                    </div>
+
+                    {/* Engine & Dimensions */}
+                    {ac.engineType && (
+                      <div className="text-xs text-slate-600 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/60">
+                        <span className="font-bold text-brand-blue">Motor: </span>
+                        <span>{ac.engineType}</span>
+                        {(ac.wingspanM || ac.lengthM) && (
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            Kanat Açıklığı: {ac.wingspanM || '35.8'}m • Gövde Uzunluğu: {ac.lengthM || '37.6'}m
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Cabin Photo Preview if exists */}
+                    {ac.cabinImageUrl && (
+                      <div className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <div className="w-14 h-10 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                          <img src={ac.cabinImageUrl} alt="Kabin" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          <span className="font-bold text-slate-700 block">Kabin İçi Donanım & Konfor</span>
+                          <span>Modern yolcu koltukları ve geniş diz mesafesi</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Features Tags */}
+                    {ac.features && ac.features.length > 0 && (
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                          Kabin & Konfor Donanımları:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {ac.features.map((feat, fIdx) => (
+                            <span
+                              key={fIdx}
+                              className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                            >
+                              ✓ {feat}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {ac.description && (
+                      <p className="text-xs text-slate-500 italic line-clamp-2">
+                        "{ac.description}"
+                      </p>
+                    )}
+
+                    {/* Card Actions */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="text-[11px] text-slate-400 font-mono">
+                        ID: {ac.id} • Koltuklar: {ac.seatsPerRow.join('')}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditAircraft(ac)}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-brand-navy rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Düzenle</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`${ac.model} (${ac.registrationNumber}) filodan silinsin mi?`)) {
+                              deleteAircraft(ac.id);
+                              showToast(`${ac.model} filodan kaldırıldı.`, 'error');
+                            }
+                          }}
+                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                          title="Uçağı Sil"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 7. AIRPORTS TAB */}
         {activeTab === 'airports' && hasPermission('manage_airports') && (
           <div className="space-y-8 animate-fade-in">
             {/* Airports */}
@@ -1930,29 +2423,23 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Aircraft Fleet */}
-            <div>
-              <h3 className="text-xl font-bold font-heading text-brand-navy mb-4">
-                Uçak Filosu ve Kabin Yerleşimi ({aircrafts.length})
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {aircrafts.map((ac) => (
-                  <div key={ac.id} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xl font-bold font-heading text-brand-navy">{ac.model}</span>
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-50 text-brand-blue">
-                        {ac.registrationNumber}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-600 space-y-1.5 mt-4">
-                      <div>Üretici: <b>{ac.manufacturer}</b></div>
-                      <div>Toplam Kapasite: <b>{ac.totalCapacity} Yolcu</b></div>
-                      <div>Kabin Dağılımı: <b>{ac.businessRows} Sıra Business, {ac.economyRows} Sıra Ekonomi</b></div>
-                      <div>Koltuk Dizilimi: <b>3 + 3 ({ac.seatsPerRow.join(', ')})</b></div>
-                    </div>
-                  </div>
-                ))}
+            {/* Fleet shortcut link */}
+            <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-brand-navy text-sm font-heading">
+                  Uçak Filosu ve Kabin Yerleşimi ({aircrafts.length} Uçak Kayıtlı)
+                </h4>
+                <p className="text-xs text-brand-muted mt-0.5">
+                  Her uçağın resimlerini, teknik özelliklerini ve kabin donanımlarını Filo Yönetimi sekmesinden yönetebilirsiniz.
+                </p>
               </div>
+              <button
+                onClick={() => setActiveTab('fleet')}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-brand-navy rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>Filo Sekmesine Git</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         )}
@@ -2392,6 +2879,455 @@ export const AdminDashboard: React.FC = () => {
                   Personeli Kaydet
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Aircraft Modal */}
+      {showAddAircraftModal && (
+        <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-brand-border max-h-[92vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center shadow-xs">
+                  <Plane className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold font-heading text-brand-navy">
+                    {editingAircraft ? 'Uçak Bilgilerini ve Donanımlarını Düzenle' : 'Filoya Yeni Uçak & Model Ekle'}
+                  </h3>
+                  <p className="text-xs text-brand-muted">
+                    Uçağın teknik spesifikasyonları, kabin oturma düzeni ve yüksek çözünürlüklü fotoğrafları
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddAircraftModal(false)}
+                className="p-2 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Templates Buttons */}
+            <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-2.5">
+                ⚡ Hızlı Uçak Şablonları (Tek Tıkla Formu Doldur):
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {AIRCRAFT_TEMPLATES.map((tpl, tIdx) => (
+                  <button
+                    key={tIdx}
+                    type="button"
+                    onClick={() => handleApplyAircraftTemplate(tpl)}
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-blue hover:bg-blue-50/50 text-left transition-all shadow-2xs group cursor-pointer"
+                  >
+                    <div className="text-xs font-bold text-brand-navy group-hover:text-brand-blue line-clamp-1">
+                      {tpl.name}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">
+                      {tpl.rangeKm.toLocaleString()} km • {tpl.speedKmh} km/s
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveAircraft} className="space-y-6">
+              
+              {/* Section 1: Basic Identifiers */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <Tag className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>1. Temel Uçak Bilgileri</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Uçak Modeli
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Airbus A321-200neo"
+                      value={acModel}
+                      onChange={(e) => setAcModel(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Kuyruk Tescil Kodu
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="TC-RML"
+                      value={acReg}
+                      onChange={(e) => setAcReg(e.target.value.toUpperCase())}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold uppercase"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Üretici Firma
+                    </label>
+                    <select
+                      value={acManufacturer}
+                      onChange={(e) => setAcManufacturer(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    >
+                      <option value="Airbus">Airbus</option>
+                      <option value="Boeing">Boeing</option>
+                      <option value="Embraer">Embraer</option>
+                      <option value="Bombardier">Bombardier</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Gövde Tipi
+                    </label>
+                    <select
+                      value={acType}
+                      onChange={(e) => setAcType(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    >
+                      <option value="Dar Gövde (Narrow-Body)">Dar Gövde (Narrow-Body / Tek Koridor)</option>
+                      <option value="Geniş Gövde (Wide-Body)">Geniş Gövde (Wide-Body / Çift Koridor)</option>
+                      <option value="Bölgesel Jet (Regional Jet)">Bölgesel Jet (Regional Jet)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Photos / Images & Live Preview */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <ImageIcon className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>2. Uçak Dış & Kabin Fotoğrafları</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Exterior Photo */}
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                    <label className="text-[11px] font-bold text-slate-600 block">
+                      Uçak Dış Görseli (Gövde / Havada Fotoğrafı)
+                    </label>
+                    <div className="relative rounded-xl overflow-hidden border border-slate-300 h-28 bg-slate-900">
+                      <img src={acImageUrl} alt="Uçak Dış" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://images.unsplash.com/..."
+                        value={acImageUrl}
+                        onChange={(e) => setAcImageUrl(e.target.value)}
+                        className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-[11px] font-mono"
+                      />
+                      <label className="px-3 py-1.5 bg-white border border-slate-300 hover:border-brand-blue text-brand-navy rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Yükle</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (reader.result) setAcImageUrl(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Cabin Photo */}
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                    <label className="text-[11px] font-bold text-slate-600 block">
+                      Kabin İçi & Koltuk Düzeni Fotoğrafı
+                    </label>
+                    <div className="relative rounded-xl overflow-hidden border border-slate-300 h-28 bg-slate-900">
+                      <img src={acCabinImageUrl} alt="Kabin İçi" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/..."
+                        value={acCabinImageUrl}
+                        onChange={(e) => setAcCabinImageUrl(e.target.value)}
+                        className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-[11px] font-mono"
+                      />
+                      <label className="px-3 py-1.5 bg-white border border-slate-300 hover:border-brand-blue text-brand-navy rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Yükle</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (reader.result) setAcCabinImageUrl(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Technical Specifications */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <Gauge className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>3. Teknik & Performans Özellikleri</span>
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Maksimum Menzil (km)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={acRangeKm}
+                      onChange={(e) => setAcRangeKm(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Seyir Hızı (km/s)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={acCruiseSpeed}
+                      onChange={(e) => setAcCruiseSpeed(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Kanat Açıklığı (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={acWingspan}
+                      onChange={(e) => setAcWingspan(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Gövde Uzunluğu (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={acLength}
+                      onChange={(e) => setAcLength(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-4">
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Motor Modeli & Teknolojisi
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="CFM LEAP-1A32 Yüksek Baypaslı Sessiz TurboFan"
+                      value={acEngineType}
+                      onChange={(e) => setAcEngineType(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Capacity & Cabin Configuration */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <Maximize2 className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>4. Kabin Düzeni ve Koltuk Kapasitesi</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Business Sıra Sayısı
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={acBusinessRows}
+                      onChange={(e) => setAcBusinessRows(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Ekonomi Sıra Sayısı
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={acEconomyRows}
+                      onChange={(e) => setAcEconomyRows(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Koltuk Harfleri
+                    </label>
+                    <input
+                      type="text"
+                      value={acSeatsPerRow}
+                      onChange={(e) => setAcSeatsPerRow(e.target.value)}
+                      placeholder="A, B, C, D, E, F"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono font-bold"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-blue-50/80 rounded-2xl border border-blue-200 text-center">
+                    <span className="text-[10px] font-bold text-brand-blue uppercase block">Toplam Kapasite</span>
+                    <span className="text-lg font-black text-brand-navy">
+                      {(Number(acEconomyRows) + Number(acBusinessRows)) * (acSeatsPerRow.split(',').filter(Boolean).length || 6)} Yolcu
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Features & Amenities */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>5. Kabin Donanımları & Konfor Özellikleri</span>
+                </h4>
+
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {COMMON_AIRCRAFT_FEATURES.map((feat, fIdx) => {
+                    const isSelected = acFeatures.includes(feat);
+                    return (
+                      <button
+                        key={fIdx}
+                        type="button"
+                        onClick={() => handleToggleAcFeature(feat)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? 'bg-brand-blue text-white shadow-xs'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        <span>{isSelected ? '✓' : '+'}</span>
+                        <span>{feat}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Özel donanım yazıp ekleyin (örn: Çift Koridorlu Ekstra Sessiz Kabin)..."
+                    value={acCustomFeature}
+                    onChange={(e) => setAcCustomFeature(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCustomAcFeature();
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomAcFeature}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  >
+                    Ekle
+                  </button>
+                </div>
+              </div>
+
+              {/* Section 6: Descriptions */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-brand-navy mb-3 flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>6. Tanıtım Açıklaması</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Açıklama (Türkçe)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={acDesc}
+                      onChange={(e) => setAcDesc(e.target.value)}
+                      placeholder="Uçağın yolculara sunduğu konfor avantajları..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+                      Açıklama (İngilizce)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={acDescEn}
+                      onChange={(e) => setAcDescEn(e.target.value)}
+                      placeholder="Passenger comfort and performance details in English..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddAircraftModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{editingAircraft ? 'Değişiklikleri Kaydet' : 'Uçağı Filoya Ekle'}</span>
+                </button>
+              </div>
+
             </form>
           </div>
         </div>
