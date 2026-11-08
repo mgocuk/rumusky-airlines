@@ -58,7 +58,6 @@ export const Navbar: React.FC = () => {
   const labelCheckin = language === 'en' ? (navCfg.navCheckinEn || 'Online Check-in') : (navCfg.navCheckin || 'Online Check-in');
   const labelNews = language === 'en' ? (navCfg.navNewsEn || 'News & Media') : (navCfg.navNews || 'Haberler & Basın');
   const labelTravelInfo = language === 'en' ? (navCfg.navTravelInfoEn || 'Travel Information') : (navCfg.navTravelInfo || 'Seyahat Bilgileri');
-  const labelAbout = language === 'en' ? (navCfg.navAboutEn || navCfg.companyName || 'RUMUSKY') : (navCfg.navAbout || navCfg.companyName || 'RUMUSKY');
   const labelAdminBtn = language === 'en' ? (navCfg.navAdminButtonTextEn || 'Admin Portal') : (navCfg.navAdminButtonText || 'Admin Paneli');
 
   const navItems = [
@@ -107,14 +106,6 @@ export const Navbar: React.FC = () => {
             className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70 transition-all"
           >
             {labelTravelInfo}
-          </button>
-          
-          <button
-            onClick={() => setActiveView('home')}
-            className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70 transition-all flex items-center gap-1.5"
-          >
-            <span>{labelAbout}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
           </button>
         </nav>
 
@@ -227,17 +218,6 @@ export const Navbar: React.FC = () => {
             className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50"
           >
             {labelTravelInfo}
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveView('home');
-              setMobileMenuOpen(false);
-            }}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50 flex items-center justify-between"
-          >
-            <span>{labelAbout}</span>
-            <span className="w-2 h-2 rounded-full bg-brand-cyan"></span>
           </button>
           
           {activeUser && activeUser.role !== 'customer' && (
