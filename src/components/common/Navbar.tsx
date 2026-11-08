@@ -11,7 +11,8 @@ import {
   LogOut,
   Newspaper,
   UserCheck,
-  Radio
+  Radio,
+  LogIn
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -135,8 +136,8 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Admin / Staff State (Only shown when explicitly logged in as staff/admin) */}
-          {activeUser && activeUser.role !== 'customer' && (
+          {/* Admin / Staff State or Login Button */}
+          {activeUser && activeUser.role !== 'customer' ? (
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
               <button
                 onClick={toggleAdminMode}
@@ -172,6 +173,17 @@ export const Navbar: React.FC = () => {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-sm"
+                title={language === 'en' ? 'Login' : 'Giriş Yap'}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>{language === 'en' ? 'Login' : 'Giriş Yap'}</span>
+              </button>
             </div>
           )}
         </div>
@@ -220,7 +232,7 @@ export const Navbar: React.FC = () => {
             {labelTravelInfo}
           </button>
           
-          {activeUser && activeUser.role !== 'customer' && (
+          {activeUser && activeUser.role !== 'customer' ? (
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
               <button
                 onClick={() => {
@@ -241,6 +253,19 @@ export const Navbar: React.FC = () => {
               >
                 <LogOut className="w-4 h-4" />
                 <span>Çıkış</span>
+              </button>
+            </div>
+          ) : (
+            <div className="pt-2 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setAuthModalOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-blue hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-xs transition-all"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>{language === 'en' ? 'Login' : 'Giriş Yap'}</span>
               </button>
             </div>
           )}

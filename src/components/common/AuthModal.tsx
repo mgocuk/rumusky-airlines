@@ -65,6 +65,26 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
+        {/* Quick Super Admin Sign In Pill */}
+        <div className="mb-4 p-3 bg-blue-50/80 border border-blue-200/80 rounded-2xl flex items-center justify-between gap-3">
+          <div className="text-left">
+            <span className="text-xs font-bold text-brand-navy block">
+              {language === 'en' ? 'Quick Super Admin Sign In' : 'Süper Admin Hızlı Giriş'}
+            </span>
+            <span className="text-[11px] text-brand-muted font-mono">admin@rumusky.com</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              loginStaff('admin@rumusky.com', 'admin123');
+            }}
+            className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1.5"
+          >
+            <Shield className="w-3.5 h-3.5 text-brand-cyan" />
+            <span>{language === 'en' ? 'Sign In' : 'Giriş Yap'}</span>
+          </button>
+        </div>
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
