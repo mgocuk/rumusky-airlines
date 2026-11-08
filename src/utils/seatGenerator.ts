@@ -1,8 +1,13 @@
 import { FlightSeat } from '../types';
 
-export function generateSeatsForFlight(flightId: string, totalRows: number = 28): FlightSeat[] {
+export function generateSeatsForFlight(
+  flightId: string, 
+  totalRows: number = 28,
+  realBookedSeats: string[] = []
+): FlightSeat[] {
   const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
   const seats: FlightSeat[] = [];
+  const bookedSet = new Set(realBookedSeats.map((s) => s.trim().toUpperCase()));
 
   for (let row = 1; row <= totalRows; row++) {
     const isBusiness = row <= 4;
@@ -14,7 +19,9 @@ export function generateSeatsForFlight(flightId: string, totalRows: number = 28)
       
       // Deterministically occupy some seats for realism based on hash
       const charCode = seatNumber.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-      const isOccupied = (charCode % 5 === 0) || (row === 3 && (letter === 'A' || letter === 'B')) || (row === 15 && letter === 'C');
+      const isSimulatedOccupied = (charCode % 5 === 0) || (row === 3 && (letter === 'A' || letter === 'B')) || (row === 15 && letter === 'C');
+      const isRealBooked = bookedSet.has(seatNumber);
+      const isOccupied = isSimulatedOccupied || isRealBooked;
 
       let priceModifier = 0;
       if (isBusiness) priceModifier = 500;

@@ -20,9 +20,10 @@ import { AuthModal } from './components/common/AuthModal';
 import { NewsSection } from './components/customer/NewsSection';
 import { NewsDetailModal } from './components/customer/NewsDetailModal';
 import { InfoPageModal } from './components/customer/InfoPageModal';
+import { ShareLiveModal } from './components/common/ShareLiveModal';
 
 export const App: React.FC = () => {
-  const { activeView, isAdmin, setAuthModalOpen } = useApp();
+  const { activeView, isAdmin, setAuthModalOpen, shareModalOpen, setShareModalOpen } = useApp();
 
   useEffect(() => {
     // Secret shortcut for administrator/staff login: Alt + A or Ctrl + Shift + A
@@ -94,6 +95,7 @@ export const App: React.FC = () => {
       <AuthModal />
       <NewsDetailModal />
       <InfoPageModal />
+      <ShareLiveModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} />
 
       {/* Universal Footer */}
       {!isAdmin && activeView !== 'admin' && activeView !== 'seats' && <Footer />}

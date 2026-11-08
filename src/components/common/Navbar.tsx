@@ -10,7 +10,8 @@ import {
   FileText,
   LogOut,
   Newspaper,
-  UserCheck
+  UserCheck,
+  Radio
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -25,7 +26,9 @@ export const Navbar: React.FC = () => {
     activeUser,
     setAuthModalOpen,
     logoutUser,
-    siteContent
+    siteContent,
+    connectedClientsCount,
+    setShareModalOpen
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -141,6 +144,20 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
+          {/* Multi-User Live Sync & Share Button */}
+          <button
+            onClick={() => setShareModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold transition-all shadow-2xs group"
+            title="Öğrenci Testi ve Çok Kullanıcılı Canlı Ağ Paylaşımı (QR Kod)"
+          >
+            <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+            <span className="hidden xl:inline">Canlı Ağ</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span className="text-[10px] bg-white px-1.5 py-0.5 rounded-full border border-emerald-300 font-extrabold text-emerald-900 leading-none">
+              {connectedClientsCount}
+            </span>
+          </button>
+
           {/* Admin / Staff State (Only shown when explicitly logged in as staff/admin) */}
           {activeUser && activeUser.role !== 'customer' && (
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
@@ -235,6 +252,23 @@ export const Navbar: React.FC = () => {
           >
             <span>{labelAbout}</span>
             <span className="w-2 h-2 rounded-full bg-brand-cyan"></span>
+          </button>
+
+          {/* Mobile Live Share Pill */}
+          <button
+            onClick={() => {
+              setShareModalOpen(true);
+              setMobileMenuOpen(false);
+            }}
+            className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
+              <span>Çok Kullanıcılı Canlı Ağ (QR Kod)</span>
+            </div>
+            <span className="bg-white px-2 py-0.5 rounded-full font-extrabold border border-emerald-300 text-[11px] text-emerald-900">
+              {connectedClientsCount} Cihaz
+            </span>
           </button>
           
           {activeUser && activeUser.role !== 'customer' && (

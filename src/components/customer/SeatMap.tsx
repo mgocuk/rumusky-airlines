@@ -12,7 +12,8 @@ export const SeatMap: React.FC = () => {
     assignSeat,
     setActiveView,
     t,
-    language
+    language,
+    tickets
   } = useApp();
 
   const [activePassengerIndex, setActivePassengerIndex] = useState(0);
@@ -21,9 +22,13 @@ export const SeatMap: React.FC = () => {
 
   useEffect(() => {
     if (selectedFlight) {
-      setSeats(generateSeatsForFlight(selectedFlight.id, 26));
+      const flightTickets = tickets.filter(
+        (t) => t.flight && t.flight.id === selectedFlight.id && t.status !== 'cancelled'
+      );
+      const realBookedSeats = flightTickets.map((t) => t.seatNumber).filter(Boolean);
+      setSeats(generateSeatsForFlight(selectedFlight.id, 26, realBookedSeats));
     }
-  }, [selectedFlight]);
+  }, [selectedFlight, tickets]);
 
   // Countdown timer for 10 min seat reservation hold
   useEffect(() => {

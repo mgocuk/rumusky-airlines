@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "node tests/businessRules.test.js"
+    "test": "node tests/businessRules.test.js && node tests/realtimeSync.test.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.3",

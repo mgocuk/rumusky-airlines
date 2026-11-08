@@ -21,6 +21,8 @@ import {
 import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights, syncFlightsWithCurrentTime, INITIAL_CAMPAIGNS, INITIAL_DESTINATIONS } from '../data/seedData';
 import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_STAFF_USERS, INITIAL_INFO_PAGES } from '../data/seedContent';
 import { translations } from '../utils/translations';
+import { useToast } from '../components/common/Toast';
+import { realtimeSync, SyncAction } from '../services/realtimeSync';
 
 export type AppView = 
   | 'home' 
@@ -97,6 +99,11 @@ interface AppContextType {
   completePayment: (cardInfo: { cardLastFour: string; cardBrand: string }) => Booking;
   findBooking: (pnr: string, surname: string) => Booking | null;
   getTicketsForBooking: (bookingId: string) => Ticket[];
+  // Multi-User Realtime Sync & Share
+  connectedClientsCount: number;
+  isRealtimeConnected: boolean;
+  shareModalOpen: boolean;
+  setShareModalOpen: (open: boolean) => void;
   // Modals & Enhanced Features
   flightDetailsModal: Flight | null;
   setFlightDetailsModal: (flight: Flight | null) => void;
@@ -289,6 +296,203 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return null;
   });
 
+  const { showToast } = useToast();
+
+  // Multi-user & Share state
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [connectedClientsCount, setConnectedClientsCount] = useState(realtimeSync.getConnectedClientsCount());
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(realtimeSync.getIsConnected());
+
+  // Real-time synchronization lifecycle
+  useEffect(() => {
+    // 1. Connection status listener
+    const unsubscribeConn = realtimeSync.onConnectionChange((connected, count) => {
+      setIsRealtimeConnected(connected);
+      setConnectedClientsCount(count);
+    });
+
+    // 2. Fetch server state on initial load
+    realtimeSync.fetchServerState().then((serverState) => {
+      if (serverState && Object.keys(serverState).length > 0) {
+        if (serverState.flights) setFlights(serverState.flights);
+        if (serverState.bookings) setBookings(serverState.bookings);
+        if (serverState.tickets) setTickets(serverState.tickets);
+        if (serverState.siteContent) setSiteContent(serverState.siteContent);
+        if (serverState.news) setNews(serverState.news);
+        if (serverState.airports) setAirports(serverState.airports);
+        if (serverState.aircrafts) setAircrafts(serverState.aircrafts);
+        if (serverState.infoPages) setInfoPages(serverState.infoPages);
+        if (serverState.rolePermissions) setRolePermissions(serverState.rolePermissions);
+        if (serverState.staffUsers) setStaffUsers(serverState.staffUsers);
+      } else {
+        // Server store is empty, push client's state to server
+        realtimeSync.initializeServerStateIfEmpty({
+          flights,
+          bookings,
+          tickets,
+          siteContent,
+          news,
+          airports,
+          aircrafts,
+          infoPages,
+          rolePermissions,
+          staffUsers
+        });
+      }
+    });
+
+    // 3. Listen to incoming sync actions from other clients / server
+    const unsubscribeSync = realtimeSync.subscribe((action: SyncAction) => {
+      const { type, payload } = action;
+
+      switch (type) {
+        case 'BOOKING_CREATED': {
+          const { booking, tickets: newTickets, updatedFlight } = payload;
+          if (booking) {
+            setBookings((prev) => [booking, ...prev.filter((b) => b.id !== booking.id)]);
+          }
+          if (newTickets && Array.isArray(newTickets)) {
+            const ids = new Set(newTickets.map((t: any) => t.id));
+            setTickets((prev) => [...newTickets, ...prev.filter((t) => !ids.has(t.id))]);
+          }
+          if (updatedFlight) {
+            setFlights((prev) => prev.map((f) => (f.id === updatedFlight.id ? { ...f, ...updatedFlight } : f)));
+          }
+          showToast(
+            `⚡ Canlı Rezervasyon: PNR: ${booking?.pnr} - ${booking?.passengers?.[0]?.firstName || 'Yolcu'} ${booking?.passengers?.[0]?.lastName || ''} (${booking?.passengers?.length || 1} Bilet Satın Alındı)`,
+            'info'
+          );
+          break;
+        }
+
+        case 'BOOKING_CANCELLED': {
+          const { bookingId, pnr, updatedFlight } = payload;
+          if (bookingId) {
+            setBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b)));
+          }
+          if (updatedFlight) {
+            setFlights((prev) => prev.map((f) => (f.id === updatedFlight.id ? { ...f, ...updatedFlight } : f)));
+          }
+          showToast(`⚡ Canlı Bildirim: ${pnr} PNR'lı rezervasyon iptal edildi.`, 'info');
+          break;
+        }
+
+        case 'CHECKIN_COMPLETED': {
+          const { ticketId, seatNumber, pnr, passengerName } = payload;
+          if (ticketId) {
+            setTickets((prev) =>
+              prev.map((t) =>
+                t.id === ticketId
+                  ? { ...t, status: 'checked_in', seatNumber: seatNumber || t.seatNumber }
+                  : t
+              )
+            );
+          }
+          showToast(`⚡ Canlı Check-in: PNR: ${pnr} - ${passengerName || 'Yolcu'} koltuğu: ${seatNumber}`, 'info');
+          break;
+        }
+
+        case 'SITE_CONTENT_UPDATED': {
+          setSiteContent((prev) => ({ ...prev, ...payload }));
+          showToast(`⚡ Canlı Güncelleme: Firma adı, logo ve üst menü ayarları güncellendi.`, 'success');
+          break;
+        }
+
+        case 'FLIGHT_ADDED': {
+          if (payload.flight) {
+            setFlights((prev) => [payload.flight, ...prev.filter((f) => f.id !== payload.flight.id)]);
+            showToast(`⚡ Canlı Güncelleme: Yeni uçuş seferi eklendi (${payload.flight.flightNumber})`, 'success');
+          }
+          break;
+        }
+
+        case 'FLIGHT_CANCELLED': {
+          if (payload.flightId) {
+            setFlights((prev) =>
+              prev.map((f) =>
+                f.id === payload.flightId
+                  ? { ...f, bookingStatus: 'closed', operationalStatus: 'Cancelled' }
+                  : f
+              )
+            );
+            showToast(`⚡ Canlı Güncelleme: Bir uçuş seferi iptal edildi.`, 'info');
+          }
+          break;
+        }
+
+        case 'FLIGHTS_UPDATED': {
+          if (Array.isArray(payload.flights)) {
+            setFlights(payload.flights);
+            if (payload.actionDescription) {
+              showToast(`⚡ Canlı Güncelleme: ${payload.actionDescription}`, 'info');
+            }
+          }
+          break;
+        }
+
+        case 'AIRCRAFTS_UPDATED': {
+          if (Array.isArray(payload.aircrafts)) {
+            setAircrafts(payload.aircrafts);
+            showToast(`⚡ Canlı Güncelleme: Uçak filosu güncellendi.`, 'info');
+          }
+          break;
+        }
+
+        case 'AIRPORT_ADDED': {
+          if (payload.airport) {
+            setAirports((prev) => [...prev, payload.airport]);
+            showToast(`⚡ Canlı Güncelleme: Yeni havalimanı eklendi (${payload.airport.iataCode})`, 'info');
+          }
+          break;
+        }
+
+        case 'NEWS_UPDATED': {
+          if (Array.isArray(payload.news)) {
+            setNews(payload.news);
+            showToast(`⚡ Canlı Güncelleme: Haber ve basın bültenleri güncellendi.`, 'info');
+          }
+          break;
+        }
+
+        case 'INFO_PAGE_UPDATED': {
+          if (payload.page) {
+            setInfoPages((prev) => prev.map((p) => (p.id === payload.page.id ? { ...p, ...payload.page } : p)));
+          }
+          break;
+        }
+
+        case 'ROLE_PERMISSIONS_UPDATED': {
+          if (payload.rolePermissions) {
+            setRolePermissions(payload.rolePermissions);
+            showToast(`⚡ Canlı Güncelleme: Rol yetki matrisi güncellendi.`, 'info');
+          }
+          break;
+        }
+
+        case 'STAFF_USERS_UPDATED': {
+          if (Array.isArray(payload.staffUsers)) {
+            setStaffUsers(payload.staffUsers);
+            showToast(`⚡ Canlı Güncelleme: Personel listesi güncellendi.`, 'info');
+          }
+          break;
+        }
+
+        case 'RESET_ALL_DATA': {
+          window.location.reload();
+          break;
+        }
+
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      unsubscribeConn();
+      unsubscribeSync();
+    };
+  }, []);
+
   // Local Storage Sync
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.AIRCRAFTS, JSON.stringify(aircrafts));
@@ -343,14 +547,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateRolePermissions = (role: UserRole, perms: PermissionKey[]) => {
-    setRolePermissions((prev) => ({
-      ...prev,
-      [role]: perms
-    }));
+    setRolePermissions((prev) => {
+      const next = {
+        ...prev,
+        [role]: perms
+      };
+      realtimeSync.dispatchAction('ROLE_PERMISSIONS_UPDATED', { rolePermissions: next });
+      return next;
+    });
   };
 
   const updateSiteContent = (updated: Partial<SiteContentConfig>) => {
     setSiteContent((prev) => ({ ...prev, ...updated }));
+    realtimeSync.dispatchAction('SITE_CONTENT_UPDATED', updated);
   };
 
   const addNewsItem = (item: Omit<NewsItem, 'id' | 'publishedAt'>) => {
@@ -359,25 +568,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: `news-${Date.now()}`,
       publishedAt: new Date().toISOString().split('T')[0]
     };
-    setNews((prev) => [newItem, ...prev]);
+    setNews((prev) => {
+      const next = [newItem, ...prev];
+      realtimeSync.dispatchAction('NEWS_UPDATED', { news: next });
+      return next;
+    });
   };
 
   const updateNewsItem = (id: string, updated: Partial<NewsItem>) => {
-    setNews((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
+    setNews((prev) => {
+      const next = prev.map((n) => (n.id === id ? { ...n, ...updated } : n));
+      realtimeSync.dispatchAction('NEWS_UPDATED', { news: next });
+      return next;
+    });
   };
 
   const deleteNewsItem = (id: string) => {
-    setNews((prev) => prev.filter((n) => n.id !== id));
+    setNews((prev) => {
+      const next = prev.filter((n) => n.id !== id);
+      realtimeSync.dispatchAction('NEWS_UPDATED', { news: next });
+      return next;
+    });
   };
 
   const updateInfoPage = (id: string, updated: Partial<InfoPage>) => {
-    setInfoPages((prev) =>
-      prev.map((p) =>
+    setInfoPages((prev) => {
+      const next = prev.map((p) =>
         p.id === id || p.slug === id
           ? { ...p, ...updated, lastUpdated: new Date().toISOString().split('T')[0] }
           : p
-      )
-    );
+      );
+      const targetPage = next.find((p) => p.id === id || p.slug === id);
+      if (targetPage) {
+        realtimeSync.dispatchAction('INFO_PAGE_UPDATED', { page: targetPage });
+      }
+      return next;
+    });
   };
 
   const openInfoPageBySlug = (slug: string) => {
@@ -392,19 +618,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ...newAc,
       id: `ac-${Date.now()}`
     };
-    setAircrafts((prev) => [created, ...prev]);
+    setAircrafts((prev) => {
+      const next = [created, ...prev];
+      realtimeSync.dispatchAction('AIRCRAFTS_UPDATED', { aircrafts: next });
+      return next;
+    });
   };
 
   const updateAircraft = (id: string, updated: Partial<Aircraft>) => {
-    setAircrafts((prev) => prev.map((ac) => (ac.id === id ? { ...ac, ...updated } : ac)));
+    setAircrafts((prev) => {
+      const next = prev.map((ac) => (ac.id === id ? { ...ac, ...updated } : ac));
+      realtimeSync.dispatchAction('AIRCRAFTS_UPDATED', { aircrafts: next });
+      return next;
+    });
   };
 
   const deleteAircraft = (id: string) => {
-    setAircrafts((prev) => prev.filter((ac) => ac.id !== id));
+    setAircrafts((prev) => {
+      const next = prev.filter((ac) => ac.id !== id);
+      realtimeSync.dispatchAction('AIRCRAFTS_UPDATED', { aircrafts: next });
+      return next;
+    });
   };
 
   const toggleAircraftActive = (id: string) => {
-    setAircrafts((prev) => prev.map((ac) => (ac.id === id ? { ...ac, isActive: !ac.isActive } : ac)));
+    setAircrafts((prev) => {
+      const next = prev.map((ac) => (ac.id === id ? { ...ac, isActive: !ac.isActive } : ac));
+      realtimeSync.dispatchAction('AIRCRAFTS_UPDATED', { aircrafts: next });
+      return next;
+    });
   };
 
   const updateCampaign = (id: string, updated: Partial<Campaign>) => {
@@ -420,20 +662,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ...newUser,
       id: `usr-staff-${Date.now()}`
     };
-    setStaffUsers((prev) => [...prev, user]);
+    setStaffUsers((prev) => {
+      const next = [...prev, user];
+      realtimeSync.dispatchAction('STAFF_USERS_UPDATED', { staffUsers: next });
+      return next;
+    });
   };
 
   const updateUserRole = (userId: string, newRole: UserRole) => {
-    setStaffUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
-    );
+    setStaffUsers((prev) => {
+      const next = prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u));
+      realtimeSync.dispatchAction('STAFF_USERS_UPDATED', { staffUsers: next });
+      return next;
+    });
     if (activeUser && activeUser.id === userId) {
       setActiveUser((prev) => (prev ? { ...prev, role: newRole } : null));
     }
   };
 
   const deleteStaffUser = (userId: string) => {
-    setStaffUsers((prev) => prev.filter((u) => u.id !== userId));
+    setStaffUsers((prev) => {
+      const next = prev.filter((u) => u.id !== userId);
+      realtimeSync.dispatchAction('STAFF_USERS_UPDATED', { staffUsers: next });
+      return next;
+    });
   };
 
   const switchActiveStaffRole = (role: UserRole) => {
@@ -647,22 +899,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
     });
 
+    const updatedFlightObj: Flight = {
+      ...selectedFlight,
+      availableEconomySeats: Math.max(0, selectedFlight.availableEconomySeats - passengers.length)
+    };
+
     setFlights((prev) =>
-      prev.map((f) => {
-        if (f.id === selectedFlight.id) {
-          return {
-            ...f,
-            availableEconomySeats: Math.max(0, f.availableEconomySeats - passengers.length)
-          };
-        }
-        return f;
-      })
+      prev.map((f) => (f.id === selectedFlight.id ? updatedFlightObj : f))
     );
 
     setBookings((prev) => [newBooking, ...prev]);
     setTickets((prev) => [...newTickets, ...prev]);
     setCurrentBooking(newBooking);
     setActiveView('confirmation');
+
+    // Broadcast across all clients in real-time
+    realtimeSync.dispatchAction('BOOKING_CREATED', {
+      booking: newBooking,
+      tickets: newTickets,
+      updatedFlight: updatedFlightObj,
+      bookedSeats: Object.values(selectedSeats)
+    });
 
     return newBooking;
   };
@@ -697,6 +954,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setTickets((prev) =>
         prev.map((t) => (t.id === userTicket.id ? { ...t, status: 'checked_in' } : t))
       );
+
+      realtimeSync.dispatchAction('CHECKIN_COMPLETED', {
+        ticketId: userTicket.id,
+        seatNumber: userTicket.seatNumber,
+        pnr: booking.pnr,
+        passengerName: `${userTicket.passenger.firstName} ${userTicket.passenger.lastName}`
+      });
+
       return { ...userTicket, status: 'checked_in' };
     }
     return null;
@@ -718,25 +983,55 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       availableEconomySeats: 150,
       availableBusinessSeats: 18
     };
-    setFlights((prev) => [newFlight, ...prev]);
+    setFlights((prev) => {
+      const next = [newFlight, ...prev];
+      realtimeSync.dispatchAction('FLIGHT_ADDED', { flight: newFlight });
+      return next;
+    });
   };
 
   const updateFlightStatus = (flightId: string, status: OperationalStatus) => {
-    setFlights((prev) =>
-      prev.map((f) => (f.id === flightId ? { ...f, operationalStatus: status } : f))
-    );
+    setFlights((prev) => {
+      const next = prev.map((f) => (f.id === flightId ? { ...f, operationalStatus: status } : f));
+      realtimeSync.dispatchAction('FLIGHTS_UPDATED', {
+        flights: next,
+        actionDescription: `Uçuş durumu güncellendi: ${status}`
+      });
+      return next;
+    });
   };
 
   const cancelFlight = (flightId: string) => {
-    setFlights((prev) =>
-      prev.map((f) => (f.id === flightId ? { ...f, operationalStatus: 'Cancelled', bookingStatus: 'closed' } : f))
-    );
+    setFlights((prev) => {
+      const next = prev.map((f) => (f.id === flightId ? { ...f, operationalStatus: 'Cancelled' as const, bookingStatus: 'closed' as const } : f));
+      realtimeSync.dispatchAction('FLIGHT_CANCELLED', { flightId });
+      return next;
+    });
   };
 
   const cancelBooking = (bookingId: string) => {
-    setBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b))
-    );
+    const target = bookings.find((b) => b.id === bookingId);
+    let updatedF: Flight | undefined;
+    if (target && target.status !== 'cancelled') {
+      const flight = flights.find((f) => f.id === target.flightId);
+      if (flight) {
+        updatedF = {
+          ...flight,
+          availableEconomySeats: Math.min(180, flight.availableEconomySeats + target.passengers.length)
+        };
+        setFlights((prev) => prev.map((f) => (f.id === flight.id ? updatedF! : f)));
+      }
+    }
+
+    setBookings((prev) => {
+      const next = prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' as const } : b));
+      realtimeSync.dispatchAction('BOOKING_CANCELLED', {
+        bookingId,
+        pnr: target?.pnr || '',
+        updatedFlight: updatedF
+      });
+      return next;
+    });
   };
 
   const resetAllData = () => {
@@ -755,6 +1050,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBookings([]);
     setTickets([]);
     setActiveView('home');
+    realtimeSync.dispatchAction('RESET_ALL_DATA', {});
   };
 
   return (
@@ -816,6 +1112,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         completePayment,
         findBooking,
         getTicketsForBooking,
+        connectedClientsCount,
+        isRealtimeConnected,
+        shareModalOpen,
+        setShareModalOpen,
         flightDetailsModal,
         setFlightDetailsModal,
         authModalOpen,

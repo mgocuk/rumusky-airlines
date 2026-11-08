@@ -67,7 +67,9 @@ import {
   Coffee,
   Zap,
   Wind,
-  VolumeX
+  VolumeX,
+  Radio,
+  Share2
 } from 'lucide-react';
 
 const PRESET_HERO_BACKGROUNDS = [
@@ -226,7 +228,10 @@ export const AdminDashboard: React.FC = () => {
     resetAllData,
     toggleAdminMode,
     t,
-    language
+    language,
+    connectedClientsCount,
+    setShareModalOpen,
+    isRealtimeConnected
   } = useApp();
 
   const { showToast } = useToast();
@@ -855,6 +860,19 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Quick Active Role Switcher (For Presentation Testing!) */}
           <div className="flex items-center gap-2.5">
+            {/* Live Multi-User / Student Test Button */}
+            <button
+              onClick={() => setShareModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              title="Öğrenci Testi ve Canlı Ağ QR Kodu"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse text-white" />
+              <span className="hidden sm:inline">Canlı Öğrenci Testi</span>
+              <span className="bg-emerald-900/60 px-1.5 py-0.5 rounded-full text-[10px] font-black">
+                {connectedClientsCount} Cihaz
+              </span>
+            </button>
+
             <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700 text-xs">
               <span className="text-[11px] text-slate-400 px-2 font-medium">Test Rolü:</span>
               {(['super_admin', 'flight_manager', 'booking_manager', 'content_manager'] as UserRole[]).map((r) => (
@@ -940,7 +958,46 @@ export const AdminDashboard: React.FC = () => {
 
         {/* 1. OVERVIEW TAB */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 animate-fade-in">
+          <div className="space-y-6 animate-fade-in">
+            {/* Multi-User Real-time Sync Status Card */}
+            <div className="bg-gradient-to-r from-brand-navy via-slate-900 to-brand-navy text-white p-5 rounded-2xl border border-slate-700/80 shadow-md flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Radio className="w-6 h-6 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-heading font-black text-sm text-white">
+                      Eşzamanlı Çok Kullanıcılı Canlı Senkronizasyon (SSE & Event Stream)
+                    </h4>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Canlı & Dinamik
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    Öğrenciler telefonlarından bilet satın aldıklarında veya siz yönetici olarak bir değişiklik yaptığınızda tüm ekranlar anında senkronize olur.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span className="text-slate-300">Bağlı:</span>
+                  <span className="font-extrabold text-white">{connectedClientsCount} Cihaz</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShareModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-brand-cyan hover:bg-sky-300 text-brand-navy text-xs font-black flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Öğrenci Test QR Kodu & Linki</span>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-subtle">
                 <div className="flex items-center justify-between text-brand-muted text-xs font-bold mb-2">
