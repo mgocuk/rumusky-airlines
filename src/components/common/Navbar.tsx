@@ -11,7 +11,8 @@ import {
   Calendar,
   FileText,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Newspaper
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -34,7 +35,8 @@ export const Navbar: React.FC = () => {
   const navItems = [
     { key: 'nav_search_flights', view: 'home', icon: Search },
     { key: 'nav_my_bookings', view: 'manage', icon: Calendar },
-    { key: 'nav_checkin', view: 'checkin', icon: FileText }
+    { key: 'nav_checkin', view: 'checkin', icon: FileText },
+    { key: 'nav_news', view: 'news', icon: Newspaper }
   ];
 
   return (

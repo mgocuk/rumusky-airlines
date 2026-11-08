@@ -4,7 +4,7 @@ import { Logo } from './Logo';
 import { ShieldCheck, Heart, Plane, Smartphone, Apple, Play } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { t, setActiveView } = useApp();
+  const { t, setActiveView, siteContent, language } = useApp();
 
   return (
     <footer className="bg-brand-navy text-slate-300 pt-16 pb-10 border-t border-slate-800 mt-auto">
@@ -18,7 +18,9 @@ export const Footer: React.FC = () => {
               <Logo variant="white" size="lg" />
             </div>
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              {t('footer_company_desc')}
+              {language === 'en' 
+                ? (siteContent.footerDescEn || t('footer_company_desc'))
+                : (siteContent.footerDesc || t('footer_company_desc'))}
             </p>
             <div className="flex items-center gap-2 text-xs text-sky-400 font-medium">
               <ShieldCheck className="w-4 h-4" />
@@ -50,10 +52,10 @@ export const Footer: React.FC = () => {
               {t('footer_about')}
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_about_us')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_career')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_press')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_contact')}</a></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_about_us')}</button></li>
+              <li><button onClick={() => setActiveView('news')} className="hover:text-white transition-colors text-left">{t('footer_press')}</button></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_career')}</button></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_contact')}</button></li>
             </ul>
           </div>
 
@@ -63,10 +65,10 @@ export const Footer: React.FC = () => {
               {t('footer_travel_info')}
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_baggage_rules')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_online_checkin')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_seat_selection')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('footer_special_services')}</a></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_baggage_rules')}</button></li>
+              <li><button onClick={() => setActiveView('checkin')} className="hover:text-white transition-colors text-left">{t('footer_online_checkin')}</button></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_seat_selection')}</button></li>
+              <li><button onClick={() => setActiveView('home')} className="hover:text-white transition-colors text-left">{t('footer_special_services')}</button></li>
             </ul>
           </div>
 

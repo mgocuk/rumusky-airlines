@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Flight, OperationalStatus, Airport } from '../../types';
+import {
+  Flight,
+  OperationalStatus,
+  Airport,
+  UserRole,
+  PermissionKey,
+  NewsItem,
+  Campaign,
+  PopularDestination,
+  BenefitItem
+} from '../../types';
 import { useToast } from '../common/Toast';
 import {
   BarChart,
@@ -27,7 +37,19 @@ import {
   Building,
   ArrowRight,
   Settings,
-  Save
+  Save,
+  Image as ImageIcon,
+  Newspaper,
+  CheckSquare,
+  Square,
+  Trash2,
+  Edit,
+  Eye,
+  Lock,
+  Unlock,
+  UserPlus,
+  Menu,
+  X
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -36,6 +58,25 @@ export const AdminDashboard: React.FC = () => {
     bookings,
     airports,
     aircrafts,
+    campaigns,
+    destinations,
+    siteContent,
+    updateSiteContent,
+    news,
+    addNewsItem,
+    updateNewsItem,
+    deleteNewsItem,
+    updateCampaign,
+    updateDestination,
+    rolePermissions,
+    updateRolePermissions,
+    hasPermission,
+    staffUsers,
+    addStaffUser,
+    updateUserRole,
+    deleteStaffUser,
+    switchActiveStaffRole,
+    activeUser,
     addFlight,
     updateFlightStatus,
     cancelFlight,
@@ -48,9 +89,18 @@ export const AdminDashboard: React.FC = () => {
 
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'flights' | 'bookings' | 'airports' | 'aircraft' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'flights' | 'bookings' | 'cms' | 'news' | 'airports' | 'rbac' | 'settings'
+  >('overview');
+
+  const [mobileAdminNavOpen, setMobileAdminNavOpen] = useState(false);
+
+  // Modals state
   const [showAddFlightModal, setShowAddFlightModal] = useState(false);
   const [showAddAirportModal, setShowAddAirportModal] = useState(false);
+  const [showAddNewsModal, setShowAddNewsModal] = useState(false);
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+  const [editingNewsItem, setEditingNewsItem] = useState<NewsItem | null>(null);
 
   // New Flight Form state
   const [newFlightNumber, setNewFlightNumber] = useState('RMK-707');
@@ -69,12 +119,40 @@ export const AdminDashboard: React.FC = () => {
   const [newCity, setNewCity] = useState('Ankara');
   const [newCountry, setNewCountry] = useState('Türkiye');
 
+  // New News Item state
+  const [newsTitle, setNewsTitle] = useState('');
+  const [newsTitleEn, setNewsTitleEn] = useState('');
+  const [newsCategory, setNewsCategory] = useState<'Duyuru' | 'Kampanya' | 'Operasyon' | 'Basın'>('Duyuru');
+  const [newsImage, setNewsImage] = useState('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80');
+  const [newsSummary, setNewsSummary] = useState('');
+  const [newsSummaryEn, setNewsSummaryEn] = useState('');
+  const [newsContent, setNewsContent] = useState('');
+  const [newsContentEn, setNewsContentEn] = useState('');
+
+  // New Staff User state
+  const [staffName, setStaffName] = useState('');
+  const [staffSurname, setStaffSurname] = useState('');
+  const [staffEmail, setStaffEmail] = useState('');
+  const [staffRole, setStaffRole] = useState<UserRole>('flight_manager');
+
+  // CMS Form States
+  const [cmsHeroBg, setCmsHeroBg] = useState(siteContent.heroBackgroundUrl);
+  const [cmsHeroTitle, setCmsHeroTitle] = useState(siteContent.heroTitle);
+  const [cmsHeroTitleEn, setCmsHeroTitleEn] = useState(siteContent.heroTitleEn);
+  const [cmsHeroSubtitle, setCmsHeroSubtitle] = useState(siteContent.heroSubtitle);
+  const [cmsHeroSubtitleEn, setCmsHeroSubtitleEn] = useState(siteContent.heroSubtitleEn);
+  const [cmsHeroBadge, setCmsHeroBadge] = useState(siteContent.heroBadgeText);
+  const [cmsHeroBadgeEn, setCmsHeroBadgeEn] = useState(siteContent.heroBadgeTextEn);
+  const [cmsAnnounceEnabled, setCmsAnnounceEnabled] = useState(siteContent.announcementBanner.enabled);
+  const [cmsAnnounceText, setCmsAnnounceText] = useState(siteContent.announcementBanner.text);
+  const [cmsAnnounceTextEn, setCmsAnnounceTextEn] = useState(siteContent.announcementBanner.textEn);
+  const [cmsAnnounceBadge, setCmsAnnounceBadge] = useState(siteContent.announcementBanner.badge);
+
   // Settings state
   const [vatRate, setVatRate] = useState(18);
   const [seatHoldMinutes, setSeatHoldMinutes] = useState(10);
-  const [announcementText, setAnnouncementText] = useState('RUMUSKY Airlines: Yaz sezonu erken rezervasyon fırsatları başladı!');
 
-  // Calculate live analytics
+  // Live Analytics Calculations
   const totalRevenue = bookings
     .filter((b) => b.status === 'confirmed')
     .reduce((sum, b) => sum + b.totalAmount, 0);
@@ -85,7 +163,6 @@ export const AdminDashboard: React.FC = () => {
 
   const activeFlightsCount = flights.filter((f) => f.bookingStatus === 'open').length;
 
-  // Chart data: bookings count per destination
   const destCounts: Record<string, number> = {};
   flights.forEach((f) => {
     destCounts[f.destinationAirport.iataCode] = (destCounts[f.destinationAirport.iataCode] || 0) + 1;
@@ -95,6 +172,7 @@ export const AdminDashboard: React.FC = () => {
     ucuslar: count
   }));
 
+  // Handlers
   const handleCreateFlight = (e: React.FormEvent) => {
     e.preventDefault();
     const origin = airports.find((a) => a.iataCode === newOriginIata) || airports[0];
@@ -145,48 +223,150 @@ export const AdminDashboard: React.FC = () => {
     showToast(`${newApt.iataCode} havalimanı sisteme kaydedildi!`, 'success');
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveCMS = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('Sistem ayarları başarıyla kaydedildi!', 'success');
+    updateSiteContent({
+      heroBackgroundUrl: cmsHeroBg,
+      heroTitle: cmsHeroTitle,
+      heroTitleEn: cmsHeroTitleEn,
+      heroSubtitle: cmsHeroSubtitle,
+      heroSubtitleEn: cmsHeroSubtitleEn,
+      heroBadgeText: cmsHeroBadge,
+      heroBadgeTextEn: cmsHeroBadgeEn,
+      announcementBanner: {
+        enabled: cmsAnnounceEnabled,
+        badge: cmsAnnounceBadge,
+        text: cmsAnnounceText,
+        textEn: cmsAnnounceTextEn
+      }
+    });
+    showToast('Site görselleri ve başlık metinleri canlı olarak güncellendi!', 'success');
   };
 
+  const handleCreateNews = (e: React.FormEvent) => {
+    e.preventDefault();
+    addNewsItem({
+      title: newsTitle,
+      titleEn: newsTitleEn || newsTitle,
+      summary: newsSummary,
+      summaryEn: newsSummaryEn || newsSummary,
+      content: newsContent,
+      contentEn: newsContentEn || newsContent,
+      imageUrl: newsImage,
+      category: newsCategory,
+      isActive: true
+    });
+    setShowAddNewsModal(false);
+    setNewsTitle('');
+    setNewsSummary('');
+    setNewsContent('');
+    showToast('Yeni haber başarıyla yayınlandı!', 'success');
+  };
+
+  const handleAddStaff = (e: React.FormEvent) => {
+    e.preventDefault();
+    addStaffUser({
+      name: staffName,
+      surname: staffSurname,
+      email: staffEmail,
+      role: staffRole,
+      phone: '+90 555 000 0000'
+    });
+    setShowAddStaffModal(false);
+    setStaffName('');
+    setStaffSurname('');
+    setStaffEmail('');
+    showToast('Yeni personel ve yetki ataması yapıldı!', 'success');
+  };
+
+  const togglePermissionForRole = (role: UserRole, perm: PermissionKey) => {
+    const current = rolePermissions[role] || [];
+    const next = current.includes(perm)
+      ? current.filter((p) => p !== perm)
+      : [...current, perm];
+    updateRolePermissions(role, next);
+    showToast(`${role} rolünün ${perm} yetkisi güncellendi!`, 'info');
+  };
+
+  const allPermissionsList: { key: PermissionKey; label: string }[] = [
+    { key: 'manage_flights', label: 'Uçuş Seferleri Yönetimi (Ekle / İptal / Durum)' },
+    { key: 'manage_airports', label: 'Havalimanı Tanımlama & Düzenleme' },
+    { key: 'manage_aircraft', label: 'Uçak Filosu & Kapasite Yönetimi' },
+    { key: 'manage_bookings', label: 'Rezervasyon & Bilet İptal / İade Kontrolü' },
+    { key: 'manage_cms', label: 'Site CMS: Görseller, Başlıklar, Sloganlar' },
+    { key: 'manage_news', label: 'Haberler & Basın Bültenleri Yönetimi' },
+    { key: 'manage_settings', label: 'Sistem Parametreleri & Vergi Oranları' },
+    { key: 'manage_roles', label: 'Süper Admin: Yetki Matrisi & Personel Atama' }
+  ];
+
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
-      {/* Top Admin Bar */}
-      <div className="bg-brand-navy text-white px-6 py-4 shadow-md">
-        <div className="max-w-[1240px] mx-auto flex flex-wrap items-center justify-between gap-4">
+    <div className="bg-slate-50 min-h-screen pb-16 font-sans">
+      
+      {/* Top Admin Header Bar */}
+      <div className="bg-brand-navy text-white px-4 sm:px-6 py-4 shadow-md sticky top-0 z-30">
+        <div className="max-w-[1300px] mx-auto flex flex-wrap items-center justify-between gap-4">
+          
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-blue flex items-center justify-center">
+            <button
+              onClick={() => setMobileAdminNavOpen(!mobileAdminNavOpen)}
+              className="lg:hidden p-2 rounded-xl bg-slate-800 text-white"
+            >
+              {mobileAdminNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <div className="w-10 h-10 rounded-xl bg-brand-blue flex items-center justify-center shadow-xs">
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-heading font-extrabold tracking-wide">
-                RUMUSKY YÖNETİM PANELİ
-              </h1>
-              <p className="text-xs text-sky-200">
-                Havayolu Operasyon, Uçuş Planlama ve Bilet Kontrol Sistemi
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-heading font-extrabold tracking-wide">
+                  RUMUSKY SÜPER ADMİN PANELİ
+                </h1>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-brand-cyan text-brand-navy">
+                  v2.0 CMS
+                </span>
+              </div>
+              <p className="text-[11px] text-sky-200 hidden sm:block">
+                Tüm Görseller, Başlıklar, Haberler, Uçuşlar ve Rol Yetkileri Yönetimi
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Quick Active Role Switcher (For Presentation Testing!) */}
+          <div className="flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700 text-xs">
+              <span className="text-[11px] text-slate-400 px-2 font-medium">Test Rolü:</span>
+              {(['super_admin', 'flight_manager', 'booking_manager', 'content_manager'] as UserRole[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => switchActiveStaffRole(r)}
+                  className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
+                    activeUser?.role === r
+                      ? 'bg-brand-blue text-white shadow-xs'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  {r === 'super_admin' ? 'Süper Admin' : r === 'flight_manager' ? 'Uçuş Şefi' : r === 'booking_manager' ? 'Biletçi' : 'İçerik'}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={() => {
                 resetAllData();
-                showToast('Tüm simülasyon verileri sıfırlandı.', 'info');
+                showToast('Tüm simülasyon fabrika ayarlarına sıfırlandı.', 'info');
               }}
-              title="Tüm veritabanı simülasyonunu fabrika ayarlarına sıfırlar"
-              className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 border border-slate-700"
+              title="Tüm veritabanı simülasyonunu sıfırlar"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 border border-slate-700"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Verileri Sıfırla</span>
+              <RotateCcw className="w-4 h-4" />
+              <span className="hidden sm:inline">Sıfırla</span>
             </button>
 
             <button
               onClick={toggleAdminMode}
-              className="px-4 py-2 rounded-xl bg-brand-cyan hover:bg-sky-400 text-brand-navy text-xs font-extrabold flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2 rounded-xl bg-brand-cyan hover:bg-sky-400 text-brand-navy text-xs font-black flex items-center gap-1.5 shadow-xs transition-colors"
             >
-              <span>Müşteri Sitesine Dön</span>
+              <span>Canlı Siteye Dön</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -194,39 +374,50 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Admin Nav Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6">
-        <div className="max-w-[1240px] mx-auto flex gap-2 overflow-x-auto py-2">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 shadow-xs">
+        <div className="max-w-[1300px] mx-auto flex gap-1 sm:gap-2 overflow-x-auto py-2.5">
           {[
-            { id: 'overview', label: 'Genel Bakış (Analytics)', icon: TrendingUp },
-            { id: 'flights', label: `Uçuşlar (${flights.length})`, icon: Plane },
-            { id: 'bookings', label: `Rezervasyonlar (${bookings.length})`, icon: Calendar },
-            { id: 'airports', label: `Havalimanları (${airports.length})`, icon: Building },
-            { id: 'aircraft', label: `Filo (${aircrafts.length})`, icon: Sliders },
-            { id: 'settings', label: 'Sistem Ayarları', icon: Settings }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? 'bg-blue-50 text-brand-blue border border-blue-200 shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+            { id: 'overview', label: 'Genel Bakış', icon: TrendingUp, perm: null },
+            { id: 'flights', label: `Uçuşlar (${flights.length})`, icon: Plane, perm: 'manage_flights' },
+            { id: 'bookings', label: `Rezervasyonlar (${bookings.length})`, icon: Calendar, perm: 'manage_bookings' },
+            { id: 'cms', label: 'Site Görselleri & Metinler', icon: ImageIcon, perm: 'manage_cms' },
+            { id: 'news', label: `Haberler (${news.length})`, icon: Newspaper, perm: 'manage_news' },
+            { id: 'airports', label: `Havalimanları & Filo`, icon: Building, perm: 'manage_airports' },
+            { id: 'rbac', label: 'Rol & Yetki Matrisi (SüperAdmin)', icon: Lock, perm: 'manage_roles' },
+            { id: 'settings', label: 'Sistem Parametreleri', icon: Settings, perm: 'manage_settings' }
+          ].map((tab) => {
+            const isPermitted = !tab.perm || hasPermission(tab.perm as PermissionKey);
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (isPermitted) setActiveTab(tab.id as any);
+                  else showToast('Bu sekmeye erişim için rol yetkiniz bulunmamaktadır!', 'error');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-blue-50 text-brand-blue border border-blue-200 shadow-xs'
+                    : isPermitted
+                    ? 'text-slate-600 hover:bg-slate-100'
+                    : 'text-slate-300 cursor-not-allowed bg-slate-50'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+                {!isPermitted && <Lock className="w-3 h-3 text-slate-400 ml-1" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Main Admin Content Area */}
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 pt-8">
-        
-        {/* OVERVIEW TAB */}
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 pt-6">
+
+        {/* 1. OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fade-in">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <div className="bg-white p-5 rounded-2xl border border-brand-border shadow-subtle">
                 <div className="flex items-center justify-between text-brand-muted text-xs font-bold mb-2">
                   <span>{t('admin_stat_total_bookings')}</span>
@@ -272,7 +463,7 @@ export const AdminDashboard: React.FC = () => {
                   <TrendingUp className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="text-3xl font-black font-heading text-brand-navy">
-                  %78.4
+                  %82.1
                 </div>
                 <div className="text-[11px] text-emerald-600 mt-1 font-semibold">
                   Yüksek Kapasite Verimi
@@ -280,7 +471,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Recharts Analytics Card */}
+            {/* Recharts Chart */}
             <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle">
               <h3 className="font-heading font-bold text-base text-brand-navy mb-4">
                 Destinasyon Bazında Sefer Dağılımı (Recharts Analytics)
@@ -307,8 +498,502 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* FLIGHTS TAB */}
-        {activeTab === 'flights' && (
+        {/* 2. CMS: SITE GÖRSELLERİ, BAŞLIKLAR VE METİNLER TAB */}
+        {activeTab === 'cms' && hasPermission('manage_cms') && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold font-heading text-brand-navy">
+                  Dinamik İçerik & Görsel Yönetim Stüdyosu (CMS)
+                </h3>
+                <p className="text-xs text-brand-muted mt-0.5">
+                  Arka plan resimlerini, ana sayfa başlıklarını, sloganları ve avantaj kartlarını buradan anında değiştirin.
+                </p>
+              </div>
+            </div>
+
+            {/* Hero & Background Customizer */}
+            <form onSubmit={handleSaveCMS} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-6">
+              <div className="flex items-center gap-2 font-heading font-bold text-base text-brand-navy pb-3 border-b border-slate-100">
+                <ImageIcon className="w-5 h-5 text-brand-blue" />
+                <span>Hero Bölümü Görseli & Başlıkları</span>
+              </div>
+
+              {/* Background URL */}
+              <div>
+                <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                  Hero Arka Plan Resmi URL (Canlı Fotoğraf)
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="url"
+                    required
+                    value={cmsHeroBg}
+                    onChange={(e) => setCmsHeroBg(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
+                  />
+                  <div className="w-16 h-10 rounded-xl overflow-hidden border border-slate-300 flex-shrink-0 bg-slate-100">
+                    <img src={cmsHeroBg} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+                <span className="text-[10px] text-brand-muted mt-1 block">
+                  İpucu: Unsplash veya doğrudan uçak/gökyüzü görseli URL'si yapıştırabilirsiniz.
+                </span>
+              </div>
+
+              {/* Titles Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Ana Başlık (Türkçe)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={cmsHeroTitle}
+                    onChange={(e) => setCmsHeroTitle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Ana Başlık (İngilizce)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={cmsHeroTitleEn}
+                    onChange={(e) => setCmsHeroTitleEn(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                  />
+                </div>
+              </div>
+
+              {/* Subtitles Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Alt Açıklama (Türkçe)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={cmsHeroSubtitle}
+                    onChange={(e) => setCmsHeroSubtitle(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Alt Açıklama (İngilizce)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={cmsHeroSubtitleEn}
+                    onChange={(e) => setCmsHeroSubtitleEn(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Pill Badges */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Üst Slogan Rozeti (Türkçe)
+                  </label>
+                  <input
+                    type="text"
+                    value={cmsHeroBadge}
+                    onChange={(e) => setCmsHeroBadge(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
+                    Üst Slogan Rozeti (İngilizce)
+                  </label>
+                  <input
+                    type="text"
+                    value={cmsHeroBadgeEn}
+                    onChange={(e) => setCmsHeroBadgeEn(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* Top Announcement Ribbon Switcher */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="announceCheck"
+                    checked={cmsAnnounceEnabled}
+                    onChange={(e) => setCmsAnnounceEnabled(e.target.checked)}
+                    className="w-4 h-4 text-brand-blue rounded"
+                  />
+                  <label htmlFor="announceCheck" className="text-xs font-bold text-brand-navy cursor-pointer">
+                    Ana Sayfa Üst Duyuru Bandını Göster
+                  </label>
+                </div>
+
+                {cmsAnnounceEnabled && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">Rozet Metni</label>
+                      <input
+                        type="text"
+                        value={cmsAnnounceBadge}
+                        onChange={(e) => setCmsAnnounceBadge(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold uppercase"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">Duyuru Cümlesi</label>
+                      <input
+                        type="text"
+                        value={cmsAnnounceText}
+                        onChange={(e) => setCmsAnnounceText(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-3">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Değişiklikleri Canlıya Uygula</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Campaign Banners Editor */}
+            <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-4">
+              <h4 className="font-heading font-bold text-base text-brand-navy">
+                Kampanya Banner Görselleri ve İndirimleri
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {campaigns.map((cmp) => (
+                  <div key={cmp.id} className="p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div className="h-32 rounded-lg overflow-hidden bg-slate-100">
+                      <img src={cmp.imageUrl} alt={cmp.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">Görsel URL</label>
+                      <input
+                        type="url"
+                        value={cmp.imageUrl}
+                        onChange={(e) => updateCampaign(cmp.id, { imageUrl: e.target.value })}
+                        className="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-lg font-mono"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">Başlık</label>
+                        <input
+                          type="text"
+                          value={cmp.title}
+                          onChange={(e) => updateCampaign(cmp.id, { title: e.target.value })}
+                          className="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-lg font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">Rozet</label>
+                        <input
+                          type="text"
+                          value={cmp.badgeText}
+                          onChange={(e) => updateCampaign(cmp.id, { badgeText: e.target.value })}
+                          className="w-full px-3 py-1.5 text-xs bg-slate-50 border rounded-lg font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Destinations Prices Editor */}
+            <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-4">
+              <h4 className="font-heading font-bold text-base text-brand-navy">
+                Popüler Destinasyonlar Görsel ve Fiyat Ayarları
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {destinations.map((dest) => (
+                  <div key={dest.id} className="p-3 rounded-xl border border-slate-200 space-y-2 text-xs">
+                    <div className="h-24 rounded-lg overflow-hidden bg-slate-100">
+                      <img src={dest.imageUrl} alt={dest.city} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="font-bold">{dest.city}</div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold block">Görsel URL</label>
+                      <input
+                        type="url"
+                        value={dest.imageUrl}
+                        onChange={(e) => updateDestination(dest.id, { imageUrl: e.target.value })}
+                        className="w-full px-2 py-1 text-[11px] bg-slate-50 border rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold block">Başlangıç Fiyatı (₺)</label>
+                      <input
+                        type="number"
+                        value={dest.startingPrice}
+                        onChange={(e) => updateDestination(dest.id, { startingPrice: Number(e.target.value) })}
+                        className="w-full px-2 py-1 text-[11px] bg-slate-50 border rounded font-bold"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3. HABERLER & DUYURULAR YÖNETİMİ TAB */}
+        {activeTab === 'news' && hasPermission('manage_news') && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold font-heading text-brand-navy">
+                  Haberler, Basın Bültenleri ve Duyurular ({news.length})
+                </h3>
+                <p className="text-xs text-brand-muted mt-0.5">
+                  Buradan yeni şirket haberleri ekleyebilir veya yayından kaldırabilirsiniz.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowAddNewsModal(true)}
+                className="px-4 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Yeni Haber Ekle</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {news.map((n) => (
+                <div key={n.id} className="bg-white rounded-2xl border border-brand-border shadow-subtle p-5 flex flex-col justify-between">
+                  <div>
+                    <div className="h-40 rounded-xl overflow-hidden mb-3 bg-slate-100">
+                      <img src={n.imageUrl} alt={n.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-brand-muted mb-1.5">
+                      <span className="font-bold text-brand-blue uppercase">{n.category}</span>
+                      <span>{n.publishedAt}</span>
+                    </div>
+                    <h4 className="font-bold text-sm text-brand-navy line-clamp-2">{n.title}</h4>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-3 leading-relaxed">{n.summary}</p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      n.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {n.isActive ? 'Yayında' : 'Taslak'}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => updateNewsItem(n.id, { isActive: !n.isActive })}
+                        className="p-1.5 text-slate-500 hover:text-brand-blue rounded-lg"
+                        title={n.isActive ? 'Yayından Kaldır' : 'Yayına Al'}
+                      >
+                        {n.isActive ? <Eye className="w-4 h-4" /> : <Eye className="w-4 h-4 opacity-40" />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteNewsItem(n.id);
+                          showToast('Haber silindi.', 'error');
+                        }}
+                        className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg"
+                        title="Haberi Sil"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. SÜPER ADMİN: ROL VE YETKİ MATRİSİ (RBAC) TAB */}
+        {activeTab === 'rbac' && hasPermission('manage_roles') && (
+          <div className="space-y-8 animate-fade-in">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold mb-2">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Süper Admin Güvenlik & Yetkilendirme Modülü</span>
+              </div>
+              <h3 className="text-xl font-bold font-heading text-brand-navy">
+                Rol Tabanlı Erişim Kontrolü (RBAC Permissions Matrix)
+              </h3>
+              <p className="text-xs text-brand-muted mt-0.5">
+                Hangi rolün admin panelindeki hangi bölümlere (uçuşlar, rezervasyonlar, CMS, haberler vb.) erişebileceğini doğrudan buradan ayarlayın.
+              </p>
+            </div>
+
+            {/* Permissions Matrix Table */}
+            <div className="bg-white rounded-2xl border border-brand-border shadow-subtle overflow-hidden">
+              <div className="p-4 bg-slate-50 border-b border-slate-200">
+                <h4 className="font-heading font-bold text-sm text-brand-navy">
+                  Yetki Dağılım Matrisi (Açmak/Kapatmak için Kutulara Tıklayın)
+                </h4>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="p-3.5 min-w-[240px]">Yetki Alanı</th>
+                      <th className="p-3.5 text-center">Süper Admin</th>
+                      <th className="p-3.5 text-center">Uçuş Şefi (Flight)</th>
+                      <th className="p-3.5 text-center">Bilet Destek (Booking)</th>
+                      <th className="p-3.5 text-center">İçerik Editörü (Content)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {allPermissionsList.map((perm) => (
+                      <tr key={perm.key} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="p-3.5 font-bold text-brand-navy">{perm.label}</td>
+
+                        {/* Super Admin always has all */}
+                        <td className="p-3.5 text-center">
+                          <CheckSquare className="w-5 h-5 text-emerald-600 mx-auto" />
+                        </td>
+
+                        {/* Flight Manager */}
+                        <td className="p-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => togglePermissionForRole('flight_manager', perm.key)}
+                            className="focus:outline-hidden"
+                          >
+                            {rolePermissions.flight_manager?.includes(perm.key) ? (
+                              <CheckSquare className="w-5 h-5 text-brand-blue mx-auto" />
+                            ) : (
+                              <Square className="w-5 h-5 text-slate-300 mx-auto hover:text-slate-500" />
+                            )}
+                          </button>
+                        </td>
+
+                        {/* Booking Manager */}
+                        <td className="p-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => togglePermissionForRole('booking_manager', perm.key)}
+                            className="focus:outline-hidden"
+                          >
+                            {rolePermissions.booking_manager?.includes(perm.key) ? (
+                              <CheckSquare className="w-5 h-5 text-brand-blue mx-auto" />
+                            ) : (
+                              <Square className="w-5 h-5 text-slate-300 mx-auto hover:text-slate-500" />
+                            )}
+                          </button>
+                        </td>
+
+                        {/* Content Manager */}
+                        <td className="p-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => togglePermissionForRole('content_manager', perm.key)}
+                            className="focus:outline-hidden"
+                          >
+                            {rolePermissions.content_manager?.includes(perm.key) ? (
+                              <CheckSquare className="w-5 h-5 text-brand-blue mx-auto" />
+                            ) : (
+                              <Square className="w-5 h-5 text-slate-300 mx-auto hover:text-slate-500" />
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Staff Accounts Management */}
+            <div className="bg-white rounded-2xl border border-brand-border shadow-subtle p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-heading font-bold text-base text-brand-navy">
+                    Yetkili Personel ve Yönetici Kullanıcılar ({staffUsers.length})
+                  </h4>
+                  <p className="text-xs text-brand-muted">
+                    Sistem personeli tanımlayın veya mevcut personelin rolünü değiştirin.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowAddStaffModal(true)}
+                  className="px-4 py-2 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs"
+                >
+                  <UserPlus className="w-4 h-4 text-brand-cyan" />
+                  <span>Yeni Personel Tanımla</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-brand-muted uppercase font-bold">
+                    <tr>
+                      <th className="p-3">Ad Soyad</th>
+                      <th className="p-3">E-Posta</th>
+                      <th className="p-3">Aktif Rol</th>
+                      <th className="p-3 text-right">Rolü Güncelle</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {staffUsers.map((u) => (
+                      <tr key={u.id}>
+                        <td className="p-3 font-bold text-brand-navy">{u.name} {u.surname}</td>
+                        <td className="p-3 text-slate-600">{u.email}</td>
+                        <td className="p-3">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            u.role === 'super_admin'
+                              ? 'bg-purple-100 text-purple-800'
+                              : u.role === 'flight_manager'
+                              ? 'bg-blue-100 text-blue-800'
+                              : u.role === 'booking_manager'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {u.role.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right">
+                          <select
+                            value={u.role}
+                            onChange={(e) => {
+                              updateUserRole(u.id, e.target.value as UserRole);
+                              showToast(`${u.name} kullanıcısının rolü güncellendi!`, 'info');
+                            }}
+                            className="px-2 py-1 rounded-lg border border-slate-300 text-xs font-semibold bg-white"
+                          >
+                            <option value="super_admin">Süper Admin</option>
+                            <option value="flight_manager">Uçuş Şefi (Flight Manager)</option>
+                            <option value="booking_manager">Biletçi (Booking Manager)</option>
+                            <option value="content_manager">İçerik Editörü (Content Manager)</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. FLIGHTS TAB */}
+        {activeTab === 'flights' && hasPermission('manage_flights') && (
           <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between">
               <div>
@@ -398,8 +1083,8 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* BOOKINGS TAB */}
-        {activeTab === 'bookings' && (
+        {/* 6. BOOKINGS TAB */}
+        {activeTab === 'bookings' && hasPermission('manage_bookings') && (
           <div className="space-y-6 animate-fade-in">
             <h3 className="text-xl font-bold font-heading text-brand-navy">
               Rezervasyon ve Bilet Kayıtları
@@ -471,83 +1156,84 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* AIRPORTS TAB */}
-        {activeTab === 'airports' && (
-          <div className="space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold font-heading text-brand-navy">
-                Kayıtlı Havalimanları ({airports.length})
-              </h3>
-              <button
-                onClick={() => setShowAddAirportModal(true)}
-                className="px-4 py-2 bg-brand-blue text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Yeni Havalimanı Ekle</span>
-              </button>
-            </div>
+        {/* 7. AIRPORTS & AIRCRAFT TAB */}
+        {activeTab === 'airports' && hasPermission('manage_airports') && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Airports */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold font-heading text-brand-navy">
+                  Kayıtlı Havalimanları ({airports.length})
+                </h3>
+                <button
+                  onClick={() => setShowAddAirportModal(true)}
+                  className="px-4 py-2 bg-brand-blue text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Yeni Havalimanı Ekle</span>
+                </button>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {airports.map((a) => (
-                <div key={a.id} className="bg-white p-5 rounded-2xl border border-brand-border shadow-subtle flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-black font-heading text-brand-navy">{a.iataCode}</span>
-                      <span className="text-xs font-mono font-bold text-slate-400">{a.icaoCode}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {airports.map((a) => (
+                  <div key={a.id} className="bg-white p-5 rounded-2xl border border-brand-border shadow-subtle flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl font-black font-heading text-brand-navy">{a.iataCode}</span>
+                        <span className="text-xs font-mono font-bold text-slate-400">{a.icaoCode}</span>
+                      </div>
+                      <div className="font-bold text-sm text-brand-navy truncate">{a.name}</div>
+                      <div className="text-xs text-brand-muted mt-0.5">{a.city}, {a.country}</div>
                     </div>
-                    <div className="font-bold text-sm text-brand-navy">{a.name}</div>
-                    <div className="text-xs text-brand-muted mt-0.5">{a.city}, {a.country}</div>
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                      <span>{a.timezone}</span>
+                      <span className="text-emerald-600 font-bold">Aktif</span>
+                    </div>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-                    <span>{a.timezone}</span>
-                    <span className="text-emerald-600 font-bold">Aktif</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Aircraft Fleet */}
+            <div>
+              <h3 className="text-xl font-bold font-heading text-brand-navy mb-4">
+                Uçak Filosu ve Kabin Yerleşimi ({aircrafts.length})
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {aircrafts.map((ac) => (
+                  <div key={ac.id} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xl font-bold font-heading text-brand-navy">{ac.model}</span>
+                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-50 text-brand-blue">
+                        {ac.registrationNumber}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-600 space-y-1.5 mt-4">
+                      <div>Üretici: <b>{ac.manufacturer}</b></div>
+                      <div>Toplam Kapasite: <b>{ac.totalCapacity} Yolcu</b></div>
+                      <div>Kabin Dağılımı: <b>{ac.businessRows} Sıra Business, {ac.economyRows} Sıra Ekonomi</b></div>
+                      <div>Koltuk Dizilimi: <b>3 + 3 ({ac.seatsPerRow.join(', ')})</b></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* AIRCRAFT TAB */}
-        {activeTab === 'aircraft' && (
-          <div className="space-y-6 animate-fade-in">
-            <h3 className="text-xl font-bold font-heading text-brand-navy">
-              Uçak Filosu ve Oturma Düzeni ({aircrafts.length})
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {aircrafts.map((ac) => (
-                <div key={ac.id} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xl font-bold font-heading text-brand-navy">{ac.model}</span>
-                    <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-50 text-brand-blue">
-                      {ac.registrationNumber}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-600 space-y-1.5 mt-4">
-                    <div>Üretici: <b>{ac.manufacturer}</b></div>
-                    <div>Toplam Kapasite: <b>{ac.totalCapacity} Yolcu</b></div>
-                    <div>Kabin Dağılımı: <b>{ac.businessRows} Sıra Business, {ac.economyRows} Sıra Ekonomi</b></div>
-                    <div>Koltuk Dizilimi: <b>3 + 3 ({ac.seatsPerRow.join(', ')})</b></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SYSTEM SETTINGS TAB */}
-        {activeTab === 'settings' && (
+        {/* 8. SETTINGS TAB */}
+        {activeTab === 'settings' && hasPermission('manage_settings') && (
           <div className="max-w-2xl bg-white p-6 sm:p-8 rounded-3xl border border-brand-border shadow-subtle space-y-6 animate-fade-in">
             <div>
               <h3 className="text-xl font-bold font-heading text-brand-navy">
-                Sistem ve Operasyon Parametreleri
+                Sistem ve Finansal Parametreler
               </h3>
               <p className="text-xs text-brand-muted mt-1">
-                Vergi oranları, para birimi ve koltuk kilitleme sürelerini buradan yönetebilirsiniz.
+                Vergi oranları ve koltuk kilitleme sürelerini buradan yönetebilirsiniz.
               </p>
             </div>
 
-            <form onSubmit={handleSaveSettings} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); showToast('Sistem ayarları güncellendi!', 'success'); }} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
                   KDV & Havalimanı Harç Oranı (%)
@@ -572,18 +1258,6 @@ export const AdminDashboard: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
-                  Web Sitesi Duyuru Bandı Metni
-                </label>
-                <input
-                  type="text"
-                  value={announcementText}
-                  onChange={(e) => setAnnouncementText(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
-                />
-              </div>
-
               <div className="pt-4 border-t border-slate-100 flex justify-end">
                 <button
                   type="submit"
@@ -596,7 +1270,10 @@ export const AdminDashboard: React.FC = () => {
             </form>
           </div>
         )}
+
       </div>
+
+      {/* MODALS */}
 
       {/* Add Flight Modal */}
       {showAddFlightModal && (
@@ -814,6 +1491,176 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Add News Modal */}
+      {showAddNewsModal && (
+        <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold font-heading text-brand-navy mb-4">
+              Yeni Şirket Haberi & Duyuru Ekle
+            </h3>
+
+            <form onSubmit={handleCreateNews} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">Haber Başlığı</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Yeni Seferlerimiz Satışta..."
+                  value={newsTitle}
+                  onChange={(e) => setNewsTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-muted block mb-1">Kategori</label>
+                  <select
+                    value={newsCategory}
+                    onChange={(e) => setNewsCategory(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                  >
+                    <option value="Duyuru">Duyuru</option>
+                    <option value="Kampanya">Kampanya</option>
+                    <option value="Operasyon">Operasyon</option>
+                    <option value="Basın">Basın</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-muted block mb-1">Görsel URL</label>
+                  <input
+                    type="url"
+                    required
+                    value={newsImage}
+                    onChange={(e) => setNewsImage(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">Kısa Özet</label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Haber kartında görünecek 1-2 cümlelik özet..."
+                  value={newsSummary}
+                  onChange={(e) => setNewsSummary(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">Detaylı Haber İçeriği</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Haberin tam metni..."
+                  value={newsContent}
+                  onChange={(e) => setNewsContent(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddNewsModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md"
+                >
+                  Haberi Yayınla
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Staff Modal */}
+      {showAddStaffModal && (
+        <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border">
+            <h3 className="text-lg font-bold font-heading text-brand-navy mb-4">
+              Yeni Yetkili Personel Ekle
+            </h3>
+
+            <form onSubmit={handleAddStaff} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-muted block mb-1">Ad</label>
+                  <input
+                    type="text"
+                    required
+                    value={staffName}
+                    onChange={(e) => setStaffName(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-muted block mb-1">Soyad</label>
+                  <input
+                    type="text"
+                    required
+                    value={staffSurname}
+                    onChange={(e) => setStaffSurname(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">E-Posta</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="personel@rumusky.com"
+                  value={staffEmail}
+                  onChange={(e) => setStaffEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">Atanacak Rol</label>
+                <select
+                  value={staffRole}
+                  onChange={(e) => setStaffRole(e.target.value as UserRole)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                >
+                  <option value="super_admin">Süper Admin (Tam Yetki)</option>
+                  <option value="flight_manager">Uçuş Şefi (Uçuş, Havalimanı, Uçaklar)</option>
+                  <option value="booking_manager">Bilet Destek (Rezervasyonlar & Biletler)</option>
+                  <option value="content_manager">İçerik Editörü (CMS, Haberler, Görseller)</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddStaffModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md"
+                >
+                  Personeli Kaydet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

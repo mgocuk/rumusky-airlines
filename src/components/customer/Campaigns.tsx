@@ -1,13 +1,12 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { INITIAL_CAMPAIGNS } from '../../data/seedData';
+import { Campaign } from '../../types';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const Campaigns: React.FC = () => {
-  const { language, t, setSearchQuery } = useApp();
+  const { campaigns, language, t, setSearchQuery } = useApp();
 
-  const handleCampaignClick = (cmp: typeof INITIAL_CAMPAIGNS[0]) => {
-    // Prefill search query for this campaign
+  const handleCampaignClick = (cmp: Campaign) => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 2);
     const dateStr = tomorrow.toISOString().split('T')[0];
@@ -31,14 +30,14 @@ export const Campaigns: React.FC = () => {
           <h3 className="text-xl sm:text-2xl font-bold text-brand-navy font-heading">
             {t('campaigns_title')}
           </h3>
-          <p className="text-sm text-brand-muted mt-1">
+          <p className="text-xs sm:text-sm text-brand-muted mt-1">
             {language === 'tr' ? 'Sezonun en avantajlı uçuş fırsatları' : 'The best seasonal airfare opportunities'}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {INITIAL_CAMPAIGNS.map((cmp) => {
+        {campaigns.map((cmp) => {
           const title = language === 'en' ? cmp.titleEn : cmp.title;
           const subtitle = language === 'en' ? cmp.subtitleEn : cmp.subtitle;
           const badge = language === 'en' ? cmp.badgeTextEn : cmp.badgeText;
@@ -50,7 +49,7 @@ export const Campaigns: React.FC = () => {
               onClick={() => handleCampaignClick(cmp)}
               className="group relative rounded-2xl overflow-hidden cursor-pointer shadow-subtle hover:shadow-elevated transition-all duration-300 border border-slate-200/80 flex flex-col justify-end min-h-[260px] p-6 text-white"
             >
-              {/* Background Image with Dark Gradient Overlay */}
+              {/* Dynamic Image with Smooth Overlay */}
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
                 style={{ backgroundImage: `url(${cmp.imageUrl})` }}

@@ -1,6 +1,21 @@
 export type Language = 'tr' | 'en';
 
-export type UserRole = 'super_admin' | 'flight_manager' | 'booking_manager' | 'customer';
+export type UserRole = 
+  | 'super_admin' 
+  | 'flight_manager' 
+  | 'booking_manager' 
+  | 'content_manager' 
+  | 'customer';
+
+export type PermissionKey = 
+  | 'manage_flights' 
+  | 'manage_airports' 
+  | 'manage_aircraft' 
+  | 'manage_bookings' 
+  | 'manage_cms' 
+  | 'manage_news' 
+  | 'manage_settings' 
+  | 'manage_roles';
 
 export interface User {
   id: string;
@@ -9,6 +24,48 @@ export interface User {
   email: string;
   role: UserRole;
   phone?: string;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  titleEn: string;
+  summary: string;
+  summaryEn: string;
+  content: string;
+  contentEn: string;
+  imageUrl: string;
+  category: 'Duyuru' | 'Kampanya' | 'Operasyon' | 'Basın' | 'Filo' | 'Hat Açılışı' | 'Sürdürülebilirlik' | string;
+  publishedAt: string;
+  isActive: boolean;
+}
+
+export interface BenefitItem {
+  id: string;
+  title: string;
+  titleEn: string;
+  desc: string;
+  descEn: string;
+  icon: string;
+}
+
+export interface SiteContentConfig {
+  heroBackgroundUrl: string;
+  heroBadgeText: string;
+  heroBadgeTextEn: string;
+  heroTitle: string;
+  heroTitleEn: string;
+  heroSubtitle: string;
+  heroSubtitleEn: string;
+  benefits: BenefitItem[];
+  announcementBanner: {
+    enabled: boolean;
+    text: string;
+    textEn: string;
+    badge: string;
+  };
+  footerDesc: string;
+  footerDescEn: string;
 }
 
 export interface Airport {

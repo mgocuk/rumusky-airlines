@@ -9,9 +9,16 @@ import {
   Passenger,
   SearchQuery,
   User,
-  OperationalStatus
+  UserRole,
+  PermissionKey,
+  OperationalStatus,
+  SiteContentConfig,
+  NewsItem,
+  Campaign,
+  PopularDestination
 } from '../types';
-import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights } from '../data/seedData';
+import { INITIAL_AIRPORTS, INITIAL_AIRCRAFTS, getInitialFlights, INITIAL_CAMPAIGNS, INITIAL_DESTINATIONS } from '../data/seedData';
+import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_STAFF_USERS } from '../data/seedContent';
 import { translations } from '../utils/translations';
 
 export type AppView = 
@@ -22,8 +29,9 @@ export type AppView =
   | 'checkout' 
   | 'confirmation' 
   | 'manage' 
-  | 'account'
+  | 'account' 
   | 'checkin'
+  | 'news'
   | 'admin';
 
 interface AppContextType {
@@ -37,12 +45,35 @@ interface AppContextType {
   flights: Flight[];
   bookings: Booking[];
   tickets: Ticket[];
+  campaigns: Campaign[];
+  destinations: PopularDestination[];
+  siteContent: SiteContentConfig;
+  updateSiteContent: (content: Partial<SiteContentConfig>) => void;
+  news: NewsItem[];
+  addNewsItem: (item: Omit<NewsItem, 'id' | 'publishedAt'>) => void;
+  updateNewsItem: (id: string, item: Partial<NewsItem>) => void;
+  deleteNewsItem: (id: string) => void;
+  selectedNewsArticle: NewsItem | null;
+  setSelectedNewsArticle: (item: NewsItem | null) => void;
+  // Role & Permissions (RBAC)
+  rolePermissions: Record<UserRole, PermissionKey[]>;
+  updateRolePermissions: (role: UserRole, perms: PermissionKey[]) => void;
+  hasPermission: (perm: PermissionKey) => boolean;
+  staffUsers: User[];
+  addStaffUser: (user: Omit<User, 'id'>) => void;
+  updateUserRole: (userId: string, newRole: UserRole) => void;
+  deleteStaffUser: (userId: string) => void;
+  switchActiveStaffRole: (role: UserRole) => void;
+  // Dynamic Campaigns & Destinations
+  updateCampaign: (id: string, updated: Partial<Campaign>) => void;
+  updateDestination: (id: string, updated: Partial<PopularDestination>) => void;
+  // Booking Flow
   searchQuery: SearchQuery | null;
   selectedFlight: Flight | null;
   passengers: Passenger[];
   contactEmail: string;
   contactPhone: string;
-  selectedSeats: Record<string, string>; // passengerId -> seatNumber
+  selectedSeats: Record<string, string>;
   currentBooking: Booking | null;
   activeUser: User | null;
   isAdmin: boolean;
@@ -79,6 +110,12 @@ const STORAGE_KEYS = {
   TICKETS: 'rumusky_tickets',
   AIRPORTS: 'rumusky_airports',
   AIRCRAFTS: 'rumusky_aircrafts',
+  CAMPAIGNS: 'rumusky_campaigns',
+  DESTINATIONS: 'rumusky_destinations',
+  SITE_CONTENT: 'rumusky_site_content',
+  NEWS: 'rumusky_news',
+  ROLE_PERMISSIONS: 'rumusky_role_permissions',
+  STAFF_USERS: 'rumusky_staff_users',
   USER: 'rumusky_user'
 };
 
@@ -100,6 +137,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // View state
   const [activeView, setActiveView] = useState<AppView>('home');
+  const [selectedNewsArticle, setSelectedNewsArticle] = useState<NewsItem | null>(null);
 
   // Persistence State
   const [airports, setAirports] = useState<Airport[]>(() => {
@@ -117,6 +155,36 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : getInitialFlights();
   });
 
+  const [campaigns, setCampaigns] = useState<Campaign[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CAMPAIGNS);
+    return saved ? JSON.parse(saved) : INITIAL_CAMPAIGNS;
+  });
+
+  const [destinations, setDestinations] = useState<PopularDestination[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+    return saved ? JSON.parse(saved) : INITIAL_DESTINATIONS;
+  });
+
+  const [siteContent, setSiteContent] = useState<SiteContentConfig>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.SITE_CONTENT);
+    return saved ? JSON.parse(saved) : INITIAL_SITE_CONTENT;
+  });
+
+  const [news, setNews] = useState<NewsItem[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.NEWS);
+    return saved ? JSON.parse(saved) : INITIAL_NEWS;
+  });
+
+  const [rolePermissions, setRolePermissions] = useState<Record<UserRole, PermissionKey[]>>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ROLE_PERMISSIONS);
+    return saved ? JSON.parse(saved) : DEFAULT_ROLE_PERMISSIONS;
+  });
+
+  const [staffUsers, setStaffUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.STAFF_USERS);
+    return saved ? JSON.parse(saved) : INITIAL_STAFF_USERS;
+  });
+
   const [bookings, setBookings] = useState<Booking[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
     return saved ? JSON.parse(saved) : [];
@@ -127,7 +195,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Current Booking Flow State
+  // Booking Flow State
   const [searchQuery, setSearchQueryState] = useState<SearchQuery | null>(null);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [passengers, setPassengers] = useState<Passenger[]>([]);
@@ -144,14 +212,122 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeUser, setActiveUser] = useState<User | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.USER);
-    return saved ? JSON.parse(saved) : {
-      id: 'usr-1',
-      name: 'Mustafa',
-      surname: 'Göçük',
-      email: 'mustafa.gocuk@rumusky.com',
-      role: 'customer'
-    };
+    return saved ? JSON.parse(saved) : INITIAL_STAFF_USERS[0];
   });
+
+  // Local Storage Sync
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.FLIGHTS, JSON.stringify(flights));
+  }, [flights]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+  }, [bookings]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
+  }, [tickets]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(siteContent));
+  }, [siteContent]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.NEWS, JSON.stringify(news));
+  }, [news]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
+  }, [campaigns]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(destinations));
+  }, [destinations]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ROLE_PERMISSIONS, JSON.stringify(rolePermissions));
+  }, [rolePermissions]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STAFF_USERS, JSON.stringify(staffUsers));
+  }, [staffUsers]);
+
+  // Permission Checker
+  const hasPermission = (perm: PermissionKey): boolean => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'super_admin') return true;
+    const userPerms = rolePermissions[activeUser.role] || [];
+    return userPerms.includes(perm);
+  };
+
+  const updateRolePermissions = (role: UserRole, perms: PermissionKey[]) => {
+    setRolePermissions((prev) => ({
+      ...prev,
+      [role]: perms
+    }));
+  };
+
+  const updateSiteContent = (updated: Partial<SiteContentConfig>) => {
+    setSiteContent((prev) => ({ ...prev, ...updated }));
+  };
+
+  const addNewsItem = (item: Omit<NewsItem, 'id' | 'publishedAt'>) => {
+    const newItem: NewsItem = {
+      ...item,
+      id: `news-${Date.now()}`,
+      publishedAt: new Date().toISOString().split('T')[0]
+    };
+    setNews((prev) => [newItem, ...prev]);
+  };
+
+  const updateNewsItem = (id: string, updated: Partial<NewsItem>) => {
+    setNews((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
+  };
+
+  const deleteNewsItem = (id: string) => {
+    setNews((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const updateCampaign = (id: string, updated: Partial<Campaign>) => {
+    setCampaigns((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+  };
+
+  const updateDestination = (id: string, updated: Partial<PopularDestination>) => {
+    setDestinations((prev) => prev.map((d) => (d.id === id ? { ...d, ...updated } : d)));
+  };
+
+  const addStaffUser = (newUser: Omit<User, 'id'>) => {
+    const user: User = {
+      ...newUser,
+      id: `usr-staff-${Date.now()}`
+    };
+    setStaffUsers((prev) => [...prev, user]);
+  };
+
+  const updateUserRole = (userId: string, newRole: UserRole) => {
+    setStaffUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
+    if (activeUser && activeUser.id === userId) {
+      setActiveUser((prev) => (prev ? { ...prev, role: newRole } : null));
+    }
+  };
+
+  const deleteStaffUser = (userId: string) => {
+    setStaffUsers((prev) => prev.filter((u) => u.id !== userId));
+  };
+
+  const switchActiveStaffRole = (role: UserRole) => {
+    const matchingStaff = staffUsers.find((u) => u.role === role) || {
+      id: `usr-${role}`,
+      name: role.toUpperCase(),
+      surname: 'Yetkilisi',
+      email: `${role}@rumusky.com`,
+      role
+    };
+    setActiveUser(matchingStaff);
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(matchingStaff));
+  };
 
   const loginUser = (email: string, name: string) => {
     const user: User = {
@@ -175,40 +351,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsAdmin((prev) => {
       const next = !prev;
       if (next) {
-        setActiveUser({
-          id: 'user-admin',
-          name: 'Sistem',
-          surname: 'Yöneticisi',
-          email: 'admin@rumusky.com',
-          role: 'super_admin'
-        });
+        if (!activeUser || activeUser.role === 'customer') {
+          setActiveUser(INITIAL_STAFF_USERS[0]); // default to Super Admin
+        }
         setActiveView('admin');
       } else {
-        setActiveUser({
-          id: 'usr-1',
-          name: 'Mustafa',
-          surname: 'Göçük',
-          email: 'mustafa.gocuk@rumusky.com',
-          role: 'customer'
-        });
         setActiveView('home');
       }
       return next;
     });
   };
-
-  // Save to localStorage on change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.FLIGHTS, JSON.stringify(flights));
-  }, [flights]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-  }, [bookings]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
-  }, [tickets]);
 
   // Actions
   const setSearchQuery = (query: SearchQuery) => {
@@ -416,6 +568,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setAirports(INITIAL_AIRPORTS);
     setAircrafts(INITIAL_AIRCRAFTS);
     setFlights(getInitialFlights());
+    setCampaigns(INITIAL_CAMPAIGNS);
+    setDestinations(INITIAL_DESTINATIONS);
+    setSiteContent(INITIAL_SITE_CONTENT);
+    setNews(INITIAL_NEWS);
+    setRolePermissions(DEFAULT_ROLE_PERMISSIONS);
+    setStaffUsers(INITIAL_STAFF_USERS);
     setBookings([]);
     setTickets([]);
     setActiveView('home');
@@ -434,6 +592,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         flights,
         bookings,
         tickets,
+        campaigns,
+        destinations,
+        siteContent,
+        updateSiteContent,
+        news,
+        addNewsItem,
+        updateNewsItem,
+        deleteNewsItem,
+        selectedNewsArticle,
+        setSelectedNewsArticle,
+        rolePermissions,
+        updateRolePermissions,
+        hasPermission,
+        staffUsers,
+        addStaffUser,
+        updateUserRole,
+        deleteStaffUser,
+        switchActiveStaffRole,
+        updateCampaign,
+        updateDestination,
         searchQuery,
         selectedFlight,
         passengers,

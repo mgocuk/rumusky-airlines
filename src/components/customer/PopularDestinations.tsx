@@ -1,12 +1,12 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { INITIAL_DESTINATIONS } from '../../data/seedData';
+import { PopularDestination } from '../../types';
 import { Plane, ArrowUpRight } from 'lucide-react';
 
 export const PopularDestinations: React.FC = () => {
-  const { language, t, setSearchQuery } = useApp();
+  const { destinations, language, t, setSearchQuery } = useApp();
 
-  const handleDestinationClick = (dest: typeof INITIAL_DESTINATIONS[0]) => {
+  const handleDestinationClick = (dest: PopularDestination) => {
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 3);
     const dateStr = nextWeek.toISOString().split('T')[0];
@@ -36,8 +36,8 @@ export const PopularDestinations: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {INITIAL_DESTINATIONS.map((dest) => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {destinations.map((dest) => {
           const cityName = language === 'en' ? dest.cityEn : dest.city;
           const countryName = language === 'en' ? dest.countryEn : dest.country;
 
@@ -48,38 +48,38 @@ export const PopularDestinations: React.FC = () => {
               className="group bg-white rounded-2xl overflow-hidden border border-brand-border/80 shadow-subtle hover:shadow-elevated hover:border-brand-blue/30 transition-all duration-300 cursor-pointer flex flex-col"
             >
               {/* Image Container */}
-              <div className="relative h-44 overflow-hidden bg-slate-100">
+              <div className="relative h-36 sm:h-44 overflow-hidden bg-slate-100">
                 <img
                   src={dest.imageUrl}
                   alt={cityName}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-brand-navy/85 backdrop-blur-xs text-white text-xs font-bold tracking-wider">
+                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-brand-navy/85 backdrop-blur-xs text-white text-[10px] sm:text-xs font-bold tracking-wider">
                   {dest.iataCode}
                 </div>
               </div>
 
               {/* Text Info */}
-              <div className="p-3.5 flex flex-col justify-between flex-1">
+              <div className="p-3 sm:p-3.5 flex flex-col justify-between flex-1">
                 <div>
-                  <h4 className="font-bold text-brand-navy text-sm sm:text-base group-hover:text-brand-blue transition-colors">
+                  <h4 className="font-bold text-brand-navy text-xs sm:text-base group-hover:text-brand-blue transition-colors truncate">
                     {cityName}
                   </h4>
-                  <p className="text-xs text-brand-muted mt-0.5">{countryName}</p>
+                  <p className="text-[11px] sm:text-xs text-brand-muted mt-0.5 truncate">{countryName}</p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-brand-muted uppercase tracking-wider block">
+                    <span className="text-[9px] sm:text-[10px] text-brand-muted uppercase tracking-wider block">
                       {t('starting_from')}
                     </span>
-                    <span className="text-sm sm:text-base font-extrabold text-brand-navy">
+                    <span className="text-xs sm:text-base font-extrabold text-brand-navy">
                       {dest.startingPrice.toLocaleString('tr-TR')} {dest.currency}
                     </span>
                   </div>
                   
-                  <div className="w-8 h-8 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
-                    <ArrowUpRight className="w-4 h-4" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                    <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
               </div>

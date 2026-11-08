@@ -17,6 +17,8 @@ import { CheckinView } from './components/customer/CheckinView';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { FlightDetailsModal } from './components/customer/FlightDetailsModal';
 import { AuthModal } from './components/common/AuthModal';
+import { NewsSection } from './components/customer/NewsSection';
+import { NewsDetailModal } from './components/customer/NewsDetailModal';
 
 export const App: React.FC = () => {
   const { activeView, isAdmin } = useApp();
@@ -38,6 +40,13 @@ export const App: React.FC = () => {
                 <Benefits />
                 <Campaigns />
                 <PopularDestinations />
+                <NewsSection />
+              </div>
+            )}
+
+            {activeView === 'news' && (
+              <div className="py-6">
+                <NewsSection />
               </div>
             )}
 
@@ -56,6 +65,7 @@ export const App: React.FC = () => {
       {/* Modals */}
       <FlightDetailsModal />
       <AuthModal />
+      <NewsDetailModal />
 
       {/* Universal Footer */}
       {!isAdmin && activeView !== 'admin' && activeView !== 'seats' && <Footer />}
