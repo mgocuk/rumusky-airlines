@@ -80,6 +80,14 @@ import {
 
 const PRESET_HERO_BACKGROUNDS = [
   {
+    title: 'Bulut Denizi & Jet (Öne Çıkan)',
+    url: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
+    title: 'Geniş Gövde Jet & Okyanus (THY Konsepti)',
+    url: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
     title: 'Bulutlar Üzerinde Uçak (Klasik)',
     url: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000&q=80'
   },
@@ -90,10 +98,6 @@ const PRESET_HERO_BACKGROUNDS = [
   {
     title: 'Gündüz Uçuşu & Gökyüzü',
     url: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?auto=format&fit=crop&w=2000&q=80'
-  },
-  {
-    title: 'Bulut Denizi & Jet',
-    url: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80'
   },
   {
     title: 'Modern Yolcu Uçağı',
@@ -324,6 +328,9 @@ export const AdminDashboard: React.FC = () => {
 
   // CMS Form States
   const [cmsHeroBg, setCmsHeroBg] = useState(siteContent.heroBackgroundUrl);
+  const [cmsHeroOverlayOpacity, setCmsHeroOverlayOpacity] = useState(siteContent.heroOverlayOpacity ?? 25);
+  const [cmsSearchOpacity, setCmsSearchOpacity] = useState(siteContent.searchCardOpacity ?? 70);
+  const [cmsSearchBlur, setCmsSearchBlur] = useState(siteContent.searchCardBlur ?? 12);
   const [cmsHeroTitle, setCmsHeroTitle] = useState(siteContent.heroTitle);
   const [cmsHeroTitleEn, setCmsHeroTitleEn] = useState(siteContent.heroTitleEn);
   const [cmsHeroSubtitle, setCmsHeroSubtitle] = useState(siteContent.heroSubtitle);
@@ -377,6 +384,9 @@ export const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     setCmsHeroBg(siteContent.heroBackgroundUrl);
+    setCmsHeroOverlayOpacity(siteContent.heroOverlayOpacity ?? 25);
+    setCmsSearchOpacity(siteContent.searchCardOpacity ?? 70);
+    setCmsSearchBlur(siteContent.searchCardBlur ?? 12);
     setCmsHeroTitle(siteContent.heroTitle);
     setCmsHeroTitleEn(siteContent.heroTitleEn);
     setCmsHeroSubtitle(siteContent.heroSubtitle);
@@ -704,6 +714,9 @@ export const AdminDashboard: React.FC = () => {
         navAdminButtonTextEn: cmsNavAdminBtnEn
       },
       heroBackgroundUrl: cmsHeroBg,
+      heroOverlayOpacity: cmsHeroOverlayOpacity,
+      searchCardOpacity: cmsSearchOpacity,
+      searchCardBlur: cmsSearchBlur,
       heroTitle: cmsHeroTitle,
       heroTitleEn: cmsHeroTitleEn,
       heroSubtitle: cmsHeroSubtitle,
@@ -1788,7 +1801,10 @@ export const AdminDashboard: React.FC = () => {
                     alt="Hero Preview"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/80 via-brand-navy/50 to-transparent" />
+                  <div
+                    className="absolute inset-0 bg-gradient-to-r from-brand-navy/90 via-brand-navy/50 to-transparent"
+                    style={{ opacity: Math.max(0.3, cmsHeroOverlayOpacity / 100) }}
+                  />
                   <div className="relative z-10 text-white">
                     <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-wider mb-0.5">
                       Canlı Önizleme
@@ -1798,6 +1814,143 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="text-[11px] text-slate-200 line-clamp-1">
                       {cmsHeroSubtitle || 'Konforlu, güvenli ve avantajlı uçuşlar'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arama Kartı Şeffaflık & Uçak Görseli Canlılığı Ayarları */}
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/60 p-5 rounded-2xl border border-blue-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-brand-blue" />
+                    <span className="text-xs font-black text-brand-navy uppercase tracking-wider">
+                      Arama Kartı Şeffaflık & Arka Plan Uçak Canlılığı (Cam Efekti)
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-bold text-brand-blue bg-blue-100/70 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    Glassmorphism Ayarları
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Search Card Idle Opacity */}
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-700">
+                        Arama Kartı Şeffaflığı
+                      </label>
+                      <span className="text-xs font-mono font-black text-brand-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        %{cmsSearchOpacity}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={15}
+                      max={100}
+                      step={5}
+                      value={cmsSearchOpacity}
+                      onChange={(e) => setCmsSearchOpacity(Number(e.target.value))}
+                      className="w-full accent-brand-blue cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                      <span>%15 (Çok Saydam)</span>
+                      <span>%70 (Önerilen)</span>
+                      <span>%100 (Opak)</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+                      Kullanıcı arama kutusuna tıklamadan önce uçağın ve gökyüzünün görünmesini sağlayan şeffaflık oranı. Tıklandığında veya odaklandığında otomatik netleşir.
+                    </p>
+                  </div>
+
+                  {/* Search Card Backdrop Blur */}
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-700">
+                        Buzlu Cam Bulanıklığı (Blur)
+                      </label>
+                      <span className="text-xs font-mono font-black text-brand-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        {cmsSearchBlur}px
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={24}
+                      step={2}
+                      value={cmsSearchBlur}
+                      onChange={(e) => setCmsSearchBlur(Number(e.target.value))}
+                      className="w-full accent-brand-blue cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                      <span>0px (Net)</span>
+                      <span>12px (Buzlu Cam)</span>
+                      <span>24px (Maksimum)</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+                      Kutunun arkasında kalan uçağın ve bulutların buzlu cam gibi dağılma yoğunluğunu belirler.
+                    </p>
+                  </div>
+
+                  {/* Hero Background Plane Visibility / Darkness */}
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-700">
+                        Uçak Karartma Perdesi
+                      </label>
+                      <span className="text-xs font-mono font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        %{cmsHeroOverlayOpacity} Karartma
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={80}
+                      step={5}
+                      value={cmsHeroOverlayOpacity}
+                      onChange={(e) => setCmsHeroOverlayOpacity(Number(e.target.value))}
+                      className="w-full accent-emerald-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                      <span>%0 (En Canlı Uçak)</span>
+                      <span>%25 (Dengeli)</span>
+                      <span>%80 (Koyu)</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+                      Düşük değerlerde arka plandaki uçak görseli ve gökyüzü çok daha canlı, parlak ve belirgin olarak öne çıkar.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Canlı Etkileşimli Önizleme */}
+                <div className="relative rounded-2xl overflow-hidden border border-slate-300 h-36 flex items-center justify-center p-4">
+                  <img
+                    src={cmsHeroBg}
+                    alt="Hero Preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-900/20 to-slate-950/60 transition-opacity"
+                    style={{ opacity: cmsHeroOverlayOpacity / 100 }}
+                  />
+                  {/* Mini Search Card Representation */}
+                  <div
+                    className="relative z-10 w-full max-w-md p-3 rounded-2xl border border-white/70 shadow-xl text-center transition-all"
+                    style={{
+                      backgroundColor: `rgba(255, 255, 255, ${cmsSearchOpacity / 100})`,
+                      backdropFilter: `blur(${cmsSearchBlur}px)`,
+                      WebkitBackdropFilter: `blur(${cmsSearchBlur}px)`
+                    }}
+                  >
+                    <div className="text-[11px] font-black text-brand-navy flex items-center justify-center gap-1.5">
+                      <Plane className="w-3.5 h-3.5 text-brand-blue" />
+                      <span>Arama Kutusu Canlı Önizleme (Şeffaf Görünüm)</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-slate-700 font-bold">
+                      <span className="px-2.5 py-1 bg-white/80 rounded-lg border border-slate-200/60 shadow-2xs">İstanbul (IST)</span>
+                      <span className="text-brand-navy">➔</span>
+                      <span className="px-2.5 py-1 bg-white/80 rounded-lg border border-slate-200/60 shadow-2xs">Londra (LHR)</span>
+                      <span className="px-3 py-1 bg-brand-blue text-white rounded-lg shadow-2xs">Uçuş Ara</span>
                     </div>
                   </div>
                 </div>

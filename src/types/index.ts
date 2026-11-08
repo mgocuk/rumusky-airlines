@@ -117,6 +117,9 @@ export interface SiteContentConfig {
   customLogoUrl?: string;
   navbar: NavbarConfig;
   heroBackgroundUrl: string;
+  heroOverlayOpacity?: number; // 0-100, default 25-30%
+  searchCardOpacity?: number; // 10-100, default 70%
+  searchCardBlur?: number; // 0-30 px, default 12px
   heroBadgeText: string;
   heroBadgeTextEn: string;
   heroTitle: string;

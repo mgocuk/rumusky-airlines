@@ -10,11 +10,15 @@ import {
   Users,
   Search,
   Check,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 
 export const FlightSearchCard: React.FC = () => {
-  const { airports, language, t, setSearchQuery } = useApp();
+  const { airports, language, t, setSearchQuery, siteContent } = useApp();
+
+  const [isInteracting, setIsInteracting] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
   const [originIata, setOriginIata] = useState('IST');
@@ -38,7 +42,7 @@ export const FlightSearchCard: React.FC = () => {
   const destRef = useRef<HTMLDivElement>(null);
   const passengerRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns on outside click
+  // Close dropdowns & reset focus on outside click
   useEffect(() => {
     const todayStr = getFutureDateString(0);
     if (departureDate < todayStr) {
@@ -49,19 +53,26 @@ export const FlightSearchCard: React.FC = () => {
     }
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (originRef.current && !originRef.current.contains(e.target as Node)) {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setIsInteracting(false);
         setOriginOpen(false);
-      }
-      if (destRef.current && !destRef.current.contains(e.target as Node)) {
         setDestOpen(false);
-      }
-      if (passengerRef.current && !passengerRef.current.contains(e.target as Node)) {
         setPassengerOpen(false);
+      } else {
+        if (originRef.current && !originRef.current.contains(e.target as Node)) {
+          setOriginOpen(false);
+        }
+        if (destRef.current && !destRef.current.contains(e.target as Node)) {
+          setDestOpen(false);
+        }
+        if (passengerRef.current && !passengerRef.current.contains(e.target as Node)) {
+          setPassengerOpen(false);
+        }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [departureDate, returnDate]);
 
   const handleSwapAirports = () => {
     const temp = originIata;
@@ -127,19 +138,40 @@ export const FlightSearchCard: React.FC = () => {
   );
 
   const totalPassengers = adults + children + infants;
+  const configuredOpacity = siteContent.searchCardOpacity !== undefined ? siteContent.searchCardOpacity : 70;
+  const configuredBlur = siteContent.searchCardBlur !== undefined ? siteContent.searchCardBlur : 12;
+  const isActive = isInteracting || originOpen || destOpen || passengerOpen;
 
   return (
-    <div className="bg-white rounded-2xl shadow-elevated border border-brand-border/80 p-5 sm:p-6 transition-all duration-200">
-      {/* Top Bar: Trip Types & Cabin */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-slate-100">
+    <div
+      ref={cardRef}
+      onClick={() => setIsInteracting(true)}
+      onFocusCapture={() => setIsInteracting(true)}
+      style={{
+        backgroundColor: isActive
+          ? 'rgba(255, 255, 255, 0.98)'
+          : `rgba(255, 255, 255, ${configuredOpacity / 100})`,
+        backdropFilter: `blur(${configuredBlur}px)`,
+        WebkitBackdropFilter: `blur(${configuredBlur}px)`
+      }}
+      className={`rounded-3xl border transition-all duration-300 p-5 sm:p-7 text-left ${
+        isActive
+          ? 'border-white shadow-2xl ring-2 ring-brand-blue/30 scale-[1.002]'
+          : 'border-white/60 shadow-xl hover:border-white/90 hover:shadow-2xl'
+      }`}
+    >
+      {/* Top Bar: Trip Types & Cabin & Idle State Indicator */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-slate-200/60">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setTripType('one-way')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               tripType === 'one-way'
                 ? 'bg-brand-navy text-white shadow-xs'
-                : 'text-brand-muted hover:bg-slate-100'
+                : isActive
+                ? 'text-brand-muted hover:bg-slate-100'
+                : 'text-slate-700 bg-white/60 hover:bg-white/90'
             }`}
           >
             {t('search_one_way')}
@@ -147,43 +179,57 @@ export const FlightSearchCard: React.FC = () => {
           <button
             type="button"
             onClick={() => setTripType('round-trip')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               tripType === 'round-trip'
                 ? 'bg-brand-navy text-white shadow-xs'
-                : 'text-brand-muted hover:bg-slate-100'
+                : isActive
+                ? 'text-brand-muted hover:bg-slate-100'
+                : 'text-slate-700 bg-white/60 hover:bg-white/90'
             }`}
           >
             {t('search_round_trip')}
           </button>
-          <span className="hidden sm:inline-block px-3 py-1 text-xs font-medium text-slate-400 bg-slate-100 rounded-lg cursor-not-allowed">
+          <span className="hidden sm:inline-block px-3 py-1 text-xs font-medium text-slate-400 bg-slate-100/60 rounded-lg cursor-not-allowed">
             {t('search_multi_city')}
           </span>
         </div>
 
-        {/* Cabin Switcher */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setCabinClass('economy')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              cabinClass === 'economy'
-                ? 'bg-white text-brand-blue shadow-xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t('search_cabin_economy')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setCabinClass('business')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              cabinClass === 'business'
-                ? 'bg-white text-brand-blue shadow-xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {t('search_cabin_business')}
-          </button>
+        {/* Right side: Cabin Switcher + Idle hint badge */}
+        <div className="flex items-center gap-2">
+          {!isActive && (
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-white/70 px-3 py-1 rounded-full border border-white/80 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-brand-blue" />
+              <span>{language === 'tr' ? 'Sefer aramak için tıklayın' : 'Click to search flights'}</span>
+            </span>
+          )}
+
+          {/* Cabin Switcher */}
+          <div className={`flex items-center p-1 rounded-xl transition-colors ${
+            isActive ? 'bg-slate-100' : 'bg-white/70 border border-white/60'
+          }`}>
+            <button
+              type="button"
+              onClick={() => setCabinClass('economy')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                cabinClass === 'economy'
+                  ? 'bg-white text-brand-blue shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {t('search_cabin_economy')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCabinClass('business')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                cabinClass === 'business'
+                  ? 'bg-white text-brand-blue shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {t('search_cabin_business')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -202,7 +248,11 @@ export const FlightSearchCard: React.FC = () => {
           </label>
           <div
             onClick={() => setOriginOpen(!originOpen)}
-            className="flex items-center gap-3 p-3 bg-brand-bg rounded-xl border border-brand-border/80 hover:border-brand-blue/60 cursor-pointer transition-all h-[58px]"
+            className={`flex items-center gap-3 p-3 rounded-xl border transition-all h-[58px] cursor-pointer ${
+              isActive
+                ? 'bg-slate-50 border-slate-200/90 hover:border-brand-blue/60 focus-within:bg-white'
+                : 'bg-white/70 hover:bg-white/95 border-white/80 shadow-2xs'
+            }`}
           >
             <PlaneTakeoff className="w-5 h-5 text-brand-blue flex-shrink-0" />
             <div className="flex flex-col text-left overflow-hidden">
@@ -257,7 +307,9 @@ export const FlightSearchCard: React.FC = () => {
             type="button"
             onClick={handleSwapAirports}
             title={t('search_swap')}
-            className="w-9 h-9 rounded-full bg-white border border-brand-border shadow-xs hover:border-brand-blue text-brand-navy hover:text-brand-blue flex items-center justify-center transition-transform active:scale-95 z-10"
+            className={`w-9 h-9 rounded-full border shadow-xs hover:border-brand-blue text-brand-navy hover:text-brand-blue flex items-center justify-center transition-transform active:scale-95 z-10 cursor-pointer ${
+              isActive ? 'bg-white border-brand-border' : 'bg-white/90 border-white/80'
+            }`}
           >
             <ArrowLeftRight className="w-4 h-4" />
           </button>
@@ -270,7 +322,11 @@ export const FlightSearchCard: React.FC = () => {
           </label>
           <div
             onClick={() => setDestOpen(!destOpen)}
-            className="flex items-center gap-3 p-3 bg-brand-bg rounded-xl border border-brand-border/80 hover:border-brand-blue/60 cursor-pointer transition-all h-[58px]"
+            className={`flex items-center gap-3 p-3 rounded-xl border transition-all h-[58px] cursor-pointer ${
+              isActive
+                ? 'bg-slate-50 border-slate-200/90 hover:border-brand-blue/60 focus-within:bg-white'
+                : 'bg-white/70 hover:bg-white/95 border-white/80 shadow-2xs'
+            }`}
           >
             <PlaneLanding className="w-5 h-5 text-brand-cyan flex-shrink-0" />
             <div className="flex flex-col text-left overflow-hidden">
@@ -332,7 +388,11 @@ export const FlightSearchCard: React.FC = () => {
                 min={getFutureDateString(0)}
                 value={departureDate}
                 onChange={(e) => setDepartureDate(e.target.value)}
-                className="w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold text-brand-navy bg-brand-bg rounded-xl border border-brand-border/80 focus:border-brand-blue focus:outline-hidden"
+                className={`w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold text-brand-navy rounded-xl border transition-all focus:border-brand-blue focus:outline-hidden ${
+                  isActive
+                    ? 'bg-slate-50 border-slate-200/90 focus:bg-white'
+                    : 'bg-white/70 hover:bg-white/95 border-white/80'
+                }`}
               />
             </div>
           </div>
@@ -349,10 +409,12 @@ export const FlightSearchCard: React.FC = () => {
                 min={departureDate}
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
-                className={`w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold rounded-xl border border-brand-border/80 focus:outline-hidden ${
+                className={`w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold rounded-xl border transition-all focus:outline-hidden ${
                   tripType === 'one-way'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : 'bg-brand-bg text-brand-navy focus:border-brand-blue'
+                    ? 'bg-slate-100/60 text-slate-400 cursor-not-allowed border-transparent'
+                    : isActive
+                    ? 'bg-slate-50 border-slate-200/90 text-brand-navy focus:bg-white focus:border-brand-blue'
+                    : 'bg-white/70 hover:bg-white/95 border-white/80 text-brand-navy'
                 }`}
               />
             </div>
@@ -367,7 +429,11 @@ export const FlightSearchCard: React.FC = () => {
           <div className="relative" ref={passengerRef}>
             <div
               onClick={() => setPassengerOpen(!passengerOpen)}
-              className="flex items-center justify-between p-3 bg-brand-bg rounded-xl border border-brand-border/80 hover:border-brand-blue/60 cursor-pointer h-[58px]"
+              className={`flex items-center justify-between p-3 rounded-xl border transition-all h-[58px] cursor-pointer ${
+                isActive
+                  ? 'bg-slate-50 border-slate-200/90 hover:border-brand-blue/60'
+                  : 'bg-white/70 hover:bg-white/95 border-white/80 shadow-2xs'
+              }`}
             >
               <div className="flex items-center gap-2 overflow-hidden">
                 <Users className="w-4 h-4 text-brand-navy flex-shrink-0" />

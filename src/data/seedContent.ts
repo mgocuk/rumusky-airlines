@@ -23,7 +23,10 @@ export const INITIAL_SITE_CONTENT: SiteContentConfig = {
     navAdminButtonText: 'Admin Paneli',
     navAdminButtonTextEn: 'Admin Portal'
   },
-  heroBackgroundUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000&q=80',
+  heroBackgroundUrl: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80',
+  heroOverlayOpacity: 25,
+  searchCardOpacity: 70,
+  searchCardBlur: 12,
   heroBadgeText: 'RUMUSKY AIRLINES — Gökyüzündeki Güvenli Eviniz',
   heroBadgeTextEn: 'RUMUSKY AIRLINES — Your Safe Home in the Skies',
   heroTitle: 'Dünyaya RUMUSKY ile Uçun',
