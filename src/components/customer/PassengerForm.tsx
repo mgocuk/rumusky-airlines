@@ -7,8 +7,8 @@ export const PassengerForm: React.FC = () => {
   const { selectedFlight, searchQuery, passengers, setPassengerDetails, setActiveView, t, language } = useApp();
 
   const [passengerList, setPassengerList] = useState<Passenger[]>(passengers);
-  const [email, setEmail] = useState('mustafa.gocuk@example.com');
-  const [phone, setPhone] = useState('+90 555 123 4567');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
 
   if (!selectedFlight) {

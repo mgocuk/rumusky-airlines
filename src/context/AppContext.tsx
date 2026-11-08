@@ -97,6 +97,7 @@ interface AppContextType {
   setFlightDetailsModal: (flight: Flight | null) => void;
   authModalOpen: boolean;
   setAuthModalOpen: (open: boolean) => void;
+  loginStaff: (email: string, role?: UserRole) => void;
   loginUser: (email: string, name: string) => void;
   logoutUser: () => void;
   checkinFlight: (pnr: string, surname: string) => Ticket | null;
@@ -227,7 +228,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeUser, setActiveUser] = useState<User | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.USER);
-    return saved ? JSON.parse(saved) : INITIAL_STAFF_USERS[0];
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.role && parsed.role !== 'customer' && parsed.isExplicitLogin) {
+          return parsed;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    localStorage.removeItem(STORAGE_KEYS.USER);
+    return null;
   });
 
   // Local Storage Sync
@@ -365,35 +377,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(matchingStaff));
   };
 
-  const loginUser = (email: string, name: string) => {
-    const user: User = {
-      id: `usr-${Date.now()}`,
-      name: name || 'Demo',
-      surname: 'Yolcu',
-      email,
-      role: 'customer'
+  const loginStaff = (email: string, role?: UserRole) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const matchingStaff = staffUsers.find((u) => u.email.toLowerCase() === cleanEmail) || {
+      id: `usr-staff-${Date.now()}`,
+      name: role === 'super_admin' ? 'Mustafa' : 'Yetkili',
+      surname: role === 'super_admin' ? 'Göçük' : 'Personel',
+      email: cleanEmail || 'admin@rumusky.com',
+      role: role || 'super_admin'
     };
-    setActiveUser(user);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    const sessionUser = { ...matchingStaff, isExplicitLogin: true };
+    setActiveUser(sessionUser);
+    setIsAdmin(true);
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(sessionUser));
     setAuthModalOpen(false);
+    setActiveView('admin');
+  };
+
+  const loginUser = (email: string, name: string) => {
+    loginStaff(email, 'super_admin');
   };
 
   const logoutUser = () => {
     setActiveUser(null);
+    setIsAdmin(false);
     localStorage.removeItem(STORAGE_KEYS.USER);
+    setActiveView('home');
   };
 
   const toggleAdminMode = () => {
+    if (!activeUser || activeUser.role === 'customer') {
+      setAuthModalOpen(true);
+      return;
+    }
     setIsAdmin((prev) => {
       const next = !prev;
-      if (next) {
-        if (!activeUser || activeUser.role === 'customer') {
-          setActiveUser(INITIAL_STAFF_USERS[0]); // default to Super Admin
-        }
-        setActiveView('admin');
-      } else {
-        setActiveView('home');
-      }
+      setActiveView(next ? 'admin' : 'home');
       return next;
     });
   };
@@ -411,8 +430,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     for (let i = 0; i < adultCount; i++) {
       initialPassengers.push({
         id: `p-${Date.now()}-${i}`,
-        firstName: i === 0 && activeUser ? activeUser.name : '',
-        lastName: i === 0 && activeUser ? activeUser.surname : '',
+        firstName: '',
+        lastName: '',
         gender: 'M',
         dateOfBirth: '1995-05-15',
         passengerType: 'adult',
@@ -676,6 +695,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setFlightDetailsModal,
         authModalOpen,
         setAuthModalOpen,
+        loginStaff,
         loginUser,
         logoutUser,
         checkinFlight,

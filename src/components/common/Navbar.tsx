@@ -2,17 +2,15 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Logo } from './Logo';
 import {
-  Globe,
   Shield,
-  User as UserIcon,
   Menu,
   X,
   Search,
   Calendar,
   FileText,
   LogOut,
-  ChevronDown,
-  Newspaper
+  Newspaper,
+  UserCheck
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -30,7 +28,6 @@ export const Navbar: React.FC = () => {
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const navItems = [
     { key: 'nav_search_flights', view: 'home', icon: Search },
@@ -49,7 +46,7 @@ export const Navbar: React.FC = () => {
             setActiveView('home');
             setMobileMenuOpen(false);
           }}
-          className="group"
+          className="group cursor-pointer"
         >
           <Logo />
         </div>
@@ -89,7 +86,7 @@ export const Navbar: React.FC = () => {
           </button>
         </nav>
 
-        {/* Right: TR/EN Selector, Admin Panel Toggle, Auth */}
+        {/* Right: TR/EN Selector, Admin Access */}
         <div className="hidden lg:flex items-center gap-3">
           {/* Language Selector */}
           <div className="flex items-center bg-brand-bg rounded-lg p-1 border border-brand-border/60">
@@ -115,95 +112,56 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Admin Switcher Pill */}
-          <button
-            onClick={toggleAdminMode}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              isAdmin
-                ? 'bg-brand-navy text-white shadow-xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-            }`}
-            title="Yönetici ve Müşteri Paneli Arasında Geçiş Yap"
-          >
-            <Shield className="w-3.5 h-3.5 text-brand-cyan" />
-            <span>{isAdmin ? 'Yönetici Aktif' : 'Admin Paneli'}</span>
-          </button>
-
-          {/* User Account / Auth Dropdown */}
-          {activeUser && !isAdmin ? (
-            <div className="relative">
-              <div
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 pl-2 border-l border-brand-border cursor-pointer hover:opacity-90"
+          {/* Admin / Staff State */}
+          {activeUser && activeUser.role !== 'customer' ? (
+            /* Logged in as Staff/Admin */
+            <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
+              <button
+                onClick={toggleAdminMode}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+                  isAdmin
+                    ? 'bg-brand-navy text-white ring-2 ring-brand-blue/30'
+                    : 'bg-brand-blue text-white hover:bg-blue-600'
+                }`}
+                title="Yönetim Paneli ile Canlı Site Arasında Geçiş Yap"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-brand-blue font-bold text-xs">
-                  {activeUser.name.charAt(0)}
+                <Shield className="w-3.5 h-3.5 text-brand-cyan" />
+                <span>{isAdmin ? 'Yönetici Aktif' : 'Admin Paneli'}</span>
+              </button>
+
+              <div className="flex items-center gap-2 pl-1">
+                <div className="w-8 h-8 rounded-full bg-slate-900 text-brand-cyan flex items-center justify-center font-bold text-xs shadow-xs">
+                  {activeUser.role === 'super_admin' ? 'SA' : 'OP'}
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-xs font-bold text-brand-navy leading-none">
-                    {activeUser.name} {activeUser.surname}
+                    {activeUser.role === 'super_admin' ? 'Süper Admin' : activeUser.name}
                   </span>
-                  <span className="text-[10px] text-brand-blue font-semibold leading-tight">
-                    SkyClub Gold
+                  <span className="text-[10px] text-brand-muted leading-tight">
+                    Yetkili Personel
                   </span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </div>
 
-              {/* User Dropdown */}
-              {userDropdownOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-white rounded-xl shadow-elevated border border-brand-border p-2 z-50 animate-fade-in space-y-1 text-xs font-semibold">
-                  <button
-                    onClick={() => {
-                      setActiveView('account');
-                      setUserDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg text-brand-navy hover:bg-blue-50 flex items-center gap-2"
-                  >
-                    <UserIcon className="w-4 h-4 text-brand-blue" />
-                    <span>{t('nav_account')}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      logoutUser();
-                      setUserDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>{t('nav_logout')}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : !isAdmin ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="px-3.5 py-1.5 text-xs font-bold text-brand-navy hover:text-brand-blue"
-              >
-                {t('nav_login')}
-              </button>
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-lg bg-brand-blue text-white text-xs font-bold shadow-xs hover:bg-blue-600 transition-colors"
-              >
-                {t('nav_register')}
-              </button>
+                <button
+                  onClick={logoutUser}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1"
+                  title="Yetkili Oturumunu Kapat"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : (
+            /* Not logged in (Clean Guest State for Normal Passengers) */
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
-              <div className="w-8 h-8 rounded-full bg-slate-900 text-brand-cyan flex items-center justify-center font-bold text-xs">
-                AD
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="text-xs font-bold text-brand-navy leading-none">
-                  Süper Admin
-                </span>
-                <span className="text-[10px] text-brand-muted leading-tight">
-                  Yetkili Personel
-                </span>
-              </div>
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy text-xs font-bold flex items-center gap-1.5 border border-slate-200 shadow-2xs transition-all"
+                title="Yalnızca Yetkili Personel ve Süper Admin Girişi"
+              >
+                <Shield className="w-3.5 h-3.5 text-brand-blue" />
+                <span>Admin Girişi</span>
+              </button>
             </div>
           )}
         </div>
@@ -227,7 +185,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-[72px] left-0 w-full bg-white border-b border-brand-border p-4 shadow-xl flex flex-col gap-3 animate-fade-in z-50">
+        <div className="md:hidden absolute top-[72px] left-0 w-full bg-white border-b border-brand-border p-4 shadow-xl flex flex-col gap-2.5 animate-fade-in z-50">
           {navItems.map((item) => (
             <button
               key={item.key}
@@ -241,29 +199,43 @@ export const Navbar: React.FC = () => {
               {t(item.key as any)}
             </button>
           ))}
-
-          <button
-            onClick={() => {
-              setActiveView('account');
-              setMobileMenuOpen(false);
-            }}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50 flex items-center gap-2.5"
-          >
-            <UserIcon className="w-4 h-4 text-brand-blue" />
-            <span>{t('nav_account')}</span>
-          </button>
           
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-            <button
-              onClick={() => {
-                toggleAdminMode();
-                setMobileMenuOpen(false);
-              }}
-              className="px-4 py-2 text-xs font-bold rounded-lg bg-brand-navy text-white flex items-center gap-2"
-            >
-              <Shield className="w-4 h-4 text-brand-cyan" />
-              {isAdmin ? 'Müşteri Moduna Dön' : 'Yönetici Paneline Geç'}
-            </button>
+            {activeUser && activeUser.role !== 'customer' ? (
+              <div className="w-full flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    toggleAdminMode();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-brand-navy text-white flex items-center gap-2 shadow-xs"
+                >
+                  <Shield className="w-4 h-4 text-brand-cyan" />
+                  {isAdmin ? 'Müşteri Moduna Dön' : 'Yönetici Paneline Geç'}
+                </button>
+                <button
+                  onClick={() => {
+                    logoutUser();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Çıkış</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthModalOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy flex items-center justify-center gap-2 border border-slate-200"
+              >
+                <Shield className="w-4 h-4 text-brand-blue" />
+                <span>Yetkili & Admin Girişi</span>
+              </button>
+            )}
           </div>
         </div>
       )}

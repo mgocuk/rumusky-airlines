@@ -34,7 +34,12 @@ export const CheckoutModal: React.FC = () => {
   const [cardNumber, setCardNumber] = useState('4000 0000 0000 0001');
   const [expiry, setExpiry] = useState('12/28');
   const [cvv, setCvv] = useState('888');
-  const [cardHolder, setCardHolder] = useState('MUSTAFA GOCUK');
+  const [cardHolder, setCardHolder] = useState(() => {
+    if (passengers && passengers[0] && (passengers[0].firstName || passengers[0].lastName)) {
+      return `${passengers[0].firstName} ${passengers[0].lastName}`.trim().toUpperCase();
+    }
+    return '';
+  });
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
 
   // Simulation flow states
