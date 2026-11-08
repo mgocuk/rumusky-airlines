@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Booking, Flight, Ticket, TicketDesignConfig } from '../../types';
 import { useApp } from '../../context/AppContext';
+import { realtimeSync } from '../../services/realtimeSync';
 import {
   Plane,
   Sparkles,
@@ -56,21 +57,57 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   const subTitle = language === 'en' ? td.subTitleEn : td.subTitle;
   const commemorativeNote = language === 'en' ? td.commemorativeNoteEn : td.commemorativeNote;
 
-  // The actual live URL encoded inside the QR code
-  const ticketLiveUrl = `${window.location.origin}/#ticket=${booking.pnr}&tkt=${ticket.ticketNumber}`;
+  // The actual live URL encoded inside the QR code (resolves network IP if accessed from localhost)
+  const [ticketLiveUrl, setTicketLiveUrl] = useState<string>(
+    `${window.location.origin}/#ticket=${booking.pnr}&tkt=${ticket.ticketNumber}`
+  );
 
   useEffect(() => {
-    QRCode.toDataURL(ticketLiveUrl, {
-      width: 220,
-      margin: 1,
-      color: {
-        dark: td.themeStyle === 'navy_gold' ? '#0F172A' : '#0B2545',
-        light: '#FFFFFF'
+    let active = true;
+
+    const resolveUrlAndGenerateQr = async () => {
+      let base = window.location.origin;
+
+      // If user is running on localhost/127.0.0.1, auto-detect the local Wi-Fi/LAN IP
+      // so when scanned from a mobile phone camera, the phone can actually reach this computer!
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        try {
+          const netInfo = await realtimeSync.fetchNetworkInfo();
+          if (netInfo && netInfo.url) {
+            base = netInfo.url;
+          }
+        } catch {
+          // fallback to origin
+        }
       }
-    })
-      .then((url) => setQrCodeUrl(url))
-      .catch((err) => console.error('QR code generation error:', err));
-  }, [ticketLiveUrl, td.themeStyle]);
+
+      const fullUrl = `${base}/#ticket=${booking.pnr}&tkt=${ticket.ticketNumber}`;
+
+      if (active) {
+        setTicketLiveUrl(fullUrl);
+        try {
+          const url = await QRCode.toDataURL(fullUrl, {
+            width: 240,
+            margin: 1,
+            errorCorrectionLevel: 'M',
+            color: {
+              dark: td.themeStyle === 'navy_gold' ? '#0F172A' : '#0B2545',
+              light: '#FFFFFF'
+            }
+          });
+          if (active) setQrCodeUrl(url);
+        } catch (err) {
+          console.error('QR code generation error:', err);
+        }
+      }
+    };
+
+    resolveUrlAndGenerateQr();
+
+    return () => {
+      active = false;
+    };
+  }, [booking.pnr, ticket.ticketNumber, td.themeStyle]);
 
   const handleShare = async () => {
     if (navigator.share) {

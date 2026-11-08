@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 import { Ticket, Flight, Passenger } from '../types';
+import { realtimeSync } from '../services/realtimeSync';
 
 export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenger: Passenger): Promise<void> {
   const doc = new jsPDF({
@@ -10,13 +11,24 @@ export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenge
   });
 
   // Generate QR Code data URL with live verification link
-  const qrUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/#ticket=${ticket.pnr}&tkt=${ticket.ticketNumber}`
-    : ticket.qrCodeData;
+  let base = typeof window !== 'undefined' ? window.location.origin : 'http://192.168.137.252:3000';
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    try {
+      const netInfo = await realtimeSync.fetchNetworkInfo();
+      if (netInfo && netInfo.url) {
+        base = netInfo.url;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  const qrUrl = `${base}/#ticket=${ticket.pnr}&tkt=${ticket.ticketNumber}`;
 
   const qrDataUrl = await QRCode.toDataURL(qrUrl, {
     margin: 1,
-    width: 180,
+    width: 200,
+    errorCorrectionLevel: 'M',
     color: {
       dark: '#0B2545',
       light: '#FFFFFF'
