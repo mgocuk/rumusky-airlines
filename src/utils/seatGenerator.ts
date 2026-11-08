@@ -17,11 +17,8 @@ export function generateSeatsForFlight(
     letters.forEach((letter) => {
       const seatNumber = `${row}${letter}`;
       
-      // Deterministically occupy some seats for realism based on hash
-      const charCode = seatNumber.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-      const isSimulatedOccupied = (charCode % 5 === 0) || (row === 3 && (letter === 'A' || letter === 'B')) || (row === 15 && letter === 'C');
-      const isRealBooked = bookedSet.has(seatNumber);
-      const isOccupied = isSimulatedOccupied || isRealBooked;
+      // Sadece sistemde gerçekten satın alınmış / rezerve edilmiş biletler dolu gösterilir
+      const isOccupied = bookedSet.has(seatNumber);
 
       let priceModifier = 0;
       if (isBusiness) priceModifier = 500;

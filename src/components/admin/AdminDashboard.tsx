@@ -10,7 +10,10 @@ import {
   NewsItem,
   Campaign,
   PopularDestination,
-  BenefitItem
+  BenefitItem,
+  Booking,
+  Ticket as TicketType,
+  Passenger
 } from '../../types';
 import { useToast } from '../common/Toast';
 import { Logo } from '../common/Logo';
@@ -69,7 +72,10 @@ import {
   Wind,
   VolumeX,
   Radio,
-  Share2
+  Share2,
+  Search,
+  MapPin,
+  Ticket
 } from 'lucide-react';
 
 const PRESET_HERO_BACKGROUNDS = [
@@ -192,6 +198,7 @@ export const AdminDashboard: React.FC = () => {
   const {
     flights,
     bookings,
+    tickets,
     airports,
     aircrafts,
     addAircraft,
@@ -249,6 +256,11 @@ export const AdminDashboard: React.FC = () => {
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
   const [showAddAircraftModal, setShowAddAircraftModal] = useState(false);
   const [editingAircraft, setEditingAircraft] = useState<Aircraft | null>(null);
+
+  // Bookings Filter and Detail state
+  const [bookingSearch, setBookingSearch] = useState('');
+  const [bookingFilterStatus, setBookingFilterStatus] = useState<'all' | 'confirmed' | 'cancelled'>('all');
+  const [selectedBookingModal, setSelectedBookingModal] = useState<Booking | null>(null);
 
   // New Aircraft Form states
   const [acModel, setAcModel] = useState('Airbus A321-200neo');
@@ -1075,6 +1087,115 @@ export const AdminDashboard: React.FC = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+
+            {/* Son Alınan Biletler ve Canlı Sefer Detayları (Nereye, Saat Kaçta, Koltuk) */}
+            <div className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center">
+                    <Plane className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-bold text-base text-brand-navy">
+                      Son Alınan Biletler ve Sefer Bilgileri (Nereye & Saat Kaçta)
+                    </h3>
+                    <p className="text-xs text-brand-muted">
+                      Öğrencilerin ve müşterilerin satın aldığı biletler, nereye gidecekleri ve uçuş kalkış saatleri.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('bookings')}
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-brand-navy transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Tüm Biletleri İncele ({bookings.length})</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {bookings.length === 0 ? (
+                <div className="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500">
+                  Henüz satın alınmış bir bilet bulunmuyor. Müşteri ekranından veya telefondan bilet satın alındığında anında burada görüntülenecektir.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 border-y border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                      <tr>
+                        <th className="py-2.5 px-3">PNR</th>
+                        <th className="py-2.5 px-3">Yolcu & Koltuk</th>
+                        <th className="py-2.5 px-3">Sefer & Uçak</th>
+                        <th className="py-2.5 px-3">Güzergâh (Nereden ➔ Nereye)</th>
+                        <th className="py-2.5 px-3">Kalkış & Varış Saati</th>
+                        <th className="py-2.5 px-3 text-right">Tutar & Durum</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {bookings.slice(0, 5).map((b) => {
+                        const flight = flights.find((f) => f.id === b.flightId);
+                        const depTime = flight?.departureTime ? flight.departureTime.split('T')[1].substring(0, 5) : '--:--';
+                        const arrTime = flight?.arrivalTime ? flight.arrivalTime.split('T')[1].substring(0, 5) : '--:--';
+                        const depDate = flight?.departureTime ? flight.departureTime.split('T')[0] : '';
+
+                        return (
+                          <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
+                            <td className="py-3 px-3">
+                              <span className="font-mono font-black text-brand-blue bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                                {b.pnr}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="font-bold text-brand-navy">
+                                {b.passengers.map((p) => `${p.firstName} ${p.lastName}`).join(', ')}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                {b.passengers.map((p, idx) => (
+                                  <span key={idx} className="px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    Koltuk: {p.selectedSeat || 'TBA'}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="font-black text-brand-navy flex items-center gap-1">
+                                <Plane className="w-3 h-3 text-brand-blue" />
+                                <span>{flight?.flightNumber || 'RMK'}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500">{flight?.aircraftModel}</div>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="flex items-center gap-1.5 font-bold text-brand-navy">
+                                <span>{flight?.originAirport.city} ({flight?.originAirport.iataCode})</span>
+                                <ArrowRight className="w-3.5 h-3.5 text-brand-blue shrink-0" />
+                                <span className="text-brand-blue font-extrabold">{flight?.destinationAirport.city} ({flight?.destinationAirport.iataCode})</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500">{flight?.destinationAirport.name}</div>
+                            </td>
+                            <td className="py-3 px-3">
+                              <div className="font-black text-brand-navy flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>{depTime} ➔ {arrTime}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 font-medium">Tarih: {depDate}</div>
+                            </td>
+                            <td className="py-3 px-3 text-right">
+                              <div className="font-black text-brand-navy">{b.totalAmount.toLocaleString('tr-TR')} ₺</div>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                              }`}>
+                                {b.status === 'confirmed' ? 'ONAYLI' : 'İPTAL'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2746,78 +2867,444 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* 6. BOOKINGS TAB */}
-        {activeTab === 'bookings' && hasPermission('manage_bookings') && (
-          <div className="space-y-6 animate-fade-in">
-            <h3 className="text-xl font-bold font-heading text-brand-navy">
-              Rezervasyon ve Bilet Kayıtları
-            </h3>
+        {/* 6. BOOKINGS & TICKETS MANIFEST TAB */}
+        {activeTab === 'bookings' && hasPermission('manage_bookings') && (() => {
+          const filteredBookings = bookings.filter((b) => {
+            const flight = flights.find((f) => f.id === b.flightId);
+            const matchesStatus =
+              bookingFilterStatus === 'all' || b.status === bookingFilterStatus;
 
-            {bookings.length === 0 ? (
-              <div className="bg-white p-12 rounded-2xl border border-brand-border text-center text-brand-muted">
-                <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                <p>Henüz sistemde oluşturulmuş bir rezervasyon bulunmuyor.</p>
-                <p className="text-xs text-slate-400 mt-1">Müşteri arayüzünden test uçuşu satın aldığınızda burada listelenecektir.</p>
+            if (!bookingSearch.trim()) return matchesStatus;
+
+            const query = bookingSearch.trim().toLowerCase();
+            const matchesPnr = b.pnr.toLowerCase().includes(query);
+            const matchesEmail = b.contactEmail.toLowerCase().includes(query);
+            const matchesPassenger = b.passengers.some((p) =>
+              `${p.firstName} ${p.lastName} ${p.selectedSeat}`.toLowerCase().includes(query)
+            );
+            const matchesFlight = flight
+              ? `${flight.flightNumber} ${flight.originAirport.city} ${flight.destinationAirport.city} ${flight.originAirport.iataCode} ${flight.destinationAirport.iataCode}`
+                  .toLowerCase()
+                  .includes(query)
+              : false;
+
+            return matchesStatus && (matchesPnr || matchesEmail || matchesPassenger || matchesFlight);
+          });
+
+          return (
+            <div className="space-y-6 animate-fade-in">
+              {/* Header with Title and Search/Filters */}
+              <div className="bg-white p-6 rounded-3xl border border-brand-border shadow-subtle space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-50 text-brand-blue mb-2">
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>CANLI REZERVASYON & SEFER BİLGİLERİ</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold font-heading text-brand-navy">
+                      Alınan Biletler, Güzergâhlar ve Uçuş Saatleri
+                    </h3>
+                    <p className="text-xs text-brand-muted mt-1">
+                      Müşterilerin ve öğrencilerin aldığı biletlerin hangi şehre, saat kaçta uçacağı ve koltuk numaraları burada anlık listelenir.
+                    </p>
+                  </div>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setBookingFilterStatus('all')}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        bookingFilterStatus === 'all'
+                          ? 'bg-white text-brand-navy shadow-xs'
+                          : 'text-slate-500 hover:text-brand-navy'
+                      }`}
+                    >
+                      Tümü ({bookings.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBookingFilterStatus('confirmed')}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        bookingFilterStatus === 'confirmed'
+                          ? 'bg-white text-emerald-700 shadow-xs'
+                          : 'text-slate-500 hover:text-brand-navy'
+                      }`}
+                    >
+                      Onaylı ({bookings.filter((b) => b.status === 'confirmed').length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBookingFilterStatus('cancelled')}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        bookingFilterStatus === 'cancelled'
+                          ? 'bg-white text-rose-700 shadow-xs'
+                          : 'text-slate-500 hover:text-brand-navy'
+                      }`}
+                    >
+                      İptal Edilenler ({bookings.filter((b) => b.status === 'cancelled').length})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={bookingSearch}
+                    onChange={(e) => setBookingSearch(e.target.value)}
+                    placeholder="PNR, Yolcu Adı, Koltuk No, Uçuş Kodu (Örn: RMK-104), Nereye veya Nereden (Örn: Londra, IST)..."
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-blue focus:outline-hidden transition-colors"
+                  />
+                  {bookingSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setBookingSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      Temizle
+                    </button>
+                  )}
+                </div>
               </div>
-            ) : (
-              <div className="bg-white rounded-2xl border border-brand-border shadow-subtle overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-brand-muted uppercase font-bold tracking-wider">
-                    <tr>
-                      <th className="p-3.5">PNR</th>
-                      <th className="p-3.5">İletişim</th>
-                      <th className="p-3.5">Yolcular</th>
-                      <th className="p-3.5">Toplam Tutar</th>
-                      <th className="p-3.5">Durum</th>
-                      <th className="p-3.5">Tarih</th>
-                      <th className="p-3.5 text-right">İşlem</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {bookings.map((b) => (
-                      <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="p-3.5 font-bold font-mono text-brand-blue">{b.pnr}</td>
-                        <td className="p-3.5">
-                          <div className="font-semibold text-brand-navy">{b.contactEmail}</div>
-                          <div className="text-[10px] text-brand-muted">{b.contactPhone}</div>
-                        </td>
-                        <td className="p-3.5">
-                          {b.passengers.map((p) => `${p.firstName} ${p.lastName} (${p.selectedSeat || 'TBA'})`).join(', ')}
-                        </td>
-                        <td className="p-3.5 font-bold text-brand-navy">
-                          {b.totalAmount.toLocaleString('tr-TR')} ₺
-                        </td>
-                        <td className="p-3.5">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-                          }`}>
-                            {b.status.toUpperCase()}
+
+              {/* Table or Empty State */}
+              {filteredBookings.length === 0 ? (
+                <div className="bg-white p-12 rounded-3xl border border-brand-border text-center text-brand-muted space-y-3">
+                  <Calendar className="w-12 h-12 mx-auto text-slate-300" />
+                  <h4 className="text-base font-bold text-brand-navy">Eşleşen Bilet Kaydı Bulunamadı</h4>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    {bookingSearch
+                      ? `"${bookingSearch}" aramasına uygun bilet bulunamadı.`
+                      : 'Henüz sistemde rezervasyon oluşturulmamış. Müşteri panelinden bir test bileti aldığınızda canlı olarak burada belirecektir.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border border-brand-border shadow-subtle overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50/80 border-b border-slate-200 text-brand-muted uppercase font-bold tracking-wider text-[11px]">
+                        <tr>
+                          <th className="p-4">PNR & Bilet No</th>
+                          <th className="p-4">Yolcu & Koltuk Detayı</th>
+                          <th className="p-4">Sefer & Uçak Modeli</th>
+                          <th className="p-4">Güzergâh (Nereden ➔ Nereye)</th>
+                          <th className="p-4">Kalkış & Varış Saati</th>
+                          <th className="p-4">İletişim & Ödeme</th>
+                          <th className="p-4">Durum</th>
+                          <th className="p-4 text-right">İşlemler</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filteredBookings.map((b) => {
+                          const flight = flights.find((f) => f.id === b.flightId);
+                          const bookingTickets = tickets.filter((t: TicketType) => t.bookingId === b.id);
+                          const depTime = flight?.departureTime ? flight.departureTime.split('T')[1].substring(0, 5) : '--:--';
+                          const arrTime = flight?.arrivalTime ? flight.arrivalTime.split('T')[1].substring(0, 5) : '--:--';
+                          const depDate = flight?.departureTime ? flight.departureTime.split('T')[0] : '';
+                          const durationHours = flight ? Math.floor(flight.durationMinutes / 60) : 0;
+                          const durationMins = flight ? flight.durationMinutes % 60 : 0;
+
+                          return (
+                            <tr key={b.id} className="hover:bg-slate-50/80 transition-colors">
+                              {/* PNR & Bilet No */}
+                              <td className="p-4 align-top">
+                                <div className="font-mono font-black text-brand-blue text-sm">
+                                  {b.pnr}
+                                </div>
+                                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                  {bookingTickets.length > 0
+                                    ? bookingTickets.map((t: TicketType) => t.ticketNumber).join(', ')
+                                    : `ID: ${b.id.substring(0, 10)}`}
+                                </div>
+                                <div className="text-[9px] text-slate-400 mt-1">
+                                  {new Date(b.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} • {new Date(b.createdAt).toLocaleDateString('tr-TR')}
+                                </div>
+                              </td>
+
+                              {/* Yolcu & Koltuk Detayı */}
+                              <td className="p-4 align-top">
+                                <div className="space-y-1.5">
+                                  {b.passengers.map((p: Passenger, pIdx: number) => (
+                                    <div key={p.id || pIdx} className="flex flex-col">
+                                      <span className="font-bold text-brand-navy">
+                                        {p.firstName} {p.lastName}
+                                      </span>
+                                      <div className="flex items-center gap-1.5 mt-0.5">
+                                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-blue-50 text-brand-blue border border-blue-200">
+                                          Koltuk: {p.selectedSeat || 'TBA'}
+                                        </span>
+                                        <span className="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded font-bold uppercase">
+                                          {p.cabinClass}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+
+                              {/* Sefer & Uçak Modeli */}
+                              <td className="p-4 align-top">
+                                <div className="font-black text-brand-navy flex items-center gap-1.5">
+                                  <Plane className="w-3.5 h-3.5 text-brand-blue" />
+                                  <span>{flight?.flightNumber || 'RMK-100'}</span>
+                                </div>
+                                <div className="text-[11px] text-slate-600 font-medium mt-0.5">
+                                  {flight?.aircraftModel || 'Airbus A321-200neo'}
+                                </div>
+                                <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-black bg-slate-100 text-slate-600">
+                                  Direkt Uçuş ({durationHours}s {durationMins}dk)
+                                </span>
+                              </td>
+
+                              {/* Güzergâh (Nereden ➔ Nereye) */}
+                              <td className="p-4 align-top">
+                                <div className="flex items-center gap-2 font-bold text-xs">
+                                  <div className="flex flex-col">
+                                    <span className="text-brand-navy font-black text-sm">
+                                      {flight?.originAirport.iataCode || 'IST'}
+                                    </span>
+                                    <span className="text-[10px] text-slate-500">
+                                      {flight?.originAirport.city}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex flex-col items-center px-1">
+                                    <ArrowRight className="w-4 h-4 text-brand-blue" />
+                                    <span className="text-[8px] text-slate-400 uppercase">Varış</span>
+                                  </div>
+
+                                  <div className="flex flex-col">
+                                    <span className="text-brand-blue font-black text-sm">
+                                      {flight?.destinationAirport.iataCode || 'LHR'}
+                                    </span>
+                                    <span className="text-[10px] text-brand-navy font-bold">
+                                      {flight?.destinationAirport.city}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                                  {flight?.destinationAirport.name}
+                                </div>
+                              </td>
+
+                              {/* Kalkış & Varış Saati */}
+                              <td className="p-4 align-top">
+                                <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                                  <div className="flex items-center justify-between gap-2 text-xs">
+                                    <span className="text-[10px] text-slate-500 font-semibold">Kalkış:</span>
+                                    <span className="font-black text-brand-navy text-sm font-mono">{depTime}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2 text-xs">
+                                    <span className="text-[10px] text-slate-500 font-semibold">Varış:</span>
+                                    <span className="font-black text-brand-blue text-sm font-mono">{arrTime}</span>
+                                  </div>
+                                  <div className="pt-1 border-t border-slate-200 text-[10px] text-slate-500 font-medium">
+                                    Tarih: <strong className="text-brand-navy">{depDate}</strong>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* İletişim & Ödeme */}
+                              <td className="p-4 align-top">
+                                <div className="font-black text-sm text-brand-navy">
+                                  {b.totalAmount.toLocaleString('tr-TR')} ₺
+                                </div>
+                                <div className="text-[11px] text-brand-navy font-medium mt-1">
+                                  {b.contactEmail}
+                                </div>
+                                <div className="text-[10px] text-slate-400 font-mono">
+                                  {b.contactPhone}
+                                </div>
+                              </td>
+
+                              {/* Durum */}
+                              <td className="p-4 align-top">
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase inline-block ${
+                                  b.status === 'confirmed'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}>
+                                  {b.status === 'confirmed' ? 'Onaylı Bilet' : 'İptal Edildi'}
+                                </span>
+                              </td>
+
+                              {/* İşlemler */}
+                              <td className="p-4 align-top text-right space-y-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedBookingModal(b)}
+                                  className="w-full px-2.5 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-brand-navy rounded-lg transition-colors cursor-pointer"
+                                >
+                                  Detay & Biniş Kartı
+                                </button>
+                                {b.status === 'confirmed' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      cancelBooking(b.id);
+                                      showToast(`${b.pnr} bilet rezervasyonu başarıyla iptal edildi.`, 'error');
+                                    }}
+                                    className="w-full px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                  >
+                                    Bileti İptal Et
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Bilet Detay / Biniş Kartı Modalı */}
+              {selectedBookingModal && (() => {
+                const modalFlight = flights.find((f) => f.id === selectedBookingModal.flightId);
+                const modalTickets = tickets.filter((t: TicketType) => t.bookingId === selectedBookingModal.id);
+
+                return (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+                    <div className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-brand-border animate-scale-up">
+                      <div className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Ticket className="w-5 h-5 text-brand-cyan" />
+                          <div>
+                            <h4 className="font-heading font-black text-base">
+                              Bilet & Sefer Detay Manifestosu
+                            </h4>
+                            <span className="text-xs text-sky-300 font-mono font-bold">
+                              PNR: {selectedBookingModal.pnr}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBookingModal(null)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                        {/* Sefer Güzergâh ve Saat Kartı */}
+                        <div className="bg-gradient-to-r from-blue-50 to-slate-50 p-4 rounded-2xl border border-blue-200">
+                          <div className="flex items-center justify-between border-b border-blue-200/60 pb-2 mb-3">
+                            <span className="text-xs font-black text-brand-navy flex items-center gap-1.5">
+                              <Plane className="w-4 h-4 text-brand-blue" />
+                              {modalFlight?.flightNumber} • {modalFlight?.aircraftModel}
+                            </span>
+                            <span className="text-xs font-bold text-brand-blue">
+                              {modalFlight?.departureTime.split('T')[0]}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 items-center text-center">
+                            <div>
+                              <div className="text-2xl font-black text-brand-navy">{modalFlight?.originAirport.iataCode}</div>
+                              <div className="text-xs font-bold text-slate-700">{modalFlight?.originAirport.city}</div>
+                              <div className="text-sm font-black text-brand-blue mt-1">
+                                {modalFlight?.departureTime.split('T')[1].substring(0, 5)}
+                              </div>
+                              <span className="text-[10px] text-slate-500 block">Kalkış Saati</span>
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                              <span className="text-[10px] font-bold text-slate-400">
+                                {modalFlight ? `${Math.floor(modalFlight.durationMinutes / 60)}s ${modalFlight.durationMinutes % 60}dk` : ''}
+                              </span>
+                              <div className="w-full flex items-center my-1">
+                                <div className="h-0.5 bg-slate-300 flex-1"></div>
+                                <Plane className="w-4 h-4 text-brand-blue mx-1 rotate-90" />
+                                <div className="h-0.5 bg-slate-300 flex-1"></div>
+                              </div>
+                              <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                Direkt Sefer
+                              </span>
+                            </div>
+
+                            <div>
+                              <div className="text-2xl font-black text-brand-navy">{modalFlight?.destinationAirport.iataCode}</div>
+                              <div className="text-xs font-bold text-slate-700">{modalFlight?.destinationAirport.city}</div>
+                              <div className="text-sm font-black text-brand-blue mt-1">
+                                {modalFlight?.arrivalTime.split('T')[1].substring(0, 5)}
+                              </div>
+                              <span className="text-[10px] text-slate-500 block">Varış Saati</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Yolcular ve Koltuklar */}
+                        <div>
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                            Biletli Yolcu Listesi & Koltuklar:
                           </span>
-                        </td>
-                        <td className="p-3.5 text-slate-500">
-                          {new Date(b.createdAt).toLocaleDateString('tr-TR')}
-                        </td>
-                        <td className="p-3.5 text-right">
-                          {b.status === 'confirmed' && (
-                            <button
-                              onClick={() => {
-                                cancelBooking(b.id);
-                                showToast(`${b.pnr} bilet rezervasyonu iptal edildi.`, 'error');
-                              }}
-                              className="px-2.5 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg"
-                            >
-                              Bileti İptal Et
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+                          <div className="space-y-2">
+                            {selectedBookingModal.passengers.map((p: Passenger, idx: number) => {
+                              const tkt = modalTickets[idx] || modalTickets[0];
+                              return (
+                                <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                                  <div>
+                                    <div className="font-bold text-sm text-brand-navy">
+                                      {p.firstName} {p.lastName}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                      Bilet No: {tkt?.ticketNumber || '235-XXXXXXXXXX'}
+                                    </div>
+                                  </div>
+
+                                  <div className="text-right">
+                                    <span className="px-3 py-1 rounded-lg bg-brand-blue text-white text-xs font-black shadow-2xs">
+                                      Koltuk: {p.selectedSeat || 'TBA'}
+                                    </span>
+                                    <span className="block text-[10px] text-slate-500 mt-0.5 uppercase font-bold">
+                                      {p.cabinClass}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Ödeme ve İletişim Detayları */}
+                        <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-200">
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">İletişim:</span>
+                            <strong className="text-brand-navy block">{selectedBookingModal.contactEmail}</strong>
+                            <span className="text-slate-500 font-mono">{selectedBookingModal.contactPhone}</span>
+                          </div>
+
+                          <div className="text-right">
+                            <span className="text-slate-400 block text-[10px]">Toplam Ödenen:</span>
+                            <span className="text-lg font-black text-brand-navy">
+                              {selectedBookingModal.totalAmount.toLocaleString('tr-TR')} ₺
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBookingModal(null)}
+                          className="px-5 py-2 bg-brand-navy text-white text-xs font-bold rounded-xl hover:bg-slate-800 cursor-pointer"
+                        >
+                          Kapat
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        })()}
 
         {/* FLEET & AIRCRAFT TAB */}
         {activeTab === 'fleet' && hasPermission('manage_aircraft') && (
