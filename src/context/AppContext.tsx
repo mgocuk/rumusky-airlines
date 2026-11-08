@@ -176,7 +176,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [siteContent, setSiteContent] = useState<SiteContentConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SITE_CONTENT);
-    return saved ? JSON.parse(saved) : INITIAL_SITE_CONTENT;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.heroBackgroundUrl && parsed.heroBackgroundUrl.includes('photo-1542296332')) {
+          parsed.heroBackgroundUrl = INITIAL_SITE_CONTENT.heroBackgroundUrl;
+        }
+        return parsed;
+      } catch (e) {
+        // fallback
+      }
+    }
+    return INITIAL_SITE_CONTENT;
   });
 
   const [news, setNews] = useState<NewsItem[]>(() => {

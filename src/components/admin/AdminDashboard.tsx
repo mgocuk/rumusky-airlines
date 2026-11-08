@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Flight,
@@ -51,8 +51,33 @@ import {
   Menu,
   X,
   FileText,
-  BookOpen
+  BookOpen,
+  Upload,
+  Sparkles
 } from 'lucide-react';
+
+const PRESET_HERO_BACKGROUNDS = [
+  {
+    title: 'Bulutlar Üzerinde Uçak (Klasik)',
+    url: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
+    title: 'Gün Batımı & Bulutlar',
+    url: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
+    title: 'Gündüz Uçuşu & Gökyüzü',
+    url: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
+    title: 'Bulut Denizi & Jet',
+    url: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80'
+  },
+  {
+    title: 'Modern Yolcu Uçağı',
+    url: 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=2000&q=80'
+  }
+];
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -152,6 +177,20 @@ export const AdminDashboard: React.FC = () => {
   const [cmsAnnounceText, setCmsAnnounceText] = useState(siteContent.announcementBanner.text);
   const [cmsAnnounceTextEn, setCmsAnnounceTextEn] = useState(siteContent.announcementBanner.textEn);
   const [cmsAnnounceBadge, setCmsAnnounceBadge] = useState(siteContent.announcementBanner.badge);
+
+  useEffect(() => {
+    setCmsHeroBg(siteContent.heroBackgroundUrl);
+    setCmsHeroTitle(siteContent.heroTitle);
+    setCmsHeroTitleEn(siteContent.heroTitleEn);
+    setCmsHeroSubtitle(siteContent.heroSubtitle);
+    setCmsHeroSubtitleEn(siteContent.heroSubtitleEn);
+    setCmsHeroBadge(siteContent.heroBadgeText);
+    setCmsHeroBadgeEn(siteContent.heroBadgeTextEn);
+    setCmsAnnounceEnabled(siteContent.announcementBanner.enabled);
+    setCmsAnnounceText(siteContent.announcementBanner.text);
+    setCmsAnnounceTextEn(siteContent.announcementBanner.textEn);
+    setCmsAnnounceBadge(siteContent.announcementBanner.badge);
+  }, [siteContent]);
 
   // Footer & 15 Info Pages States
   const [selectedEditingPageId, setSelectedEditingPageId] = useState<string>(infoPages[0]?.id || 'page-about');
@@ -633,26 +672,113 @@ export const AdminDashboard: React.FC = () => {
                 <span>Hero Bölümü Görseli & Başlıkları</span>
               </div>
 
-              {/* Background URL */}
-              <div>
-                <label className="text-xs font-bold text-brand-muted uppercase block mb-1">
-                  Hero Arka Plan Resmi URL (Canlı Fotoğraf)
-                </label>
-                <div className="flex gap-3">
-                  <input
-                    type="url"
-                    required
-                    value={cmsHeroBg}
-                    onChange={(e) => setCmsHeroBg(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono"
-                  />
-                  <div className="w-16 h-10 rounded-xl overflow-hidden border border-slate-300 flex-shrink-0 bg-slate-100">
-                    <img src={cmsHeroBg} alt="Preview" className="w-full h-full object-cover" />
+              {/* Background URL & Presets & Local Upload */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-brand-navy uppercase flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand-blue" />
+                    <span>Hero Arka Plan Görseli (Bulutlar & Uçak)</span>
+                  </label>
+                  <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Dinamik & Değiştirilebilir
+                  </span>
+                </div>
+
+                {/* Quick Presets Selection */}
+                <div>
+                  <span className="text-[11px] font-bold text-slate-500 block mb-2">
+                    Önerilen Uçak ve Bulut Temaları (Hızlı Tek Tıkla Değiştir):
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                    {PRESET_HERO_BACKGROUNDS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCmsHeroBg(preset.url)}
+                        className={`group relative rounded-xl overflow-hidden border-2 text-left transition-all aspect-video flex flex-col justify-end p-2 cursor-pointer ${
+                          cmsHeroBg === preset.url
+                            ? 'border-brand-blue ring-2 ring-brand-blue/30 shadow-md'
+                            : 'border-slate-200 hover:border-brand-blue/50 opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <span className="relative z-10 text-[10px] font-bold text-white line-clamp-1 leading-tight">
+                          {preset.title}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <span className="text-[10px] text-brand-muted mt-1 block">
-                  İpucu: Unsplash veya doğrudan uçak/gökyüzü görseli URL'si yapıştırabilirsiniz.
-                </span>
+
+                {/* Custom URL or File Upload */}
+                <div className="pt-2 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
+                      Özel Görsel URL'si Yapıştırın:
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      value={cmsHeroBg}
+                      onChange={(e) => setCmsHeroBg(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:border-brand-blue focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
+                      Veya Cihazdan Görsel Yükleyin:
+                    </label>
+                    <label className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-300 hover:border-brand-blue rounded-xl text-xs font-semibold text-brand-navy cursor-pointer hover:bg-slate-50 transition-colors shadow-2xs">
+                      <Upload className="w-3.5 h-3.5 text-brand-blue" />
+                      <span>Resim Seç & Yükle</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (reader.result) {
+                                setCmsHeroBg(reader.result as string);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Live Preview Card */}
+                <div className="relative rounded-xl overflow-hidden border border-slate-200 h-28 flex items-center px-6">
+                  <img
+                    src={cmsHeroBg}
+                    alt="Hero Preview"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/80 via-brand-navy/50 to-transparent" />
+                  <div className="relative z-10 text-white">
+                    <div className="text-[10px] font-bold text-brand-cyan uppercase tracking-wider mb-0.5">
+                      Canlı Önizleme
+                    </div>
+                    <div className="text-sm font-extrabold font-heading">
+                      {cmsHeroTitle || 'Dünyaya RUMUSKY ile Uçun'}
+                    </div>
+                    <div className="text-[11px] text-slate-200 line-clamp-1">
+                      {cmsHeroSubtitle || 'Konforlu, güvenli ve avantajlı uçuşlar'}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Titles Grid */}

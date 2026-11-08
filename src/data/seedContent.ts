@@ -1,7 +1,7 @@
 import { SiteContentConfig, NewsItem, PermissionKey, UserRole, User, InfoPage } from '../types';
 
 export const INITIAL_SITE_CONTENT: SiteContentConfig = {
-  heroBackgroundUrl: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=2000&q=80',
+  heroBackgroundUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000&q=80',
   heroBadgeText: 'RUMUSKY AIRLINES — Gökyüzündeki Güvenli Eviniz',
   heroBadgeTextEn: 'RUMUSKY AIRLINES — Your Safe Home in the Skies',
   heroTitle: 'Dünyaya RUMUSKY ile Uçun',

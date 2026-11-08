@@ -12,14 +12,15 @@ export const Hero: React.FC = () => {
 
   return (
     <section className="relative bg-brand-navy pt-8 sm:pt-12 pb-24 sm:pb-32 lg:pb-36 overflow-hidden">
-      {/* Dynamic Background Image with Smooth Gradient Overlay */}
+      {/* Dynamic Background Image - Airplane Soaring Above Clouds */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 transition-all duration-700"
+        className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-out"
         style={{
           backgroundImage: `url('${siteContent.heroBackgroundUrl}')`
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/95 via-brand-navy/85 to-brand-bg" />
+      {/* Semi-transparent layered gradient for crystal clear text readability while showcasing clouds & airplane */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-brand-navy/40 to-brand-bg" />
 
       {/* Top Announcement Ribbon (if enabled by Super Admin) */}
       {siteContent.announcementBanner.enabled && (
