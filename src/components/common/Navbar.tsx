@@ -24,16 +24,45 @@ export const Navbar: React.FC = () => {
     toggleAdminMode,
     activeUser,
     setAuthModalOpen,
-    logoutUser
+    logoutUser,
+    siteContent
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const navCfg = siteContent?.navbar || {
+    companyName: siteContent?.companyName || 'RUMUSKY',
+    companySubtitle: siteContent?.companySubtitle || 'AIRLINES',
+    customLogoUrl: siteContent?.customLogoUrl || '',
+    navSearchFlights: 'Uçuş Ara',
+    navSearchFlightsEn: 'Search Flights',
+    navMyBookings: 'Rezervasyonlarım',
+    navMyBookingsEn: 'My Bookings',
+    navCheckin: 'Online Check-in',
+    navCheckinEn: 'Online Check-in',
+    navNews: 'Haberler & Basın',
+    navNewsEn: 'News & Media',
+    navTravelInfo: 'Seyahat Bilgileri',
+    navTravelInfoEn: 'Travel Information',
+    navAbout: 'RUMUSKY',
+    navAboutEn: 'RUMUSKY',
+    navAdminButtonText: 'Admin Paneli',
+    navAdminButtonTextEn: 'Admin Portal'
+  };
+
+  const labelSearch = language === 'en' ? (navCfg.navSearchFlightsEn || 'Search Flights') : (navCfg.navSearchFlights || 'Uçuş Ara');
+  const labelBookings = language === 'en' ? (navCfg.navMyBookingsEn || 'My Bookings') : (navCfg.navMyBookings || 'Rezervasyonlarım');
+  const labelCheckin = language === 'en' ? (navCfg.navCheckinEn || 'Online Check-in') : (navCfg.navCheckin || 'Online Check-in');
+  const labelNews = language === 'en' ? (navCfg.navNewsEn || 'News & Media') : (navCfg.navNews || 'Haberler & Basın');
+  const labelTravelInfo = language === 'en' ? (navCfg.navTravelInfoEn || 'Travel Information') : (navCfg.navTravelInfo || 'Seyahat Bilgileri');
+  const labelAbout = language === 'en' ? (navCfg.navAboutEn || navCfg.companyName || 'RUMUSKY') : (navCfg.navAbout || navCfg.companyName || 'RUMUSKY');
+  const labelAdminBtn = language === 'en' ? (navCfg.navAdminButtonTextEn || 'Admin Portal') : (navCfg.navAdminButtonText || 'Admin Paneli');
+
   const navItems = [
-    { key: 'nav_search_flights', view: 'home', icon: Search },
-    { key: 'nav_my_bookings', view: 'manage', icon: Calendar },
-    { key: 'nav_checkin', view: 'checkin', icon: FileText },
-    { key: 'nav_news', view: 'news', icon: Newspaper }
+    { key: 'nav_search_flights', label: labelSearch, view: 'home', icon: Search },
+    { key: 'nav_my_bookings', label: labelBookings, view: 'manage', icon: Calendar },
+    { key: 'nav_checkin', label: labelCheckin, view: 'checkin', icon: FileText },
+    { key: 'nav_news', label: labelNews, view: 'news', icon: Newspaper }
   ];
 
   return (
@@ -65,7 +94,7 @@ export const Navbar: React.FC = () => {
                     : 'text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70'
                 }`}
               >
-                {t(item.key as any)}
+                {item.label}
               </button>
             );
           })}
@@ -74,14 +103,14 @@ export const Navbar: React.FC = () => {
             onClick={() => setActiveView('home')}
             className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70 transition-all"
           >
-            {t('nav_travel_info')}
+            {labelTravelInfo}
           </button>
           
           <button
             onClick={() => setActiveView('home')}
             className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70 transition-all flex items-center gap-1.5"
           >
-            <span>{t('nav_about')}</span>
+            <span>{labelAbout}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
           </button>
         </nav>
@@ -125,7 +154,7 @@ export const Navbar: React.FC = () => {
                 title="Yönetim Paneli ile Canlı Site Arasında Geçiş Yap"
               >
                 <Shield className="w-3.5 h-3.5 text-brand-cyan" />
-                <span>{isAdmin ? 'Yönetici Aktif' : 'Admin Paneli'}</span>
+                <span>{isAdmin ? (language === 'en' ? 'Exit Admin' : 'Yönetici Aktif') : labelAdminBtn}</span>
               </button>
 
               <div className="flex items-center gap-2 pl-1">
@@ -183,9 +212,30 @@ export const Navbar: React.FC = () => {
               className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50 flex items-center gap-2.5"
             >
               <item.icon className="w-4 h-4 text-brand-blue" />
-              {t(item.key as any)}
+              {item.label}
             </button>
           ))}
+
+          <button
+            onClick={() => {
+              setActiveView('home');
+              setMobileMenuOpen(false);
+            }}
+            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50"
+          >
+            {labelTravelInfo}
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveView('home');
+              setMobileMenuOpen(false);
+            }}
+            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50 flex items-center justify-between"
+          >
+            <span>{labelAbout}</span>
+            <span className="w-2 h-2 rounded-full bg-brand-cyan"></span>
+          </button>
           
           {activeUser && activeUser.role !== 'customer' && (
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -197,7 +247,7 @@ export const Navbar: React.FC = () => {
                 className="px-4 py-2 text-xs font-bold rounded-lg bg-brand-navy text-white flex items-center gap-2 shadow-xs"
               >
                 <Shield className="w-4 h-4 text-brand-cyan" />
-                {isAdmin ? 'Müşteri Moduna Dön' : 'Yönetici Paneline Geç'}
+                {isAdmin ? (language === 'en' ? 'Back to Customer Mode' : 'Müşteri Moduna Dön') : labelAdminBtn}
               </button>
               <button
                 onClick={() => {

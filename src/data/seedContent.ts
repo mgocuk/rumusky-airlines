@@ -1,6 +1,28 @@
 import { SiteContentConfig, NewsItem, PermissionKey, UserRole, User, InfoPage } from '../types';
 
 export const INITIAL_SITE_CONTENT: SiteContentConfig = {
+  companyName: 'RUMUSKY',
+  companySubtitle: 'AIRLINES',
+  customLogoUrl: '',
+  navbar: {
+    companyName: 'RUMUSKY',
+    companySubtitle: 'AIRLINES',
+    customLogoUrl: '',
+    navSearchFlights: 'Uçuş Ara',
+    navSearchFlightsEn: 'Search Flights',
+    navMyBookings: 'Rezervasyonlarım',
+    navMyBookingsEn: 'My Bookings',
+    navCheckin: 'Online Check-in',
+    navCheckinEn: 'Online Check-in',
+    navNews: 'Haberler & Basın',
+    navNewsEn: 'News & Media',
+    navTravelInfo: 'Seyahat Bilgileri',
+    navTravelInfoEn: 'Travel Information',
+    navAbout: 'RUMUSKY',
+    navAboutEn: 'RUMUSKY',
+    navAdminButtonText: 'Admin Paneli',
+    navAdminButtonTextEn: 'Admin Portal'
+  },
   heroBackgroundUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=2000&q=80',
   heroBadgeText: 'RUMUSKY AIRLINES — Gökyüzündeki Güvenli Eviniz',
   heroBadgeTextEn: 'RUMUSKY AIRLINES — Your Safe Home in the Skies',

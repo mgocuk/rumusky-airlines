@@ -1,13 +1,39 @@
 import React from 'react';
+import { useApp } from '../../context/AppContext';
 
 interface LogoProps {
   variant?: 'full' | 'symbol' | 'white';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  customTitle?: string;
+  customSubtitle?: string;
+  customImage?: string;
+  companyName?: string;
+  companySubtitle?: string;
+  logoImage?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ variant = 'full', className = '', size = 'md' }) => {
+export const Logo: React.FC<LogoProps> = ({
+  variant = 'full',
+  className = '',
+  size = 'md',
+  customTitle,
+  customSubtitle,
+  customImage,
+  companyName: propCompanyName,
+  companySubtitle: propCompanySubtitle,
+  logoImage: propLogoImage
+}) => {
+  const { siteContent } = useApp();
   const isWhite = variant === 'white';
+
+  const finalTitle = propCompanyName || customTitle;
+  const finalSubtitle = propCompanySubtitle || customSubtitle;
+  const finalImage = propLogoImage !== undefined ? propLogoImage : customImage;
+
+  const companyName = finalTitle || siteContent?.companyName || siteContent?.navbar?.companyName || 'RUMUSKY';
+  const companySubtitle = finalSubtitle || siteContent?.companySubtitle || siteContent?.navbar?.companySubtitle || 'Airlines';
+  const logoImage = finalImage !== undefined ? finalImage : (siteContent?.customLogoUrl || siteContent?.navbar?.customLogoUrl || '');
   
   const sizeMap = {
     sm: { symbol: 'w-7 h-7', text: 'text-lg', sub: 'text-[9px]' },
@@ -19,38 +45,46 @@ export const Logo: React.FC<LogoProps> = ({ variant = 'full', className = '', si
 
   return (
     <div className={`inline-flex items-center gap-2.5 select-none cursor-pointer ${className}`}>
-      {/* Wing-R Monogram Symbol */}
-      <svg
-        viewBox="0 0 48 48"
-        className={`${symbolClass} flex-shrink-0 transition-transform duration-200 group-hover:scale-105`}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isWhite ? '#FFFFFF' : '#0D6EFD'} />
-            <stop offset="100%" stopColor={isWhite ? '#E0F2FE' : '#00B4DB'} />
-          </linearGradient>
-          <linearGradient id="wingGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isWhite ? '#E2E8F0' : '#0B2545'} />
-            <stop offset="100%" stopColor={isWhite ? '#CBD5E1' : '#0D6EFD'} />
-          </linearGradient>
-        </defs>
+      {/* Custom Logo Image or Default Wing-R Monogram Symbol */}
+      {logoImage ? (
+        <img
+          src={logoImage}
+          alt={companyName}
+          className={`${symbolClass} object-contain rounded-lg flex-shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-2xs`}
+        />
+      ) : (
+        <svg
+          viewBox="0 0 48 48"
+          className={`${symbolClass} flex-shrink-0 transition-transform duration-200 group-hover:scale-105`}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isWhite ? '#FFFFFF' : '#0D6EFD'} />
+              <stop offset="100%" stopColor={isWhite ? '#E0F2FE' : '#00B4DB'} />
+            </linearGradient>
+            <linearGradient id="wingGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isWhite ? '#E2E8F0' : '#0B2545'} />
+              <stop offset="100%" stopColor={isWhite ? '#CBD5E1' : '#0D6EFD'} />
+            </linearGradient>
+          </defs>
 
-        {/* Back aerodynamic wing sweep */}
-        <path
-          d="M6 38L24 10H34L19 32H38L34 38H6Z"
-          fill="url(#wingGradDark)"
-          opacity={isWhite ? 0.9 : 1}
-        />
-        {/* Forward dynamic wing / R-curve top */}
-        <path
-          d="M26 10L21 20H37L42 10H26Z"
-          fill="url(#wingGrad)"
-        />
-        {/* Dynamic jet streak accent */}
-        <circle cx="39" cy="20" r="2.5" fill={isWhite ? '#38BDF8' : '#00B4DB'} />
-      </svg>
+          {/* Back aerodynamic wing sweep */}
+          <path
+            d="M6 38L24 10H34L19 32H38L34 38H6Z"
+            fill="url(#wingGradDark)"
+            opacity={isWhite ? 0.9 : 1}
+          />
+          {/* Forward dynamic wing / R-curve top */}
+          <path
+            d="M26 10L21 20H37L42 10H26Z"
+            fill="url(#wingGrad)"
+          />
+          {/* Dynamic jet streak accent */}
+          <circle cx="39" cy="20" r="2.5" fill={isWhite ? '#38BDF8' : '#00B4DB'} />
+        </svg>
+      )}
 
       {/* Wordmark */}
       {variant !== 'symbol' && (
@@ -61,7 +95,7 @@ export const Logo: React.FC<LogoProps> = ({ variant = 'full', className = '', si
                 isWhite ? 'text-white' : 'text-brand-navy'
               }`}
             >
-              RUMUSKY
+              {companyName}
             </span>
           </div>
           <span
@@ -69,7 +103,7 @@ export const Logo: React.FC<LogoProps> = ({ variant = 'full', className = '', si
               isWhite ? 'text-sky-200' : 'text-brand-blue'
             }`}
           >
-            Airlines
+            {companySubtitle}
           </span>
         </div>
       )}

@@ -211,6 +211,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (parsed.heroBackgroundUrl && parsed.heroBackgroundUrl.includes('photo-1542296332')) {
           parsed.heroBackgroundUrl = INITIAL_SITE_CONTENT.heroBackgroundUrl;
         }
+        parsed.companyName = parsed.companyName || INITIAL_SITE_CONTENT.companyName;
+        parsed.companySubtitle = parsed.companySubtitle || INITIAL_SITE_CONTENT.companySubtitle;
+        parsed.customLogoUrl = parsed.customLogoUrl || '';
+        parsed.navbar = {
+          ...INITIAL_SITE_CONTENT.navbar,
+          ...(parsed.navbar || {})
+        };
         return parsed;
       } catch (e) {
         // fallback

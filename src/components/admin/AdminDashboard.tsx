@@ -13,6 +13,7 @@ import {
   BenefitItem
 } from '../../types';
 import { useToast } from '../common/Toast';
+import { Logo } from '../common/Logo';
 import { getFutureDateString } from '../../data/seedData';
 import {
   BarChart,
@@ -317,6 +318,46 @@ export const AdminDashboard: React.FC = () => {
   const [cmsAnnounceTextEn, setCmsAnnounceTextEn] = useState(siteContent.announcementBanner.textEn);
   const [cmsAnnounceBadge, setCmsAnnounceBadge] = useState(siteContent.announcementBanner.badge);
 
+  // Brand & Navbar Form States
+  const navCfg = siteContent.navbar || {
+    companyName: siteContent.companyName || 'RUMUSKY',
+    companySubtitle: siteContent.companySubtitle || 'AIRLINES',
+    customLogoUrl: siteContent.customLogoUrl || '',
+    navSearchFlights: 'Uçuş Ara',
+    navSearchFlightsEn: 'Search Flights',
+    navMyBookings: 'Rezervasyonlarım',
+    navMyBookingsEn: 'My Bookings',
+    navCheckin: 'Online Check-in',
+    navCheckinEn: 'Online Check-in',
+    navNews: 'Haberler & Basın',
+    navNewsEn: 'News & Media',
+    navTravelInfo: 'Seyahat Bilgileri',
+    navTravelInfoEn: 'Travel Information',
+    navAbout: 'RUMUSKY',
+    navAboutEn: 'RUMUSKY',
+    navAdminButtonText: 'Admin Paneli',
+    navAdminButtonTextEn: 'Admin Portal'
+  };
+
+  const [cmsCompanyName, setCmsCompanyName] = useState(siteContent.companyName || 'RUMUSKY');
+  const [cmsCompanySubtitle, setCmsCompanySubtitle] = useState(siteContent.companySubtitle || 'AIRLINES');
+  const [cmsLogoUrl, setCmsLogoUrl] = useState(siteContent.customLogoUrl || '');
+  const [cmsNavSearch, setCmsNavSearch] = useState(navCfg.navSearchFlights);
+  const [cmsNavSearchEn, setCmsNavSearchEn] = useState(navCfg.navSearchFlightsEn);
+  const [cmsNavBookings, setCmsNavBookings] = useState(navCfg.navMyBookings);
+  const [cmsNavBookingsEn, setCmsNavBookingsEn] = useState(navCfg.navMyBookingsEn);
+  const [cmsNavCheckin, setCmsNavCheckin] = useState(navCfg.navCheckin);
+  const [cmsNavCheckinEn, setCmsNavCheckinEn] = useState(navCfg.navCheckinEn);
+  const [cmsNavNews, setCmsNavNews] = useState(navCfg.navNews);
+  const [cmsNavNewsEn, setCmsNavNewsEn] = useState(navCfg.navNewsEn);
+  const [cmsNavTravelInfo, setCmsNavTravelInfo] = useState(navCfg.navTravelInfo);
+  const [cmsNavTravelInfoEn, setCmsNavTravelInfoEn] = useState(navCfg.navTravelInfoEn);
+  const [cmsNavAbout, setCmsNavAbout] = useState(navCfg.navAbout);
+  const [cmsNavAboutEn, setCmsNavAboutEn] = useState(navCfg.navAboutEn);
+  const [cmsNavAdminBtn, setCmsNavAdminBtn] = useState(navCfg.navAdminButtonText);
+  const [cmsNavAdminBtnEn, setCmsNavAdminBtnEn] = useState(navCfg.navAdminButtonTextEn);
+  const [cmsNavbarPreviewLang, setCmsNavbarPreviewLang] = useState<'tr' | 'en'>('tr');
+
   useEffect(() => {
     setCmsHeroBg(siteContent.heroBackgroundUrl);
     setCmsHeroTitle(siteContent.heroTitle);
@@ -329,6 +370,27 @@ export const AdminDashboard: React.FC = () => {
     setCmsAnnounceText(siteContent.announcementBanner.text);
     setCmsAnnounceTextEn(siteContent.announcementBanner.textEn);
     setCmsAnnounceBadge(siteContent.announcementBanner.badge);
+
+    const n = siteContent.navbar;
+    setCmsCompanyName(siteContent.companyName || 'RUMUSKY');
+    setCmsCompanySubtitle(siteContent.companySubtitle || 'AIRLINES');
+    setCmsLogoUrl(siteContent.customLogoUrl || '');
+    if (n) {
+      setCmsNavSearch(n.navSearchFlights || 'Uçuş Ara');
+      setCmsNavSearchEn(n.navSearchFlightsEn || 'Search Flights');
+      setCmsNavBookings(n.navMyBookings || 'Rezervasyonlarım');
+      setCmsNavBookingsEn(n.navMyBookingsEn || 'My Bookings');
+      setCmsNavCheckin(n.navCheckin || 'Online Check-in');
+      setCmsNavCheckinEn(n.navCheckinEn || 'Online Check-in');
+      setCmsNavNews(n.navNews || 'Haberler & Basın');
+      setCmsNavNewsEn(n.navNewsEn || 'News & Media');
+      setCmsNavTravelInfo(n.navTravelInfo || 'Seyahat Bilgileri');
+      setCmsNavTravelInfoEn(n.navTravelInfoEn || 'Travel Information');
+      setCmsNavAbout(n.navAbout || 'RUMUSKY');
+      setCmsNavAboutEn(n.navAboutEn || 'RUMUSKY');
+      setCmsNavAdminBtn(n.navAdminButtonText || 'Admin Paneli');
+      setCmsNavAdminBtnEn(n.navAdminButtonTextEn || 'Admin Portal');
+    }
   }, [siteContent]);
 
   // Footer & 15 Info Pages States
@@ -602,6 +664,28 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveCMS = (e: React.FormEvent) => {
     e.preventDefault();
     updateSiteContent({
+      companyName: cmsCompanyName,
+      companySubtitle: cmsCompanySubtitle,
+      customLogoUrl: cmsLogoUrl,
+      navbar: {
+        companyName: cmsCompanyName,
+        companySubtitle: cmsCompanySubtitle,
+        customLogoUrl: cmsLogoUrl,
+        navSearchFlights: cmsNavSearch,
+        navSearchFlightsEn: cmsNavSearchEn,
+        navMyBookings: cmsNavBookings,
+        navMyBookingsEn: cmsNavBookingsEn,
+        navCheckin: cmsNavCheckin,
+        navCheckinEn: cmsNavCheckinEn,
+        navNews: cmsNavNews,
+        navNewsEn: cmsNavNewsEn,
+        navTravelInfo: cmsNavTravelInfo,
+        navTravelInfoEn: cmsNavTravelInfoEn,
+        navAbout: cmsNavAbout,
+        navAboutEn: cmsNavAboutEn,
+        navAdminButtonText: cmsNavAdminBtn,
+        navAdminButtonTextEn: cmsNavAdminBtnEn
+      },
       heroBackgroundUrl: cmsHeroBg,
       heroTitle: cmsHeroTitle,
       heroTitleEn: cmsHeroTitleEn,
@@ -616,7 +700,7 @@ export const AdminDashboard: React.FC = () => {
         textEn: cmsAnnounceTextEn
       }
     });
-    showToast('Site görselleri ve başlık metinleri canlı olarak güncellendi!', 'success');
+    showToast('Marka kimliği, logo, üst menü butonları ve site görselleri canlıya uygulandı!', 'success');
   };
 
   const handleSelectEditingPage = (pageId: string) => {
@@ -947,10 +1031,483 @@ export const AdminDashboard: React.FC = () => {
                   Dinamik İçerik & Görsel Yönetim Stüdyosu (CMS)
                 </h3>
                 <p className="text-xs text-brand-muted mt-0.5">
-                  Arka plan resimlerini, ana sayfa başlıklarını, sloganları ve avantaj kartlarını buradan anında değiştirin.
+                  Arka plan resimlerini, ana sayfa başlıklarını, sloganları, logo ve üst menü butonlarını buradan anında değiştirin.
                 </p>
               </div>
             </div>
+
+            {/* 1. Üst Menü (Navbar), Logo & Marka Kimliği Yönetimi */}
+            <form onSubmit={handleSaveCMS} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-heading font-bold text-base text-brand-navy">
+                      Üst Menü (Navbar), Logo ve Marka Kimliği Yönetimi
+                    </h4>
+                    <p className="text-xs text-brand-muted">
+                      Firma adını, logosunu ve üst menüdeki tüm buton isimlerini (Türkçe & İngilizce) anında değiştirin.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Marka & Menüyü Kaydet</span>
+                </button>
+              </div>
+
+              {/* Firma Adı ve Logo Yönetimi */}
+              <div className="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80 space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-brand-navy uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-brand-blue" />
+                    Firma Adı & Logo Ayarları
+                  </span>
+                  <span className="text-[11px] font-semibold text-brand-blue bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    Tüm Sayfalarda Canlı Geçerli
+                  </span>
+                </div>
+
+                {/* Firma Adı ve Slogan Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-brand-navy block mb-1">
+                      Firma Adı (Örn: RUMUSKY, ANADOLU SKY, vb.)
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={cmsCompanyName}
+                      onChange={(e) => setCmsCompanyName(e.target.value)}
+                      placeholder="RUMUSKY"
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-brand-navy focus:border-brand-blue focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Üst menüde, logoda, footer'da ve biletlerde ana marka adı olarak görünür.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-brand-navy block mb-1">
+                      Marka Alt Başlığı (Örn: AIRLINES, HAVAYOLLARI, vb.)
+                    </label>
+                    <input
+                      type="text"
+                      value={cmsCompanySubtitle}
+                      onChange={(e) => setCmsCompanySubtitle(e.target.value)}
+                      placeholder="AIRLINES"
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-brand-navy tracking-wider focus:border-brand-blue focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Logonun altındaki ikinci satır veya uzantı metnidir.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Logo Dosyası Yükleme & URL */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start pt-2 border-t border-slate-200/60">
+                  <div className="lg:col-span-2 space-y-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-brand-navy uppercase block mb-1">
+                        Logo Görsel URL'si (PNG, SVG, JPG, WebP)
+                      </label>
+                      <input
+                        type="url"
+                        value={cmsLogoUrl}
+                        onChange={(e) => setCmsLogoUrl(e.target.value)}
+                        placeholder="https://.../logo.png (Boş bırakılırsa varsayılan kanatlı monogram logo kullanılır)"
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:border-brand-blue focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                      <label className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-300 hover:border-brand-blue rounded-xl text-xs font-semibold text-brand-navy cursor-pointer hover:bg-slate-50 transition-colors shadow-2xs">
+                        <Upload className="w-3.5 h-3.5 text-brand-blue" />
+                        <span>Cihazdan Yeni Logo Yükle</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (reader.result) {
+                                  setCmsLogoUrl(reader.result as string);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+
+                      {cmsLogoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setCmsLogoUrl('')}
+                          className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl text-xs font-semibold transition-colors"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Varsayılan Monogram Logoya Dön</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Canlı Logo Önizleme Kutusu (Hem açık hem koyu tema üzerinde) */}
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                      Logo Canlı Önizleme:
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[60px]" title="Beyaz zemin">
+                        <Logo
+                          companyName={cmsCompanyName}
+                          companySubtitle={cmsCompanySubtitle}
+                          logoImage={cmsLogoUrl}
+                          size="md"
+                        />
+                      </div>
+                      <div className="p-3 bg-brand-navy rounded-lg flex items-center justify-center min-h-[60px]" title="Koyu zemin (Footer görünümü)">
+                        <Logo
+                          companyName={cmsCompanyName}
+                          companySubtitle={cmsCompanySubtitle}
+                          logoImage={cmsLogoUrl}
+                          variant="white"
+                          size="md"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Üst Menü Buton İsimleri Ayarları */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <div>
+                    <h5 className="font-heading font-bold text-sm text-brand-navy">
+                      Üst Menü Buton & Sekme Metinleri
+                    </h5>
+                    <p className="text-[11px] text-brand-muted">
+                      Her bir butonun Türkçe ve İngilizce dillerindeki görünümünü belirleyin.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* 1. Uçuş Ara */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      1. Buton: Uçuş Ara (Sefer Bulma)
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavSearch}
+                          onChange={(e) => setCmsNavSearch(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavSearchEn}
+                          onChange={(e) => setCmsNavSearchEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Rezervasyonlarım */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      2. Buton: Rezervasyonlarım / Bilet Yönetimi
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavBookings}
+                          onChange={(e) => setCmsNavBookings(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavBookingsEn}
+                          onChange={(e) => setCmsNavBookingsEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Online Check-in */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      3. Buton: Online Check-in
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavCheckin}
+                          onChange={(e) => setCmsNavCheckin(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavCheckinEn}
+                          onChange={(e) => setCmsNavCheckinEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Haberler & Basın */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      4. Buton: Haberler & Basın
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavNews}
+                          onChange={(e) => setCmsNavNews(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavNewsEn}
+                          onChange={(e) => setCmsNavNewsEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 5. Seyahat Bilgileri */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      5. Buton: Seyahat Bilgileri
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavTravelInfo}
+                          onChange={(e) => setCmsNavTravelInfo(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavTravelInfoEn}
+                          onChange={(e) => setCmsNavTravelInfoEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 6. Kurumsal / Hakkımızda Menüsü */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                      6. Buton: Kurumsal / Marka Menüsü (Hakkımızda)
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavAbout}
+                          onChange={(e) => setCmsNavAbout(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavAboutEn}
+                          onChange={(e) => setCmsNavAboutEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 7. Admin Paneli Buton Metni */}
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 md:col-span-2">
+                    <span className="text-[11px] font-bold text-brand-navy flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5 text-brand-blue" />
+                      7. Buton: Admin Paneli Yetkili Giriş / Geçiş Butonu Metni
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Türkçe</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavAdminBtn}
+                          onChange={(e) => setCmsNavAdminBtn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">İngilizce (EN)</label>
+                        <input
+                          type="text"
+                          required
+                          value={cmsNavAdminBtnEn}
+                          onChange={(e) => setCmsNavAdminBtnEn(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Canlı İnteraktif Navbar Önizleme Şeridi */}
+              <div className="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand-cyan" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      Üst Menü Canlı Önizleme (Simülasyon)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => setCmsNavbarPreviewLang('tr')}
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all ${
+                        cmsNavbarPreviewLang === 'tr' ? 'bg-brand-blue text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      TR Görünümü
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCmsNavbarPreviewLang('en')}
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all ${
+                        cmsNavbarPreviewLang === 'en' ? 'bg-brand-blue text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      EN Görünümü
+                    </button>
+                  </div>
+                </div>
+
+                {/* Navbar Visual Bar */}
+                <div className="bg-white text-brand-navy rounded-xl p-3 shadow-md border border-slate-200 flex flex-wrap items-center justify-between gap-3 overflow-x-auto">
+                  {/* Brand */}
+                  <div>
+                    <Logo
+                      companyName={cmsCompanyName}
+                      companySubtitle={cmsCompanySubtitle}
+                      logoImage={cmsLogoUrl}
+                      size="sm"
+                    />
+                  </div>
+
+                  {/* Nav Links */}
+                  <div className="flex items-center gap-1 sm:gap-2 text-[11px] font-semibold whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-blue-50 text-brand-blue font-bold">
+                      {cmsNavbarPreviewLang === 'en' ? cmsNavSearchEn : cmsNavSearch}
+                    </span>
+                    <span className="px-2 py-1 text-slate-600">
+                      {cmsNavbarPreviewLang === 'en' ? cmsNavBookingsEn : cmsNavBookings}
+                    </span>
+                    <span className="px-2 py-1 text-slate-600">
+                      {cmsNavbarPreviewLang === 'en' ? cmsNavCheckinEn : cmsNavCheckin}
+                    </span>
+                    <span className="px-2 py-1 text-slate-600">
+                      {cmsNavbarPreviewLang === 'en' ? cmsNavNewsEn : cmsNavNews}
+                    </span>
+                    <span className="px-2 py-1 text-slate-600">
+                      {cmsNavbarPreviewLang === 'en' ? cmsNavTravelInfoEn : cmsNavTravelInfo}
+                    </span>
+                    <span className="px-2 py-1 text-slate-600 flex items-center gap-1">
+                      <span>{cmsNavbarPreviewLang === 'en' ? cmsNavAboutEn : cmsNavAbout}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
+                    </span>
+                  </div>
+
+                  {/* Right side */}
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <div className="flex items-center bg-slate-100 rounded-md px-1.5 py-0.5 text-[10px] font-bold">
+                      <span className={cmsNavbarPreviewLang === 'tr' ? 'text-brand-blue font-extrabold' : 'text-slate-400'}>TR</span>
+                      <span className="text-slate-300 mx-1">|</span>
+                      <span className={cmsNavbarPreviewLang === 'en' ? 'text-brand-blue font-extrabold' : 'text-slate-400'}>EN</span>
+                    </div>
+
+                    <div className="px-2.5 py-1 rounded-lg bg-brand-navy text-white text-[10px] font-bold flex items-center gap-1">
+                      <Shield className="w-3 h-3 text-brand-cyan" />
+                      <span>{cmsNavbarPreviewLang === 'en' ? cmsNavAdminBtnEn : cmsNavAdminBtn}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Marka & Üst Menü Değişikliklerini Canlıya Uygula</span>
+                </button>
+              </div>
+            </form>
 
             {/* Hero & Background Customizer */}
             <form onSubmit={handleSaveCMS} className="bg-white p-6 rounded-2xl border border-brand-border shadow-subtle space-y-6">

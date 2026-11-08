@@ -91,7 +91,31 @@ export interface FooterConfig {
   copyrightEn: string;
 }
 
+export interface NavbarConfig {
+  companyName: string;
+  companySubtitle: string;
+  customLogoUrl?: string;
+  navSearchFlights: string;
+  navSearchFlightsEn: string;
+  navMyBookings: string;
+  navMyBookingsEn: string;
+  navCheckin: string;
+  navCheckinEn: string;
+  navNews: string;
+  navNewsEn: string;
+  navTravelInfo: string;
+  navTravelInfoEn: string;
+  navAbout: string;
+  navAboutEn: string;
+  navAdminButtonText?: string;
+  navAdminButtonTextEn?: string;
+}
+
 export interface SiteContentConfig {
+  companyName: string;
+  companySubtitle: string;
+  customLogoUrl?: string;
+  navbar: NavbarConfig;
   heroBackgroundUrl: string;
   heroBadgeText: string;
   heroBadgeTextEn: string;
