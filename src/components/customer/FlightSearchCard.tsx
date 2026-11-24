@@ -156,22 +156,22 @@ export const FlightSearchCard: React.FC = () => {
       }}
       className={`rounded-3xl border transition-all duration-300 p-5 sm:p-7 text-left ${
         isActive
-          ? 'border-white shadow-2xl ring-2 ring-brand-blue/30 scale-[1.002]'
-          : 'border-white/60 shadow-xl hover:border-white/90 hover:shadow-2xl'
+          ? 'border-brand-gold/70 shadow-2xl ring-2 ring-brand-gold/25 scale-[1.002]'
+          : 'border-brand-border shadow-xl hover:border-brand-gold/60 hover:shadow-2xl'
       }`}
     >
       {/* Top Bar: Trip Types & Cabin & Idle State Indicator */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-slate-200/60">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-brand-border/60">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setTripType('one-way')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               tripType === 'one-way'
-                ? 'bg-brand-navy text-white shadow-xs'
+                ? 'bg-brand-navy text-white shadow-xs border border-brand-gold/40'
                 : isActive
-                ? 'text-brand-muted hover:bg-slate-100'
-                : 'text-slate-700 bg-white/60 hover:bg-white/90'
+                ? 'text-brand-muted hover:bg-brand-ivory/70'
+                : 'text-brand-navy/80 bg-brand-ivory/60 hover:bg-brand-ivory'
             }`}
           >
             {t('search_one_way')}
@@ -181,15 +181,15 @@ export const FlightSearchCard: React.FC = () => {
             onClick={() => setTripType('round-trip')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               tripType === 'round-trip'
-                ? 'bg-brand-navy text-white shadow-xs'
+                ? 'bg-brand-navy text-white shadow-xs border border-brand-gold/40'
                 : isActive
-                ? 'text-brand-muted hover:bg-slate-100'
-                : 'text-slate-700 bg-white/60 hover:bg-white/90'
+                ? 'text-brand-muted hover:bg-brand-ivory/70'
+                : 'text-brand-navy/80 bg-brand-ivory/60 hover:bg-brand-ivory'
             }`}
           >
             {t('search_round_trip')}
           </button>
-          <span className="hidden sm:inline-block px-3 py-1 text-xs font-medium text-slate-400 bg-slate-100/60 rounded-lg cursor-not-allowed">
+          <span className="hidden sm:inline-block px-3 py-1 text-xs font-medium text-brand-muted/70 bg-brand-ivory/60 rounded-lg cursor-not-allowed">
             {t('search_multi_city')}
           </span>
         </div>
@@ -197,8 +197,8 @@ export const FlightSearchCard: React.FC = () => {
         {/* Right side: Cabin Switcher + Idle hint badge */}
         <div className="flex items-center gap-2">
           {!isActive && (
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-white/70 px-3 py-1 rounded-full border border-white/80 shadow-2xs">
-              <Sparkles className="w-3 h-3 text-brand-blue" />
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-bold text-brand-navy bg-brand-goldLight px-3 py-1 rounded-full border border-brand-gold/35 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-brand-gold" />
               <span>{language === 'tr' ? 'Sefer aramak için tıklayın' : 'Click to search flights'}</span>
             </span>
           )}
@@ -513,9 +513,9 @@ export const FlightSearchCard: React.FC = () => {
         <div className="lg:col-span-12 mt-2">
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-heading font-bold text-base shadow-elevated flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+            className="w-full py-3.5 rounded-xl bg-brand-blue hover:bg-[#164657] text-white font-heading font-bold text-base shadow-elevated border border-brand-gold/30 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
           >
-            <Search className="w-5 h-5 stroke-[2.5]" />
+            <Search className="w-5 h-5 stroke-[2.5] text-brand-cyan" />
             <span>{t('search_btn')}</span>
           </button>
         </div>

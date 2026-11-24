@@ -5,11 +5,25 @@
 @layer base {
   body {
     @apply bg-brand-bg text-brand-text font-sans antialiased;
+    background-image: radial-gradient(circle at 20% 0%, rgba(212, 168, 83, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(30, 91, 112, 0.05) 0%, transparent 40%);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading tracking-tight text-brand-navy;
   }
+}
+
+/* Central Asian geometric lattice backdrop utility (airy low contrast) */
+.bg-central-asian-lattice {
+  background-color: #FAF6EE;
+  background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C49238' stroke-width='0.9' stroke-opacity='0.11'%3E%3Cpath d='M36 6L46 16L60 16L56 30L66 36L56 42L60 56L46 56L36 66L26 56L12 56L16 42L6 36L16 30L12 16L26 16Z'/%3E%3Ccircle cx='36' cy='36' r='6'/%3E%3Cpath d='M0 36h6M66 36h6M36 0v6M36 66v6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.border-central-asian-ribbon {
+  height: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg width='48' height='6' viewBox='0 0 48 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 3 L6 0 L12 3 L18 0 L24 3 L30 0 L36 3 L42 0 L48 3 L42 6 L36 3 L30 6 L24 3 L18 6 L12 3 L6 6 Z' fill='%23C49238' fill-opacity='0.35'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
 }
 
 /* Custom Scrollbar */
@@ -18,14 +32,14 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f5efe2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #d8c7a4;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #c49238;
 }
 
 /* Animations */

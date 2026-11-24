@@ -1,7 +1,8 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Campaign } from '../../types';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { CentralAsianDivider } from '../common/CentralAsianMotif';
+import { Sparkles } from 'lucide-react';
 
 export const Campaigns: React.FC = () => {
   const { campaigns, language, t, setSearchQuery } = useApp();
@@ -25,13 +26,15 @@ export const Campaigns: React.FC = () => {
 
   return (
     <section className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 py-6">
+      <CentralAsianDivider className="mb-8" />
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-xl sm:text-2xl font-bold text-brand-navy font-heading">
             {t('campaigns_title')}
           </h3>
           <p className="text-xs sm:text-sm text-brand-muted mt-1">
-            {language === 'tr' ? 'Sezonun en avantajlı uçuş fırsatları' : 'The best seasonal airfare opportunities'}
+            {language === 'tr' ? 'İpek Yolu ve dünya rotalarında sezonun seçkin fırsatları' : 'Exclusive seasonal offers along the Silk Road & worldwide routes'}
           </p>
         </div>
       </div>
@@ -47,31 +50,31 @@ export const Campaigns: React.FC = () => {
             <div
               key={cmp.id}
               onClick={() => handleCampaignClick(cmp)}
-              className="group relative rounded-2xl overflow-hidden cursor-pointer shadow-subtle hover:shadow-elevated transition-all duration-300 border border-slate-200/80 flex flex-col justify-end min-h-[260px] p-6 text-white"
+              className="group relative rounded-2xl overflow-hidden cursor-pointer shadow-subtle hover:shadow-elevated transition-all duration-300 border border-brand-border hover:border-brand-gold/70 flex flex-col justify-end min-h-[260px] p-6 text-white"
             >
-              {/* Dynamic Image with Smooth Overlay */}
+              {/* Dynamic Image with Light Airy Lower Scrim */}
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
                 style={{ backgroundImage: `url(${cmp.imageUrl})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/95 via-brand-navy/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/85 via-brand-navy/35 to-transparent" />
 
               {/* Content */}
               <div className="relative z-10 flex flex-col items-start gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-cyan text-brand-navy shadow-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-gold text-white shadow-xs">
                   <Sparkles className="w-3.5 h-3.5" />
                   {badge}
                 </span>
 
-                <h4 className="text-xl sm:text-2xl font-bold font-heading text-white group-hover:text-sky-200 transition-colors">
+                <h4 className="text-xl sm:text-2xl font-bold font-heading text-white group-hover:text-brand-goldLight transition-colors">
                   {title}
                 </h4>
 
-                <p className="text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed max-w-md">
+                <p className="text-xs sm:text-sm text-slate-100 line-clamp-2 leading-relaxed max-w-md">
                   {subtitle}
                 </p>
 
-                <div className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white group-hover:translate-x-1 transition-transform">
+                <div className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-brand-goldLight group-hover:translate-x-1 transition-transform">
                   <span>{cta}</span>
                 </div>
               </div>

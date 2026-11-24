@@ -433,7 +433,7 @@ export const CheckoutModal: React.FC = () => {
                 <h4 className="font-heading font-bold text-base text-brand-navy">
                   {t('checkout_otp_modal_title')}
                 </h4>
-                <p className="text-xs text-brand-muted">RUMUSKY Secure Gateway</p>
+                <p className="text-xs text-brand-muted">Alpha Airline Secure Gateway</p>
               </div>
             </div>
 

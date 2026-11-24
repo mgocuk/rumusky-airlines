@@ -66,17 +66,17 @@ export const ShareLiveModal: React.FC<ShareLiveModalProps> = ({ isOpen, onClose 
       <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-brand-border animate-scale-up">
         
         {/* Header */}
-        <div className="bg-brand-navy text-white px-6 py-5 flex items-center justify-between">
+        <div className="bg-brand-ivory border-b border-brand-gold/40 text-brand-navy px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-brand-blue/30 border border-brand-cyan/40 flex items-center justify-center text-brand-cyan">
+            <div className="w-10 h-10 rounded-2xl bg-brand-goldLight border border-brand-gold/50 flex items-center justify-center text-brand-gold">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h3 className="font-heading font-black text-lg flex items-center gap-2">
+              <h3 className="font-heading font-black text-lg flex items-center gap-2 text-brand-navy">
                 <span>Çok Kullanıcılı Canlı Paylaşım</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
               </h3>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-brand-muted">
                 Telefon veya diğer cihazlardan öğrenci testi için canlı ağ bağlantısı
               </p>
             </div>
@@ -84,7 +84,7 @@ export const ShareLiveModal: React.FC<ShareLiveModalProps> = ({ isOpen, onClose 
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl text-brand-muted hover:text-brand-navy hover:bg-white/70 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

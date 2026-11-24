@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { NewsItem } from '../../types';
-import { Calendar, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
+import { CentralAsianDivider } from '../common/CentralAsianMotif';
+import { Calendar, ArrowRight, Newspaper } from 'lucide-react';
 
 export const NewsSection: React.FC = () => {
   const { news, language, setSelectedNewsArticle } = useApp();
@@ -12,11 +12,15 @@ export const NewsSection: React.FC = () => {
 
   return (
     <section className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 py-10">
+      <CentralAsianDivider className="mb-8" />
+
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-brand-blue mb-2">
-            <Newspaper className="w-3.5 h-3.5" />
-            <span>RUMUSKY Basın & Güncel Haberler</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-goldLight border border-brand-gold/40 text-brand-navy mb-2">
+            <Newspaper className="w-3.5 h-3.5 text-brand-gold" />
+            <span>
+              {language === 'en' ? 'Alpha Airline Press & News' : 'Alpha Airline Basın & Güncel Haberler'}
+            </span>
           </div>
           <h3 className="text-xl sm:text-3xl font-extrabold text-brand-navy font-heading">
             {language === 'tr' ? 'Gökyüzünden Son Gelişmeler' : 'Latest Sky Updates & News'}
@@ -38,17 +42,17 @@ export const NewsSection: React.FC = () => {
             <div
               key={item.id}
               onClick={() => setSelectedNewsArticle(item)}
-              className="group bg-white rounded-2xl overflow-hidden border border-brand-border/80 shadow-subtle hover:shadow-elevated hover:border-brand-blue/30 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+              className="group bg-white rounded-2xl overflow-hidden border border-brand-border shadow-subtle hover:shadow-elevated hover:border-brand-gold/70 transition-all duration-300 cursor-pointer flex flex-col justify-between"
             >
               <div>
                 {/* Image */}
-                <div className="relative h-48 overflow-hidden bg-slate-100">
+                <div className="relative h-48 overflow-hidden bg-brand-ivory">
                   <img
                     src={item.imageUrl}
                     alt={title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-brand-navy/90 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider">
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-xs text-brand-navy border border-brand-gold/45 text-[10px] font-bold uppercase tracking-wider shadow-xs">
                     {item.category}
                   </div>
                 </div>
@@ -56,7 +60,7 @@ export const NewsSection: React.FC = () => {
                 {/* Content */}
                 <div className="p-5">
                   <div className="flex items-center gap-1.5 text-[11px] text-brand-muted mb-2 font-medium">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <Calendar className="w-3.5 h-3.5 text-brand-gold" />
                     <span>{new Date(item.publishedAt).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US')}</span>
                   </div>
 
@@ -73,7 +77,7 @@ export const NewsSection: React.FC = () => {
               <div className="p-5 pt-0">
                 <span className="text-xs font-bold text-brand-blue group-hover:translate-x-1 inline-flex items-center gap-1 transition-transform">
                   <span>{language === 'tr' ? 'Devamını Oku' : 'Read Full Story'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 text-brand-gold" />
                 </span>
               </div>
             </div>

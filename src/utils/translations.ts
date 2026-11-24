@@ -6,7 +6,7 @@ export const translations = {
     nav_checkin: "Online Check-in",
     nav_news: "Haberler & Basın",
     nav_travel_info: "Seyahat Bilgileri",
-    nav_about: "RUMUSKY",
+    nav_about: "Alpha Airline",
     nav_login: "Giriş Yap",
     nav_register: "Üye Ol",
     nav_account: "Hesabım",
@@ -14,7 +14,7 @@ export const translations = {
     nav_logout: "Çıkış Yap",
 
     // Hero
-    hero_title: "Dünyaya RUMUSKY ile Uçun",
+    hero_title: "Sınırların Ötesine Alpha Airline ile Uçun",
     hero_subtitle: "Konforlu, güvenli ve avantajlı uçuşlarla hayalinizdeki destinasyonlara ulaşın.",
 
     // Search
@@ -55,8 +55,8 @@ export const translations = {
     explore_flights: "Uçuşları Gör",
 
     // Footer
-    footer_company_desc: "RUMUSKY AIRLINES — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.",
-    footer_about: "RUMUSKY",
+    footer_company_desc: "Alpha Airline — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.",
+    footer_about: "Alpha Airline",
     footer_about_us: "Hakkımızda",
     footer_career: "Kariyer",
     footer_press: "Basın Odası",
@@ -73,7 +73,7 @@ export const translations = {
     footer_cancel_refund: "İptal ve İade Koşulları",
     footer_follow_us: "Bizi Takip Edin",
     footer_download_app: "Mobil Uygulamamızı İndirin",
-    footer_copyright: "© 2026 RUMUSKY AIRLINES. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.",
+    footer_copyright: "© 2026 Alpha Airline. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.",
 
     // Search Results
     results_title: "Uçuş Sonuçları",
@@ -152,7 +152,7 @@ export const translations = {
     // Manage Booking & Check-in
     manage_title: "Rezervasyon Sorgulama & Bilet Yönetimi",
     manage_subtitle: "PNR kodunuz ve yolcu soyadınız ile uçuş bilgilerinizi sorgulayabilir, biletinizi tekrar indirebilirsiniz.",
-    manage_pnr_input: "PNR Kodu (Örn: RMK84A)",
+    manage_pnr_input: "PNR Kodu (Örn: ALP84A)",
     manage_surname_input: "Yolcu Soyadı",
     manage_search_btn: "Rezervasyonu Bul",
     manage_not_found: "Belirtilen PNR ve soyadına ait aktif rezervasyon bulunamadı.",
@@ -163,7 +163,7 @@ export const translations = {
     // Account & Profile
     account_title: "Yolcu Profilim & Seyahatlerim",
     account_welcome: "Hoş geldiniz",
-    account_skyclub_tier: "RUMUSKY SkyClub Sadakat Seviyesi",
+    account_skyclub_tier: "AlphaClub Sadakat Seviyesi",
     account_tier_gold: "Gold Üye",
     account_miles: "Kazanılan Miller",
     account_trips: "Kayıtlı Seyahatler",
@@ -206,7 +206,7 @@ export const translations = {
     nav_checkin: "Online Check-in",
     nav_news: "News & Press",
     nav_travel_info: "Travel Info",
-    nav_about: "RUMUSKY",
+    nav_about: "Alpha Airline",
     nav_login: "Login",
     nav_register: "Register",
     nav_account: "My Account",
@@ -214,7 +214,7 @@ export const translations = {
     nav_logout: "Logout",
 
     // Hero
-    hero_title: "Fly the World with RUMUSKY",
+    hero_title: "Fly Beyond Borders with Alpha Airline",
     hero_subtitle: "Reach your dream destinations with comfortable, safe, and advantageous flights.",
 
     // Search
@@ -255,8 +255,8 @@ export const translations = {
     explore_flights: "View Flights",
 
     // Footer
-    footer_company_desc: "RUMUSKY AIRLINES — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.",
-    footer_about: "RUMUSKY",
+    footer_company_desc: "Alpha Airline — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.",
+    footer_about: "Alpha Airline",
     footer_about_us: "About Us",
     footer_career: "Careers",
     footer_press: "Press Room",
@@ -273,7 +273,7 @@ export const translations = {
     footer_cancel_refund: "Cancellation & Refund",
     footer_follow_us: "Follow Us",
     footer_download_app: "Download Our Mobile App",
-    footer_copyright: "© 2026 RUMUSKY AIRLINES. All rights reserved. Academic Project & Live Demonstration.",
+    footer_copyright: "© 2026 Alpha Airline. All rights reserved. Academic Project & Live Demonstration.",
 
     // Search Results
     results_title: "Flight Search Results",
@@ -352,7 +352,7 @@ export const translations = {
     // Manage Booking & Check-in
     manage_title: "Manage Booking & E-Ticket Lookup",
     manage_subtitle: "Enter your PNR code and passenger surname to view and download your e-ticket.",
-    manage_pnr_input: "PNR Code (e.g. RMK84A)",
+    manage_pnr_input: "PNR Code (e.g. ALP84A)",
     manage_surname_input: "Passenger Surname",
     manage_search_btn: "Find Booking",
     manage_not_found: "No active booking found for the provided PNR and surname.",
@@ -363,7 +363,7 @@ export const translations = {
     // Account & Profile
     account_title: "Passenger Profile & Trips",
     account_welcome: "Welcome",
-    account_skyclub_tier: "RUMUSKY SkyClub Loyalty Tier",
+    account_skyclub_tier: "AlphaClub Loyalty Tier",
     account_tier_gold: "Gold Member",
     account_miles: "Earned Miles",
     account_trips: "Booked Trips",

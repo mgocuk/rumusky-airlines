@@ -90,13 +90,53 @@ export const PassengerForm: React.FC = () => {
         {/* Passenger Cards */}
         {passengerList.map((passenger, index) => (
           <div key={passenger.id} className="bg-white rounded-2xl p-6 border border-brand-border shadow-subtle">
-            <div className="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-full bg-blue-50 text-brand-blue font-bold flex items-center justify-center text-xs">
-                {index + 1}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-brand-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-brand-goldLight text-brand-gold border border-brand-gold/40 font-bold flex items-center justify-center text-xs">
+                  {index + 1}
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-brand-navy">
+                    {index + 1}. {language === 'tr' ? 'Yolcu Bilgileri' : 'Passenger Details'}
+                  </h3>
+                  {passenger.passengerType === 'child' && (
+                    <span className="text-[11px] font-semibold text-brand-gold">
+                      ★ {language === 'tr' ? 'Çocuk Yolcu — Özel Çocuk Hatıra Bileti Tasarımı Uygulanır' : 'Child Passenger — Special Child Ticket Design Applied'}
+                    </span>
+                  )}
+                </div>
               </div>
-              <h3 className="font-heading font-bold text-base text-brand-navy">
-                {index + 1}. {language === 'tr' ? 'Yolcu Bilgileri' : 'Passenger Details'} ({passenger.passengerType.toUpperCase()})
-              </h3>
+
+              {/* Passenger Type Switcher */}
+              <div className="flex items-center bg-brand-bg rounded-xl p-1 border border-brand-border text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange(index, 'passengerType', 'adult')}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    passenger.passengerType === 'adult'
+                      ? 'bg-white text-brand-navy shadow-xs border border-brand-border/60'
+                      : 'text-brand-muted hover:text-brand-navy'
+                  }`}
+                >
+                  {language === 'tr' ? 'Yetişkin' : 'Adult'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleInputChange(index, 'passengerType', 'child');
+                    if (passenger.dateOfBirth === '1995-05-15') {
+                      handleInputChange(index, 'dateOfBirth', '2018-06-15');
+                    }
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    passenger.passengerType === 'child'
+                      ? 'bg-brand-gold text-white shadow-xs'
+                      : 'text-brand-muted hover:text-brand-navy'
+                  }`}
+                >
+                  {language === 'tr' ? 'Çocuk (2-11)' : 'Child (2-11)'}
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

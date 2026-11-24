@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, Armchair, Tag, Headphones, Award, Star, Heart, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Armchair, Tag, Headphones, Award, Star, Heart } from 'lucide-react';
 
 export const Benefits: React.FC = () => {
   const { siteContent, language } = useApp();
@@ -28,9 +28,9 @@ export const Benefits: React.FC = () => {
           return (
             <div
               key={b.id}
-              className="flex items-center gap-3.5 sm:gap-4 p-4 rounded-2xl bg-white border border-brand-border/80 shadow-subtle hover:border-brand-blue/40 transition-all duration-200 group"
+              className="flex items-center gap-3.5 sm:gap-4 p-4 rounded-2xl bg-white border border-brand-border shadow-subtle hover:border-brand-gold/70 transition-all duration-200 group"
             >
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-50/80 flex items-center justify-center flex-shrink-0 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-colors duration-200">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-brand-goldLight border border-brand-gold/30 flex items-center justify-center flex-shrink-0 text-brand-gold group-hover:bg-brand-gold group-hover:text-white transition-colors duration-200">
                 <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
               </div>
               <div className="overflow-hidden">

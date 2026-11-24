@@ -50,7 +50,7 @@ export const ManageBooking: React.FC = () => {
             <input
               type="text"
               required
-              placeholder="Örn: RMK84A"
+              placeholder="Örn: ALP84A"
               value={pnrInput}
               onChange={(e) => setPnrInput(e.target.value.toUpperCase())}
               className="w-full px-4 py-3 bg-brand-bg rounded-xl border border-brand-border text-base font-mono font-bold tracking-widest uppercase focus:border-brand-blue focus:outline-hidden"
@@ -97,19 +97,19 @@ export const ManageBooking: React.FC = () => {
 
         return (
           <div className="bg-white rounded-3xl border border-brand-border shadow-elevated overflow-hidden animate-fade-in">
-            <div className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
+            <div className="bg-brand-ivory border-b border-brand-gold/40 text-brand-navy px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Plane className="w-5 h-5 text-brand-cyan" />
+                <Plane className="w-5 h-5 text-brand-gold" />
                 <span className="font-heading font-bold text-sm">
                   PNR: {foundBooking.pnr} • {bookedFlight.flightNumber}
                 </span>
               </div>
               {isPastFlight ? (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-500/30 text-slate-300 border border-slate-500/40">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200/80 text-slate-700 border border-slate-300">
                   Geçmiş Sefer (Tamamlandı)
                 </span>
               ) : (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                   Onaylandı (Aktif Sefer)
                 </span>
               )}

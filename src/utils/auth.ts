@@ -56,7 +56,10 @@ export function authenticateStaffCredentials(params: {
   language: Language;
 }): { success: true; user: StaffSessionUser } | { success: false; message: string } {
   const { email, password = '', staffUsers, language } = params;
-  const cleanEmail = email.trim().toLowerCase();
+  const rawEmail = email.trim().toLowerCase();
+  const cleanEmail = rawEmail.endsWith('@rumusky.com')
+    ? rawEmail.replace(/@rumusky\.com$/, '@alphaairline.com')
+    : rawEmail;
 
   if (!cleanEmail) {
     return {
@@ -78,9 +81,10 @@ export function authenticateStaffCredentials(params: {
     };
   }
 
-  const matchingStaff = staffUsers.find(
-    (u) => u.email.trim().toLowerCase() === cleanEmail && u.role !== 'customer'
-  );
+  const matchingStaff = staffUsers.find((u) => {
+    const uEmail = u.email.trim().toLowerCase();
+    return (uEmail === cleanEmail || uEmail === rawEmail) && u.role !== 'customer';
+  });
 
   if (!matchingStaff || !verifyStaffPassword(password, matchingStaff)) {
     return {

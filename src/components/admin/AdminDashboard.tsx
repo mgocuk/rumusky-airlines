@@ -272,7 +272,7 @@ export const AdminDashboard: React.FC = () => {
     subTitleEn: 'Gaziantep University • Aviation & Software Project Commemorative Pass',
     universityName: 'Gaziantep Üniversitesi',
     universityLogoUrl: '/logos/gaziantep-universitesi-logo.png',
-    airlineLogoUrl: '/logos/rumusky-brand-logo.png',
+    airlineLogoUrl: '/logos/alpha-airline-logo.png',
     commemorativeNote: 'Bu bilet Gaziantep Üniversitesi projesi kapsamında üretilmiş resmi hatıra belgesidir. Gökyüzündeki güvenli ve ayrıcalıklı yolculuğunuz, bizim gökyüzümüz.',
     commemorativeNoteEn: 'This ticket is an official commemorative souvenir produced for the Gaziantep University project. Your journey, our sky.',
     themeStyle: 'navy_gold' as const
@@ -332,7 +332,7 @@ export const AdminDashboard: React.FC = () => {
   const [editingNewsItem, setEditingNewsItem] = useState<NewsItem | null>(null);
 
   // New Flight Form state
-  const [newFlightNumber, setNewFlightNumber] = useState('RMK-707');
+  const [newFlightNumber, setNewFlightNumber] = useState('ALP-707');
   const [newOriginIata, setNewOriginIata] = useState('IST');
   const [newDestIata, setNewDestIata] = useState('DXB');
   const [newAircraftId, setNewAircraftId] = useState(aircrafts[0]?.id || 'ac-1');
@@ -383,7 +383,7 @@ export const AdminDashboard: React.FC = () => {
 
   // Brand & Navbar Form States
   const navCfg = siteContent.navbar || {
-    companyName: siteContent.companyName || 'RUMUSKY',
+    companyName: siteContent.companyName || 'Alpha Airline',
     companySubtitle: siteContent.companySubtitle || 'AIRLINES',
     customLogoUrl: siteContent.customLogoUrl || '',
     navSearchFlights: 'Uçuş Ara',
@@ -396,13 +396,13 @@ export const AdminDashboard: React.FC = () => {
     navNewsEn: 'News & Media',
     navTravelInfo: 'Seyahat Bilgileri',
     navTravelInfoEn: 'Travel Information',
-    navAbout: 'RUMUSKY',
-    navAboutEn: 'RUMUSKY',
+    navAbout: 'Alpha Airline',
+    navAboutEn: 'Alpha Airline',
     navAdminButtonText: 'Admin Paneli',
     navAdminButtonTextEn: 'Admin Portal'
   };
 
-  const [cmsCompanyName, setCmsCompanyName] = useState(siteContent.companyName || 'RUMUSKY');
+  const [cmsCompanyName, setCmsCompanyName] = useState(siteContent.companyName || 'Alpha Airline');
   const [cmsCompanySubtitle, setCmsCompanySubtitle] = useState(siteContent.companySubtitle || 'AIRLINES');
   const [cmsLogoUrl, setCmsLogoUrl] = useState(siteContent.customLogoUrl || '');
   const [cmsNavSearch, setCmsNavSearch] = useState(navCfg.navSearchFlights);
@@ -438,7 +438,7 @@ export const AdminDashboard: React.FC = () => {
     setCmsAnnounceBadge(siteContent.announcementBanner.badge);
 
     const n = siteContent.navbar;
-    setCmsCompanyName(siteContent.companyName || 'RUMUSKY');
+    setCmsCompanyName(siteContent.companyName || 'Alpha Airline');
     setCmsCompanySubtitle(siteContent.companySubtitle || 'AIRLINES');
     setCmsLogoUrl(siteContent.customLogoUrl || '');
     if (n) {
@@ -452,8 +452,8 @@ export const AdminDashboard: React.FC = () => {
       setCmsNavNewsEn(n.navNewsEn || 'News & Media');
       setCmsNavTravelInfo(n.navTravelInfo || 'Seyahat Bilgileri');
       setCmsNavTravelInfoEn(n.navTravelInfoEn || 'Travel Information');
-      setCmsNavAbout(n.navAbout || 'RUMUSKY');
-      setCmsNavAboutEn(n.navAboutEn || 'RUMUSKY');
+      setCmsNavAbout(n.navAbout || 'Alpha Airline');
+      setCmsNavAboutEn(n.navAboutEn || 'Alpha Airline');
       setCmsNavAdminBtn(n.navAdminButtonText || 'Admin Paneli');
       setCmsNavAdminBtnEn(n.navAdminButtonTextEn || 'Admin Portal');
     }
@@ -465,7 +465,7 @@ export const AdminDashboard: React.FC = () => {
       setTicketSubTitleEn(siteContent.ticketDesign.subTitleEn || 'Gaziantep University • Aviation & Software Project Commemorative Pass');
       setTicketUniName(siteContent.ticketDesign.universityName || 'Gaziantep Üniversitesi');
       setTicketUniLogo(siteContent.ticketDesign.universityLogoUrl || '/logos/gaziantep-universitesi-logo.png');
-      setTicketAirlineLogo(siteContent.ticketDesign.airlineLogoUrl || '/logos/rumusky-brand-logo.png');
+      setTicketAirlineLogo(siteContent.ticketDesign.airlineLogoUrl || '/logos/alpha-airline-logo.png');
       setTicketNote(siteContent.ticketDesign.commemorativeNote || '');
       setTicketNoteEn(siteContent.ticketDesign.commemorativeNoteEn || '');
       setTicketThemeStyle(siteContent.ticketDesign.themeStyle || 'navy_gold');
@@ -495,14 +495,14 @@ export const AdminDashboard: React.FC = () => {
     descEn: siteContent.footerDescEn,
     safetyBadge: 'IATA & ICAO Standartlarında Güvenli Uçuş Operasyonları',
     safetyBadgeEn: 'IATA & ICAO Standardized Flight Safety Operations',
-    col1Title: 'RUMUSKY',
-    col1TitleEn: 'RUMUSKY',
+    col1Title: 'ALPHA AIRLINE',
+    col1TitleEn: 'ALPHA AIRLINE',
     col2Title: 'SEYAHAT BİLGİLERİ',
     col2TitleEn: 'TRAVEL INFO',
     col3Title: 'YARDIM & DESTEK',
     col3TitleEn: 'HELP & SUPPORT',
-    copyright: '© 2026 RUMUSKY AIRLINES. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.',
-    copyrightEn: '© 2026 RUMUSKY AIRLINES. All rights reserved. Academic Project & Live Demonstration.'
+    copyright: '© 2026 Alpha Airline. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.',
+    copyrightEn: '© 2026 Alpha Airline. All rights reserved. Academic Project & Live Demonstration.'
   };
 
   const [footerDesc, setFooterDesc] = useState(initialFooter.desc);
@@ -940,38 +940,38 @@ export const AdminDashboard: React.FC = () => {
   const canSwitchTestRole = (activeUser as { loginRole?: UserRole })?.loginRole === 'super_admin' || activeUser.role === 'super_admin';
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-16 font-sans">
+    <div className="bg-brand-bg min-h-screen pb-16 font-sans">
       
-      {/* Top Admin Header Bar */}
-      <div className="bg-brand-navy text-white px-4 sm:px-6 py-4 shadow-md sticky top-0 z-30">
+      {/* Top Admin Header Bar (Light Central Asian Ivory & Gold Crest Theme) */}
+      <div className="bg-[#FFFDF8]/95 backdrop-blur-md text-brand-navy px-4 sm:px-6 py-4 border-b border-brand-gold/45 shadow-xs sticky top-0 z-30">
         <div className="max-w-[1300px] mx-auto flex flex-wrap items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileAdminNavOpen(!mobileAdminNavOpen)}
-              className="lg:hidden p-2 rounded-xl bg-slate-800 text-white"
+              className="lg:hidden p-2 rounded-xl bg-brand-ivory text-brand-navy border border-brand-border"
             >
               {mobileAdminNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <div className="w-10 h-10 rounded-xl bg-brand-blue flex items-center justify-center shadow-xs">
-              <Shield className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-[#061322] border border-brand-gold/60 overflow-hidden flex items-center justify-center shadow-xs">
+              <img src="/logos/alpha-airline-logo.png" alt="Alpha Airline" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-heading font-extrabold tracking-wide">
-                  RUMUSKY SÜPER ADMİN PANELİ
+                <h1 className="text-base sm:text-lg font-heading font-extrabold tracking-wide text-brand-navy">
+                  ALPHA AIRLINE YÖNETİM PANELİ
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-brand-cyan text-brand-navy">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-brand-goldLight text-brand-gold border border-brand-gold/40">
                   v2.0 CMS
                 </span>
               </div>
-              <p className="text-[11px] text-sky-200 hidden sm:block">
+              <p className="text-[11px] text-brand-muted hidden sm:block">
                 Tüm Görseller, Başlıklar, Haberler, Uçuşlar ve Rol Yetkileri Yönetimi
               </p>
             </div>
           </div>
 
-          {/* Quick Active Role Switcher (For Presentation Testing!) */}
+          {/* Quick Active Role Switcher */}
           <div className="flex items-center gap-2.5">
             {/* Live Multi-User / Student Test Button */}
             <button
@@ -987,8 +987,8 @@ export const AdminDashboard: React.FC = () => {
             </button>
 
             {canSwitchTestRole && (
-              <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700 text-xs">
-                <span className="text-[11px] text-slate-400 px-2 font-medium">Test Rolü:</span>
+              <div className="hidden sm:flex items-center bg-brand-ivory rounded-xl p-1 border border-brand-border text-xs">
+                <span className="text-[11px] text-brand-muted px-2 font-medium">Test Rolü:</span>
                 {(['super_admin', 'flight_manager', 'booking_manager', 'content_manager'] as UserRole[]).map((r) => (
                   <button
                     key={r}
@@ -996,7 +996,7 @@ export const AdminDashboard: React.FC = () => {
                     className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
                       activeUser?.role === r
                         ? 'bg-brand-blue text-white shadow-xs'
-                        : 'text-slate-300 hover:text-white'
+                        : 'text-brand-navy/80 hover:text-brand-navy'
                     }`}
                   >
                     {r === 'super_admin' ? 'Süper Admin' : r === 'flight_manager' ? 'Uçuş Şefi' : r === 'booking_manager' ? 'Biletçi' : 'İçerik'}
@@ -1368,14 +1368,14 @@ export const AdminDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-brand-navy block mb-1">
-                      Firma Adı (Örn: RUMUSKY, ANADOLU SKY, vb.)
+                      Firma Adı (Örn: Alpha Airline)
                     </label>
                     <input
                       type="text"
                       required
                       value={cmsCompanyName}
                       onChange={(e) => setCmsCompanyName(e.target.value)}
-                      placeholder="RUMUSKY"
+                      placeholder="Alpha Airline"
                       className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-brand-navy focus:border-brand-blue focus:outline-hidden"
                     />
                     <span className="text-[10px] text-slate-400 mt-1 block">
@@ -1909,7 +1909,7 @@ export const AdminDashboard: React.FC = () => {
                       Canlı Önizleme
                     </div>
                     <div className="text-sm font-extrabold font-heading">
-                      {cmsHeroTitle || 'Dünyaya RUMUSKY ile Uçun'}
+                      {cmsHeroTitle || 'Sınırların Ötesine Alpha Airline ile Uçun'}
                     </div>
                     <div className="text-[11px] text-slate-200 line-clamp-1">
                       {cmsHeroSubtitle || 'Konforlu, güvenli ve avantajlı uçuşlar'}
@@ -2271,7 +2271,7 @@ export const AdminDashboard: React.FC = () => {
         {activeTab === 'ticket_design' && hasPermission('manage_cms') && (() => {
           const sampleFlight: Flight = flights[0] || {
             id: 'fl-sample',
-            flightNumber: 'RMK-101',
+            flightNumber: 'ALP-101',
             routeId: 'rt-sample',
             originAirport: airports[0] || {
               id: 'ap-1',
@@ -2331,10 +2331,10 @@ export const AdminDashboard: React.FC = () => {
 
           const sampleBooking: Booking = activeBooking || {
             id: 'bk-sample',
-            pnr: 'RMK101',
+            pnr: 'ALP101',
             flightId: sampleFlightForCard.id,
             passengers: [samplePassenger],
-            contactEmail: 'yolcu@rumusky.com',
+            contactEmail: 'yolcu@alphaairline.com',
             contactPhone: '+90 555 000 0000',
             totalAmount: sampleFlightForCard.priceEconomy,
             currency: '₺',
@@ -2353,7 +2353,7 @@ export const AdminDashboard: React.FC = () => {
             seatNumber: samplePassenger.selectedSeat || '10A',
             cabinClass: samplePassenger.cabinClass || 'economy',
             baggageKg: sampleFlightForCard.baggageAllowanceKg,
-            qrCodeData: `RUMUSKY|${sampleBooking.pnr}`,
+            qrCodeData: `ALPHA-AIRLINE|${sampleBooking.pnr}`,
             status: 'issued',
             issuedAt: new Date().toISOString()
           };
@@ -2412,6 +2412,50 @@ export const AdminDashboard: React.FC = () => {
                     onDownloadPdf={() => void generateTicketPDF(sampleTicket, sampleFlightForCard, samplePassenger)}
                   />
                 </div>
+
+                {/* Child Ticket Showcase Preview */}
+                {(() => {
+                  const sampleChildPassenger: Passenger = {
+                    ...samplePassenger,
+                    id: 'p-sample-child',
+                    firstName: 'DENİZ',
+                    lastName: 'YILMAZ',
+                    dateOfBirth: '2018-06-15',
+                    passengerType: 'child',
+                    selectedSeat: '11C'
+                  };
+                  const sampleChildTicket: TicketType = {
+                    ...sampleTicket,
+                    id: 'tkt-sample-child',
+                    ticketNumber: '235-0000000102',
+                    passenger: sampleChildPassenger,
+                    seatNumber: '11C'
+                  };
+                  return (
+                    <div className="pt-6 border-t border-brand-border/60 space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-brand-gold" />
+                          <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
+                            Çocuk Hatıra Bileti Yapısı (2-11 Yaş)
+                          </h3>
+                        </div>
+                        <span className="text-[11px] font-bold text-brand-navy bg-brand-goldLight px-3 py-1 rounded-full border border-brand-gold/40">
+                          Ön Yüz & Arka Yüz (Dream Big... Fly High!)
+                        </span>
+                      </div>
+                      <div className="max-w-4xl mx-auto">
+                        <TicketCard
+                          booking={sampleBooking}
+                          flight={sampleFlightForCard}
+                          ticket={sampleChildTicket}
+                          showDownloadBtn={true}
+                          onDownloadPdf={() => void generateTicketPDF(sampleChildTicket, sampleFlightForCard, sampleChildPassenger)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 text-[11px]">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
@@ -2479,7 +2523,7 @@ export const AdminDashboard: React.FC = () => {
 
                   {/* Categories */}
                   {[
-                    { cat: 'rumusky', label: '1. RUMUSKY Grubu' },
+                    { cat: 'rumusky', label: '1. Alpha Airline Grubu' },
                     { cat: 'travel_info', label: '2. Seyahat Bilgileri' },
                     { cat: 'help_support', label: '3. Yardım & Destek' },
                     { cat: 'legal', label: '4. Yasal & Sözleşmeler' }
@@ -2712,7 +2756,7 @@ export const AdminDashboard: React.FC = () => {
                         value={pageContactEmail}
                         onChange={(e) => setPageContactEmail(e.target.value)}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs"
-                        placeholder="Örn: iletisim@rumusky.com"
+                        placeholder="Örn: iletisim@alphaairline.com"
                       />
                     </div>
                     <div>
@@ -3420,7 +3464,7 @@ export const AdminDashboard: React.FC = () => {
                     type="text"
                     value={bookingSearch}
                     onChange={(e) => setBookingSearch(e.target.value)}
-                    placeholder="PNR, Yolcu Adı, Koltuk No, Uçuş Kodu (Örn: RMK-104), Nereye veya Nereden (Örn: Londra, IST)..."
+                    placeholder="PNR, Yolcu Adı, Koltuk No, Uçuş Kodu (Örn: ALP-104), Nereye veya Nereden (Örn: Londra, IST)..."
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-blue focus:outline-hidden transition-colors"
                   />
                   {bookingSearch && (
@@ -3514,7 +3558,7 @@ export const AdminDashboard: React.FC = () => {
                               <td className="p-4 align-top">
                                 <div className="font-black text-brand-navy flex items-center gap-1.5">
                                   <Plane className="w-3.5 h-3.5 text-brand-blue" />
-                                  <span>{flight?.flightNumber || 'RMK-100'}</span>
+                                  <span>{flight?.flightNumber || 'ALP-100'}</span>
                                 </div>
                                 <div className="text-[11px] text-slate-600 font-medium mt-0.5">
                                   {flight?.aircraftModel || 'Airbus A321-200neo'}
@@ -3780,7 +3824,7 @@ export const AdminDashboard: React.FC = () => {
               <div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-50 text-brand-blue mb-2">
                   <Layers className="w-3.5 h-3.5" />
-                  <span>RUMUSKY AIRLINES FLIGHT FLEET</span>
+                  <span>ALPHA AIRLINE FLIGHT FLEET</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold font-heading text-brand-navy">
                   Uçak Filosu ve Kabin Yönetimi

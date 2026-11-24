@@ -53,11 +53,11 @@ export const BookingConfirmation: React.FC = () => {
         </p>
 
         {/* Big PNR Box */}
-        <div className="mt-4 inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white border-2 border-brand-blue shadow-sm">
+        <div className="mt-4 inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white border-2 border-brand-gold/70 shadow-sm">
           <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">
             {t('confirm_pnr_label')}
           </span>
-          <span className="font-mono font-black text-2xl sm:text-3xl tracking-widest text-brand-blue">
+          <span className="font-mono font-black text-2xl sm:text-3xl tracking-widest text-brand-navy">
             {currentBooking.pnr}
           </span>
         </div>

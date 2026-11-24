@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert';
 
-describe('RUMUSKY Airlines Business Rules & Core Validation Tests', () => {
+describe('Alpha Airline Business Rules & Core Validation Tests', () => {
 
   test('Rule 1: Kalkis ve Varis havalimani ayni olamaz', () => {
     const origin = 'IST';
@@ -11,12 +11,12 @@ describe('RUMUSKY Airlines Business Rules & Core Validation Tests', () => {
 
   test('Rule 2: PNR Kodu 6 karakter ve tahmin edilemez olmali', () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let pnr = 'RMK';
+    let pnr = 'ALP';
     for (let i = 0; i < 3; i++) {
       pnr += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     assert.strictEqual(pnr.length, 6);
-    assert.strictEqual(pnr.startsWith('RMK'), true);
+    assert.strictEqual(pnr.startsWith('ALP'), true);
   });
 
   test('Rule 3: Fiyat ve Vergi Hesaplamasi guvenli yapilmali', () => {

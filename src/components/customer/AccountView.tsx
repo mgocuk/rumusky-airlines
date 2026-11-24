@@ -38,11 +38,11 @@ export const AccountView: React.FC = () => {
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
                   <Award className="w-3 h-3 text-amber-600" />
-                  <span>SkyClub Gold</span>
+                  <span>AlphaClub Gold</span>
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
-                {activeUser?.email || 'yolcu@rumusky.com'} • Üyelik No: RMK-902814
+                {activeUser?.email || 'yolcu@alphaairline.com'} • Üyelik No: ALP-902814
               </p>
             </div>
           </div>

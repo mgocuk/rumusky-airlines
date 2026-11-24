@@ -222,6 +222,55 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : INITIAL_DESTINATIONS;
   });
 
+  const normalizeLegacyBrand = (raw: SiteContentConfig): SiteContentConfig => {
+    const isLegacyName = !raw.companyName || raw.companyName.toUpperCase() === 'RUMUSKY';
+    const isLegacyLogo = !raw.customLogoUrl || raw.customLogoUrl.includes('rumusky-brand-logo');
+    const cleanText = (val?: string, fallback?: string) => {
+      if (!val || /RUMUSKY/i.test(val)) return fallback || '';
+      return val;
+    };
+    return {
+      ...INITIAL_SITE_CONTENT,
+      ...raw,
+      companyName: isLegacyName ? INITIAL_SITE_CONTENT.companyName : raw.companyName,
+      companySubtitle:
+        !raw.companySubtitle || raw.companySubtitle.toUpperCase() === 'AIRLINES'
+          ? INITIAL_SITE_CONTENT.companySubtitle
+          : raw.companySubtitle,
+      customLogoUrl: isLegacyLogo ? INITIAL_SITE_CONTENT.customLogoUrl : raw.customLogoUrl,
+      heroBadgeText: cleanText(raw.heroBadgeText, INITIAL_SITE_CONTENT.heroBadgeText),
+      heroBadgeTextEn: cleanText(raw.heroBadgeTextEn, INITIAL_SITE_CONTENT.heroBadgeTextEn),
+      heroTitle: cleanText(raw.heroTitle, INITIAL_SITE_CONTENT.heroTitle),
+      heroTitleEn: cleanText(raw.heroTitleEn, INITIAL_SITE_CONTENT.heroTitleEn),
+      footerDesc: cleanText(raw.footerDesc, INITIAL_SITE_CONTENT.footerDesc),
+      footerDescEn: cleanText(raw.footerDescEn, INITIAL_SITE_CONTENT.footerDescEn),
+      navbar: {
+        ...INITIAL_SITE_CONTENT.navbar,
+        ...(raw.navbar || {}),
+        companyName:
+          !raw.navbar?.companyName || raw.navbar.companyName.toUpperCase() === 'RUMUSKY'
+            ? INITIAL_SITE_CONTENT.companyName
+            : raw.navbar.companyName,
+        customLogoUrl:
+          !raw.navbar?.customLogoUrl || raw.navbar.customLogoUrl.includes('rumusky-brand-logo')
+            ? INITIAL_SITE_CONTENT.customLogoUrl
+            : raw.navbar.customLogoUrl,
+        navAbout: cleanText(raw.navbar?.navAbout, INITIAL_SITE_CONTENT.navbar.navAbout),
+        navAboutEn: cleanText(raw.navbar?.navAboutEn, INITIAL_SITE_CONTENT.navbar.navAboutEn)
+      },
+      footer: {
+        ...INITIAL_SITE_CONTENT.footer,
+        ...(raw.footer || {}),
+        desc: cleanText(raw.footer?.desc, INITIAL_SITE_CONTENT.footer.desc),
+        descEn: cleanText(raw.footer?.descEn, INITIAL_SITE_CONTENT.footer.descEn),
+        col1Title: cleanText(raw.footer?.col1Title, INITIAL_SITE_CONTENT.footer.col1Title),
+        col1TitleEn: cleanText(raw.footer?.col1TitleEn, INITIAL_SITE_CONTENT.footer.col1TitleEn),
+        copyright: cleanText(raw.footer?.copyright, INITIAL_SITE_CONTENT.footer.copyright),
+        copyrightEn: cleanText(raw.footer?.copyrightEn, INITIAL_SITE_CONTENT.footer.copyrightEn)
+      }
+    };
+  };
+
   const [siteContent, setSiteContent] = useState<SiteContentConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SITE_CONTENT);
     if (saved) {
@@ -230,14 +279,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (parsed.heroBackgroundUrl && parsed.heroBackgroundUrl.includes('photo-1542296332')) {
           parsed.heroBackgroundUrl = INITIAL_SITE_CONTENT.heroBackgroundUrl;
         }
-        parsed.companyName = parsed.companyName || INITIAL_SITE_CONTENT.companyName;
-        parsed.companySubtitle = parsed.companySubtitle || INITIAL_SITE_CONTENT.companySubtitle;
-        parsed.customLogoUrl = parsed.customLogoUrl || '';
-        parsed.navbar = {
-          ...INITIAL_SITE_CONTENT.navbar,
-          ...(parsed.navbar || {})
-        };
-        return parsed;
+        return normalizeLegacyBrand(parsed);
       } catch (e) {
         // fallback
       }
@@ -380,14 +422,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setTickets(serverState.tickets);
     }
     if (serverState.siteContent) {
-      setSiteContent({
-        ...INITIAL_SITE_CONTENT,
-        ...serverState.siteContent,
-        navbar: {
-          ...INITIAL_SITE_CONTENT.navbar,
-          ...(serverState.siteContent.navbar || {})
-        }
-      });
+      setSiteContent(normalizeLegacyBrand(serverState.siteContent));
     }
     if (Array.isArray(serverState.news)) setNews(serverState.news);
     if (Array.isArray(serverState.airports)) setAirports(serverState.airports);
@@ -840,7 +875,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: `usr-${role}`,
       name: role.toUpperCase(),
       surname: 'Yetkilisi',
-      email: `${role}@rumusky.com`,
+      email: `${role}@alphaairline.com`,
       role
     };
     const { passwordHash: _ignoredHash, ...safeStaff } = matchingStaff;
@@ -969,10 +1004,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const selectFlightForBooking = (flight: Flight) => {
     setSelectedFlight(flight);
     const adultCount = searchQuery?.adults || 1;
+    const childCount = searchQuery?.children || 0;
+    const infantCount = searchQuery?.infants || 0;
     const initialPassengers: Passenger[] = [];
+    const baseTs = Date.now();
+    let idx = 0;
+
     for (let i = 0; i < adultCount; i++) {
       initialPassengers.push({
-        id: `p-${Date.now()}-${i}`,
+        id: `p-${baseTs}-${idx++}`,
         firstName: '',
         lastName: '',
         gender: 'M',
@@ -983,6 +1023,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         cabinClass: searchQuery?.cabinClass || 'economy'
       });
     }
+    for (let i = 0; i < childCount; i++) {
+      initialPassengers.push({
+        id: `p-${baseTs}-${idx++}`,
+        firstName: '',
+        lastName: '',
+        gender: 'F',
+        dateOfBirth: '2018-06-15',
+        passengerType: 'child',
+        nationality: 'TR',
+        idOrPassportNo: '',
+        cabinClass: searchQuery?.cabinClass || 'economy'
+      });
+    }
+    for (let i = 0; i < infantCount; i++) {
+      initialPassengers.push({
+        id: `p-${baseTs}-${idx++}`,
+        firstName: '',
+        lastName: '',
+        gender: 'F',
+        dateOfBirth: '2025-02-10',
+        passengerType: 'infant',
+        nationality: 'TR',
+        idOrPassportNo: '',
+        cabinClass: searchQuery?.cabinClass || 'economy'
+      });
+    }
+
     setPassengers(initialPassengers);
     setSelectedSeats({});
     setActiveView('passengers');
@@ -1006,10 +1073,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
-  // Generate unique 6-character PNR (e.g. RMK84X)
+  // Generate unique 6-character PNR (e.g. ALP84X)
   const generateUniquePnr = (): string => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let pnr = 'RMK';
+    let pnr = 'ALP';
     for (let i = 0; i < 3; i++) {
       pnr += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -1073,7 +1140,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         seatNumber: passenger.selectedSeat || 'TBA',
         cabinClass: passenger.cabinClass,
         baggageKg: selectedFlight.baggageAllowanceKg,
-        qrCodeData: `RUMUSKY-TICKET|${newBooking.pnr}|${ticketNum}|${passenger.firstName} ${passenger.lastName}|${selectedFlight.flightNumber}|${selectedFlight.originAirport.iataCode}-${selectedFlight.destinationAirport.iataCode}`,
+        qrCodeData: `ALPHA-AIRLINE|${newBooking.pnr}|${ticketNum}|${passenger.firstName} ${passenger.lastName}|${selectedFlight.flightNumber}|${selectedFlight.originAirport.iataCode}-${selectedFlight.destinationAirport.iataCode}`,
         status: 'issued',
         issuedAt: new Date().toISOString()
       };

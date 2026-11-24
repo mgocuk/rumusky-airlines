@@ -130,6 +130,32 @@ export const INITIAL_AIRPORTS: Airport[] = [
     timezone: 'Europe/Istanbul',
     terminalInfo: 'Terminal 1 & 2',
     isActive: true
+  },
+  {
+    id: 'apt-11',
+    iataCode: 'TAS',
+    icaoCode: 'UTTT',
+    name: 'Taşkent Uluslararası Havalimanı',
+    city: 'Taşkent',
+    cityEn: 'Tashkent',
+    country: 'Özbekistan',
+    countryEn: 'Uzbekistan',
+    timezone: 'Asia/Tashkent',
+    terminalInfo: 'Terminal 2 (İpek Yolu)',
+    isActive: true
+  },
+  {
+    id: 'apt-12',
+    iataCode: 'ALA',
+    icaoCode: 'UAAA',
+    name: 'Almatı Uluslararası Havalimanı',
+    city: 'Almatı',
+    cityEn: 'Almaty',
+    country: 'Kazakistan',
+    countryEn: 'Kazakhstan',
+    timezone: 'Asia/Almaty',
+    terminalInfo: 'Uluslararası Terminal',
+    isActive: true
   }
 ];
 
@@ -137,7 +163,7 @@ export const INITIAL_AIRCRAFTS: Aircraft[] = [
   {
     id: 'ac-1',
     model: 'Airbus A320-200neo',
-    registrationNumber: 'TC-RMK',
+    registrationNumber: 'TC-ALP',
     manufacturer: 'Airbus',
     aircraftType: 'Dar Gövde (Narrow-Body)',
     totalCapacity: 180,
@@ -166,7 +192,7 @@ export const INITIAL_AIRCRAFTS: Aircraft[] = [
   {
     id: 'ac-2',
     model: 'Boeing 737-800 Next-Gen',
-    registrationNumber: 'TC-RMS',
+    registrationNumber: 'TC-ALA',
     manufacturer: 'Boeing',
     aircraftType: 'Dar Gövde (Narrow-Body)',
     totalCapacity: 189,
@@ -194,7 +220,7 @@ export const INITIAL_AIRCRAFTS: Aircraft[] = [
   {
     id: 'ac-3',
     model: 'Boeing 787-9 Dreamliner',
-    registrationNumber: 'TC-RUM',
+    registrationNumber: 'TC-TAS',
     manufacturer: 'Boeing',
     aircraftType: 'Geniş Gövde (Wide-Body)',
     totalCapacity: 300,
@@ -306,7 +332,7 @@ export function getInitialFlights(): Flight[] {
   return [
     {
       id: 'fl-1',
-      flightNumber: 'RMK-101',
+      flightNumber: 'ALP-101',
       routeId: 'rt-1',
       originAirport: ist,
       destinationAirport: lhr,
@@ -325,7 +351,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-2',
-      flightNumber: 'RMK-103',
+      flightNumber: 'ALP-103',
       routeId: 'rt-1',
       originAirport: ist,
       destinationAirport: lhr,
@@ -344,7 +370,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-3',
-      flightNumber: 'RMK-201',
+      flightNumber: 'ALP-201',
       routeId: 'rt-2',
       originAirport: ist,
       destinationAirport: cdg,
@@ -363,7 +389,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-4',
-      flightNumber: 'RMK-301',
+      flightNumber: 'ALP-301',
       routeId: 'rt-3',
       originAirport: ist,
       destinationAirport: fco,
@@ -382,7 +408,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-5',
-      flightNumber: 'RMK-401',
+      flightNumber: 'ALP-401',
       routeId: 'rt-4',
       originAirport: ist,
       destinationAirport: jfk,
@@ -401,7 +427,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-6',
-      flightNumber: 'RMK-501',
+      flightNumber: 'ALP-501',
       routeId: 'rt-5',
       originAirport: saw,
       destinationAirport: dxb,
@@ -421,7 +447,7 @@ export function getInitialFlights(): Flight[] {
     // Return flights
     {
       id: 'fl-7',
-      flightNumber: 'RMK-102',
+      flightNumber: 'ALP-102',
       routeId: 'rt-1r',
       originAirport: lhr,
       destinationAirport: ist,
@@ -440,7 +466,7 @@ export function getInitialFlights(): Flight[] {
     },
     {
       id: 'fl-8',
-      flightNumber: 'RMK-202',
+      flightNumber: 'ALP-202',
       routeId: 'rt-2r',
       originAirport: cdg,
       destinationAirport: ist,

@@ -7,20 +7,20 @@ export const DEFAULT_TICKET_DESIGN: TicketDesignConfig = {
   subTitleEn: 'Gaziantep University • Aviation & Software Project Commemorative Pass',
   universityName: 'Gaziantep Üniversitesi',
   universityLogoUrl: '/logos/gaziantep-universitesi-logo.png',
-  airlineLogoUrl: '/logos/rumusky-brand-logo.png',
+  airlineLogoUrl: '/logos/alpha-airline-logo.png',
   commemorativeNote: 'Bu bilet Gaziantep Üniversitesi projesi kapsamında üretilmiş resmi hatıra belgesidir. Gökyüzündeki güvenli ve ayrıcalıklı yolculuğunuz, bizim gökyüzümüz.',
   commemorativeNoteEn: 'This ticket is an official commemorative souvenir produced for the Gaziantep University graduation project. Your journey, our sky.',
   themeStyle: 'navy_gold'
 };
 
 export const INITIAL_SITE_CONTENT: SiteContentConfig = {
-  companyName: 'RUMUSKY',
-  companySubtitle: 'AIRLINES',
-  customLogoUrl: '/logos/rumusky-brand-logo.png',
+  companyName: 'Alpha Airline',
+  companySubtitle: 'FLY BEYOND BORDERS',
+  customLogoUrl: '/logos/alpha-airline-logo.png',
   navbar: {
-    companyName: 'RUMUSKY',
-    companySubtitle: 'AIRLINES',
-    customLogoUrl: '/logos/rumusky-brand-logo.png',
+    companyName: 'Alpha Airline',
+    companySubtitle: 'FLY BEYOND BORDERS',
+    customLogoUrl: '/logos/alpha-airline-logo.png',
     navSearchFlights: 'Uçuş Ara',
     navSearchFlightsEn: 'Search Flights',
     navMyBookings: 'Rezervasyonlarım',
@@ -31,20 +31,20 @@ export const INITIAL_SITE_CONTENT: SiteContentConfig = {
     navNewsEn: 'News & Media',
     navTravelInfo: 'Seyahat Bilgileri',
     navTravelInfoEn: 'Travel Information',
-    navAbout: 'RUMUSKY',
-    navAboutEn: 'RUMUSKY',
+    navAbout: 'Alpha Airline',
+    navAboutEn: 'Alpha Airline',
     navAdminButtonText: 'Admin Paneli',
     navAdminButtonTextEn: 'Admin Portal'
   },
   ticketDesign: DEFAULT_TICKET_DESIGN,
   heroBackgroundUrl: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80',
-  heroOverlayOpacity: 25,
+  heroOverlayOpacity: 18,
   searchCardOpacity: 70,
   searchCardBlur: 12,
-  heroBadgeText: 'RUMUSKY AIRLINES — Gökyüzündeki Güvenli Eviniz',
-  heroBadgeTextEn: 'RUMUSKY AIRLINES — Your Safe Home in the Skies',
-  heroTitle: 'Dünyaya RUMUSKY ile Uçun',
-  heroTitleEn: 'Fly the World with RUMUSKY',
+  heroBadgeText: 'Alpha Airline — Gökyüzündeki Güvenli Eviniz',
+  heroBadgeTextEn: 'Alpha Airline — Your Safe Home in the Skies',
+  heroTitle: 'Sınırların Ötesine Alpha Airline ile Uçun',
+  heroTitleEn: 'Fly Beyond Borders with Alpha Airline',
   heroSubtitle: 'Konforlu, güvenli ve avantajlı uçuşlarla hayalinizdeki destinasyonlara ulaşın.',
   heroSubtitleEn: 'Reach your dream destinations with comfortable, safe, and advantageous flights.',
   benefits: [
@@ -87,44 +87,44 @@ export const INITIAL_SITE_CONTENT: SiteContentConfig = {
     text: 'Tokyo, Dubai ve Londra direkt seferlerimiz avantajlı tanıtım fiyatlarıyla satışa açıldı!',
     textEn: 'Direct flights to Tokyo, Dubai, and London are now on sale with special introductory fares!'
   },
-  footerDesc: 'RUMUSKY AIRLINES — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.',
-  footerDescEn: 'RUMUSKY AIRLINES — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.',
+  footerDesc: 'Alpha Airline — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.',
+  footerDescEn: 'Alpha Airline — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.',
   footer: {
-    desc: 'RUMUSKY AIRLINES — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.',
-    descEn: 'RUMUSKY AIRLINES — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.',
+    desc: 'Alpha Airline — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.',
+    descEn: 'Alpha Airline — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.',
     safetyBadge: 'IATA & ICAO Standartlarında Güvenli Uçuş Operasyonları',
     safetyBadgeEn: 'IATA & ICAO Standardized Flight Safety Operations',
-    col1Title: 'RUMUSKY',
-    col1TitleEn: 'RUMUSKY',
+    col1Title: 'ALPHA AIRLINE',
+    col1TitleEn: 'ALPHA AIRLINE',
     col2Title: 'SEYAHAT BİLGİLERİ',
     col2TitleEn: 'TRAVEL INFO',
     col3Title: 'YARDIM & DESTEK',
     col3TitleEn: 'HELP & SUPPORT',
-    copyright: '© 2026 RUMUSKY AIRLINES. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.',
-    copyrightEn: '© 2026 RUMUSKY AIRLINES. All rights reserved. Academic Project & Live Demonstration.'
+    copyright: '© 2026 Alpha Airline. Tüm hakları saklıdır. Okul Projesi ve Demo Gösterimi.',
+    copyrightEn: '© 2026 Alpha Airline. All rights reserved. Academic Project & Live Demonstration.'
   }
 };
 
 export const INITIAL_INFO_PAGES: InfoPage[] = [
-  // 1. Column: RUMUSKY
+  // 1. Column: Alpha Airline
   {
     id: 'page-about',
     slug: 'about-us',
     category: 'rumusky',
     menuLabel: 'Hakkımızda',
     menuLabelEn: 'About Us',
-    title: 'RUMUSKY AIRLINES Hakkında',
-    titleEn: 'About RUMUSKY AIRLINES',
+    title: 'Alpha Airline Hakkında',
+    titleEn: 'About Alpha Airline',
     badge: 'Biz Kimiz?',
     badgeEn: 'Who We Are',
     summary: 'Gökyüzünde güven, modern havacılık standartları ve yüksek misafir memnuniyetiyle hizmetinizdeyiz.',
     summaryEn: 'Serving you with safety, modern aviation benchmarks, and supreme guest satisfaction.',
-    content: `RUMUSKY AIRLINES, modern havacılık vizyonuyla kurulan, uluslararası güvenlik ve konfor standartlarını benimsemiş öncü bir hava yolu şirketidir. 
+    content: `Alpha Airline, modern havacılık vizyonuyla kurulan, uluslararası güvenlik ve konfor standartlarını benimsemiş öncü bir hava yolu şirketidir. 
 
 Filomuzda yer alan genç, çevre dostu ve yeni nesil uçaklarımızla yolcularımıza güvenli, konforlu ve zamanında varış garantili seyahatler sunuyoruz. İstanbul merkezli operasyonlarımız; Avrupa, Orta Doğu ve Asya kıtalarındaki seçkin destinasyonlara kesintisiz uçuş köprüleri kurmaktadır.
 
 Vizyonumuz: Gökyüzünde misafirlerimize kendilerini evlerinde hissettiren sıcak, profesyonel ve yenilikçi bir seyahat ekosistemi oluşturmaktır.`,
-    contentEn: `RUMUSKY AIRLINES is a premier carrier built on modern aviation vision, embracing international standards of safety and comfort.
+    contentEn: `Alpha Airline is a premier carrier built on modern aviation vision, embracing international standards of safety and comfort.
 
 With our young, eco-efficient, and next-generation fleet, we provide passengers with safe, comfortable, and punctual air travel. Our Istanbul-based flight operations seamlessly connect prime destinations across Europe, the Middle East, and Asia.
 
@@ -137,31 +137,31 @@ Our Vision: To cultivate a warm, professional, and tech-forward journey ecosyste
     category: 'rumusky',
     menuLabel: 'Kariyer',
     menuLabelEn: 'Careers',
-    title: 'RUMUSKY Ailesine Katılın',
-    titleEn: 'Join the RUMUSKY Family',
+    title: 'Alpha Airline Ailesine Katılın',
+    titleEn: 'Join the Alpha Airline Family',
     badge: 'Açık Pozisyonlar',
     badgeEn: 'Open Roles',
     summary: 'Kokpitten kabine, yer işletmeden bilgi teknolojilerine kadar gökyüzünün geleceğini birlikte inşa ediyoruz.',
     summaryEn: 'From cockpit to cabin crew, ground operations to IT, we shape the future of flight together.',
-    content: `RUMUSKY AIRLINES olarak en değerli sermayemizin tutkuyla çalışan dinamik ekibimiz olduğuna inanıyoruz. Havacılığa tutku duyan, takım çalışmasını seven ve sürekli gelişime inanan yeteneklere kapılarımız daima açıktır.
+    content: `Alpha Airline olarak en değerli sermayemizin tutkuyla çalışan dinamik ekibimiz olduğuna inanıyoruz. Havacılığa tutku duyan, takım çalışmasını seven ve sürekli gelişime inanan yeteneklere kapılarımız daima açıktır.
 
 Çalışanlarımıza Sunduklarımız:
 • Uluslararası standartlarda uçuş ve mesleki eğitim programları
 • Özel sağlık sigortası ve geniş sosyal haklar
-• RUMUSKY uçuş ağında avantajlı bilet ve seyahat hakları
+• Alpha Airline uçuş ağında avantajlı bilet ve seyahat hakları
 • Dinamik ve çok kültürlü küresel çalışma ortamı
 
-Açık Pozisyonlarımız: Kaptan Pilot, İkinci Pilot, Kabin Memuru, Uçak Teknisyeni, Havalimanı Operasyon Uzmanı ve Dijital Ürün Geliştirici. Başvurularınızı ik@rumusky.com adresine iletebilirsiniz.`,
-    contentEn: `At RUMUSKY AIRLINES, we firmly believe our most valuable asset is our passionate, dynamic team. Our doors are always open to aviation enthusiasts committed to teamwork and continuous growth.
+Açık Pozisyonlarımız: Kaptan Pilot, İkinci Pilot, Kabin Memuru, Uçak Teknisyeni, Havalimanı Operasyon Uzmanı ve Dijital Ürün Geliştirici. Başvurularınızı ik@alphaairline.com adresine iletebilirsiniz.`,
+    contentEn: `At Alpha Airline, we firmly believe our most valuable asset is our passionate, dynamic team. Our doors are always open to aviation enthusiasts committed to teamwork and continuous growth.
 
 What We Offer:
 • World-class flight and professional training academies
 • Comprehensive private health insurance and wellness perks
-• Subsidized travel privileges across the RUMUSKY global flight network
+• Subsidized travel privileges across the Alpha Airline global flight network
 • An agile, multicultural, and inclusive work environment
 
-Open Positions: Captain, First Officer, Cabin Crew, Aircraft Maintenance Engineer, Airport Dispatcher, and Software Developer. Submit your resume to careers@rumusky.com.`,
-    contactEmail: 'ik@rumusky.com',
+Open Positions: Captain, First Officer, Cabin Crew, Aircraft Maintenance Engineer, Airport Dispatcher, and Software Developer. Submit your resume to careers@alphaairline.com.`,
+    contactEmail: 'ik@alphaairline.com',
     lastUpdated: '2026-11-02'
   },
   {
@@ -174,9 +174,9 @@ Open Positions: Captain, First Officer, Cabin Crew, Aircraft Maintenance Enginee
     titleEn: 'Press Room & Media Kit',
     badge: 'Kurumsal Haberler',
     badgeEn: 'Media Relations',
-    summary: 'RUMUSKY AIRLINES ile ilgili basın bültenleri, resmi logolar, yüksek çözünürlüklü görseller ve kurumsal açıklamalar.',
+    summary: 'Alpha Airline ile ilgili basın bültenleri, resmi logolar, yüksek çözünürlüklü görseller ve kurumsal açıklamalar.',
     summaryEn: 'Official press releases, brand assets, high-res aircraft photos, and executive statements.',
-    content: `RUMUSKY AIRLINES Kurumsal İletişim Departmanı, basın mensuplarına ve medya temsilcilerine hızlı, şeffaf ve doğru bilgi akışı sağlamayı taahhüt eder.
+    content: `Alpha Airline Kurumsal İletişim Departmanı, basın mensuplarına ve medya temsilcilerine hızlı, şeffaf ve doğru bilgi akışı sağlamayı taahhüt eder.
 
 Medya Kaynaklarımız:
 • Rektörlük ve Havacılık Otoritesi onaylı resmi duyurular
@@ -184,8 +184,8 @@ Medya Kaynaklarımız:
 • Kurumsal logo vektörleri ve uçak fotoğrafları
 • Yöneticilerimizin röportaj ve söyleşi talepleri
 
-Basın ve röportaj talepleriniz için basin@rumusky.com adresinden Kurumsal İletişim ekibimize doğrudan ulaşabilirsiniz.`,
-    contentEn: `RUMUSKY AIRLINES Corporate Communications team is committed to providing media partners with prompt, transparent, and accurate news flow.
+Basın ve röportaj talepleriniz için basin@alphaairline.com adresinden Kurumsal İletişim ekibimize doğrudan ulaşabilirsiniz.`,
+    contentEn: `Alpha Airline Corporate Communications team is committed to providing media partners with prompt, transparent, and accurate news flow.
 
 Media Resources:
 • Official statements approved by Civil Aviation Authorities
@@ -193,8 +193,8 @@ Media Resources:
 • High-resolution vector logos and aircraft fleet imagery
 • Executive interview and editorial media requests
 
-For press inquiries, contact our media relations desk directly at press@rumusky.com.`,
-    contactEmail: 'basin@rumusky.com',
+For press inquiries, contact our media relations desk directly at press@alphaairline.com.`,
+    contactEmail: 'basin@alphaairline.com',
     lastUpdated: '2026-11-03'
   },
   {
@@ -209,12 +209,12 @@ For press inquiries, contact our media relations desk directly at press@rumusky.
     badgeEn: '24/7 At Your Service',
     summary: 'Genel müdürlüğümüz, bilet satış ofislerimiz, çağrı merkezimiz ve müşteri geri bildirim kanallarımız.',
     summaryEn: 'Our headquarters, ticket sales offices, call center, and passenger feedback channels.',
-    content: `RUMUSKY AIRLINES ile ilgili her türlü soru, öneri, tebrik ve geri bildiriminiz için bize aşağıdaki kanallardan 7/24 ulaşabilirsiniz:
+    content: `Alpha Airline ile ilgili her türlü soru, öneri, tebrik ve geri bildiriminiz için bize aşağıdaki kanallardan 7/24 ulaşabilirsiniz:
 
 Genel Merkez:
-RUMUSKY Plaza, Havalimanı Caddesi No:42, Arnavutköy / İstanbul - Türkiye
+Alpha Airline Plaza, Havalimanı Caddesi No:42, Arnavutköy / İstanbul - Türkiye
 Telefon: +90 (850) 800 78 69
-E-posta: iletisim@rumusky.com
+E-posta: iletisim@alphaairline.com
 
 Çağrı Merkezi:
 Türkiye'den: 0850 800 78 69 (7/24 Ücretsiz Destek)
@@ -223,12 +223,12 @@ Yurt Dışından: +90 212 900 78 69
 Havalimanı Bilet Satış Ofisleri:
 • İstanbul Havalimanı (IST) — Giden Yolcu Terminali Kapı 4
 • Sabiha Gökçen Havalimanı (SAW) — Dış Hatlar Terminali Kontuar B-12`,
-    contentEn: `Reach out to RUMUSKY AIRLINES anytime through our dedicated 24/7 channels:
+    contentEn: `Reach out to Alpha Airline anytime through our dedicated 24/7 channels:
 
 Headquarters:
-RUMUSKY Plaza, Airport Avenue No:42, Arnavutkoy / Istanbul - Turkey
+Alpha Airline Plaza, Airport Avenue No:42, Arnavutkoy / Istanbul - Turkey
 Phone: +90 (850) 800 78 69
-Email: contact@rumusky.com
+Email: contact@alphaairline.com
 
 Global Call Center:
 Domestic (TR): 0850 800 78 69 (Toll-Free 24/7)
@@ -237,7 +237,7 @@ International: +90 212 900 78 69
 Airport Ticket Desks:
 • Istanbul Airport (IST) — Departures Level Gate 4
 • Sabiha Gokcen Airport (SAW) — International Terminal Counter B-12`,
-    contactEmail: 'iletisim@rumusky.com',
+    contactEmail: 'iletisim@alphaairline.com',
     contactPhone: '+90 (850) 800 78 69',
     lastUpdated: '2026-11-04'
   },
@@ -299,7 +299,7 @@ Add extra baggage during booking or via airport counters (discounted +10 kg for 
     badgeEn: 'Fast Travel',
     summary: 'Kalkıştan 24 saat önce başlayan online check-in ile havalimanında sıra beklemeden biniş kapısına geçin.',
     summaryEn: 'Check in online 24 hours prior to departure and head directly to your boarding gate.',
-    content: `RUMUSKY AIRLINES ile online check-in yapmak çok kolay ve hızlıdır:
+    content: `Alpha Airline ile online check-in yapmak çok kolay ve hızlıdır:
 
 Ne Zaman Açılır?
 Online check-in işlemi uçuş saatinizden 24 saat önce başlar ve tarifeli kalkışa 90 dakika kalana kadar devam eder.
@@ -312,7 +312,7 @@ Nasıl Yapılır?
 
 Havalimanında:
 Yalnızca el bagajınız varsa havalimanında doğrudan güvenlik kontrolüne ve biniş kapısına geçebilirsiniz. Kayıtlı bagajınız varsa "Bagaj Teslim (Bag Drop)" kontuarlarımıza bagajınızı teslim edebilirsiniz.`,
-    contentEn: `Online check-in with RUMUSKY AIRLINES is quick, paperless, and intuitive:
+    contentEn: `Online check-in with Alpha Airline is quick, paperless, and intuitive:
 
 When Is It Available?
 Opens 24 hours prior to departure and closes 90 minutes before scheduled flight time.
@@ -339,7 +339,7 @@ Traveling with carry-on only? Head straight through security to your gate. If yo
     badgeEn: 'Cabin Layout',
     summary: 'İster cam kenarında manzaranın tadını çıkarın, ister acil çıkış sırasında ekstra diz mesafesiyle seyahat edin.',
     summaryEn: 'Enjoy stunning window views or relax with extra legroom exit row seating options.',
-    content: `RUMUSKY AIRLINES uçaklarında her yolcumuzun konforu ön plandadır:
+    content: `Alpha Airline uçaklarında her yolcumuzun konforu ön plandadır:
 
 Koltuk Seçeneklerimiz:
 • Standart Koltuklar: Ergonomik, ayarlanabilir baş destekli, ferah oturma alanı.
@@ -349,7 +349,7 @@ Koltuk Seçeneklerimiz:
 • Business Sınıfı Koltuklar: Geniş deri koltuklar, tam yatış açısı ve kişisel alan konforu.
 
 Rezervasyonunuz sırasında veya "Rezervasyonlarım" adımından istediğiniz koltuğu rezerve edebilirsiniz. Seçtiğiniz koltuk 10 dakika boyunca adınıza kilitlenir.`,
-    contentEn: `Passenger comfort is engineered into every seat on RUMUSKY aircraft:
+    contentEn: `Passenger comfort is engineered into every seat on Alpha Airline aircraft:
 
 Seat Categories:
 • Standard Seats: Ergonomic seating with adjustable headrests.
@@ -373,7 +373,7 @@ Seats are temporarily locked for 10 minutes during your checkout session.`,
     badgeEn: 'Accessibility',
     summary: 'Engelli yolcularımız, evcil hayvan taşıma, refakatsiz çocuk ve özel tıbbi gereksinimler için çözümlerimiz.',
     summaryEn: 'Assistance for passengers with reduced mobility, pet transport, unaccompanied minors, and medical care.',
-    content: `RUMUSKY AIRLINES, tüm misafirlerinin eşit ve engelsiz bir seyahat deneyimi yaşaması için kapsamlı hizmetler sunar:
+    content: `Alpha Airline, tüm misafirlerinin eşit ve engelsiz bir seyahat deneyimi yaşaması için kapsamlı hizmetler sunar:
 
 1. Hareket Kısıtlılığı ve Tekerlekli Sandalye Desteği:
 Havalimanına varışınızdan uçağa binişinize kadar ücretsiz tekerlekli sandalye refakat hizmeti sağlanır. Talebinizi uçuştan en az 48 saat önce iletmeniz yeterlidir.
@@ -386,7 +386,7 @@ Kabin içinde kafesiyle birlikte en fazla 8 kg olan kedi ve köpekler yolcu eşl
 
 4. Özel Yemek Talepleri:
 Diyabetik, glütensiz, vegan, koşer ve çocuk menüsü gibi özel ikram taleplerinizi uçuştan 24 saat önce iletebilirsiniz.`,
-    contentEn: `RUMUSKY AIRLINES offers comprehensive assistance to ensure an effortless, barrier-free travel experience:
+    contentEn: `Alpha Airline offers comprehensive assistance to ensure an effortless, barrier-free travel experience:
 
 1. Mobility & Wheelchair Assistance:
 Complimentary escort and wheelchair services from airport check-in to your aircraft seat. Please request at least 48 hours before departure.
@@ -425,7 +425,7 @@ Soru 3: Uçuşum iptal edilirse veya gecikirse haklarım nelerdir?
 Cevap: Operasyonel nedenlerle uçuş iptali yaşandığında yolcularımıza ücretsiz bilet değişikliği, kesintisiz tam iade ve SHY-YOLCU standartlarında otel/ikram hizmeti sağlanır.
 
 Soru 4: Ödeme yaparken gerçek kredi kartı kullanmam gerekiyor mu?
-Cevap: Hayır! RUMUSKY AIRLINES bir eğitim ve simülasyon projesidir. Kesinlikle gerçek kredi kartı bilgisi girilmemelidir. Ekrandaki hazır test kartlarını tıklayarak güvenle simüle işlem yapabilirsiniz.`,
+Cevap: Hayır! Alpha Airline bir eğitim ve simülasyon projesidir. Kesinlikle gerçek kredi kartı bilgisi girilmemelidir. Ekrandaki hazır test kartlarını tıklayarak güvenle simüle işlem yapabilirsiniz.`,
     contentEn: `Question 1: I lost my PNR code, how can I access my e-ticket?
 Answer: Check the confirmation email sent upon booking or call our support center at +90 850 800 78 69 with your national ID/passport details.
 
@@ -436,7 +436,7 @@ Question 3: What are my passenger rights if my flight is delayed or cancelled?
 Answer: In the event of airline schedule disruption, passengers are entitled to complimentary rebooking, 100% full refunds, and care accommodations under civil aviation regulations.
 
 Question 4: Do I need a real credit card for booking?
-Answer: Absolutely not! RUMUSKY AIRLINES is an academic simulation project. Use the one-click simulated test cards on the payment screen.`,
+Answer: Absolutely not! Alpha Airline is an academic simulation project. Use the one-click simulated test cards on the payment screen.`,
     lastUpdated: '2026-11-06'
   },
   {
@@ -445,7 +445,7 @@ Answer: Absolutely not! RUMUSKY AIRLINES is an academic simulation project. Use 
     category: 'help_support',
     menuLabel: 'Destek Merkezi',
     menuLabelEn: 'Support Center',
-    title: '7/24 RUMUSKY Destek Merkezi',
+    title: '7/24 Alpha Airline Destek Merkezi',
     titleEn: '24/7 Support Center',
     badge: 'Müşteri Memnuniyeti',
     badgeEn: 'Customer Support',
@@ -453,27 +453,27 @@ Answer: Absolutely not! RUMUSKY AIRLINES is an academic simulation project. Use 
     summaryEn: 'Round-the-clock live assistance for bookings, baggage tracking, and immediate passenger care.',
     content: `Destek Merkezimize Hoş Geldiniz!
 
-RUMUSKY AIRLINES olarak uçuş öncesinde, esnasında ve sonrasında tüm soru ve taleplerinize hızlı çözümler üretmek için buradayız.
+Alpha Airline olarak uçuş öncesinde, esnasında ve sonrasında tüm soru ve taleplerinize hızlı çözümler üretmek için buradayız.
 
 Hızlı Destek Kanalları:
 • Çağrı Merkezi: 0850 800 78 69 (Haftanın 7 günü 24 saat)
 • WhatsApp Destek Hattı: +90 555 800 78 69
-• E-Posta Destek: destek@rumusky.com
+• E-Posta Destek: destek@alphaairline.com
 • Geri Bildirim Formu: Web sitemizdeki iletişim alanından şikayet ve önerilerinizi anında iletebilirsiniz.
 
 Talepleriniz ortalama 15 dakika içinde müşteri temsilcilerimiz tarafından incelenir ve yanıtlanır.`,
-    contentEn: `Welcome to the RUMUSKY Support Center!
+    contentEn: `Welcome to the Alpha Airline Support Center!
 
 We are committed to delivering immediate, personalized resolutions before, during, and after your journey.
 
 Channels:
 • Call Center: +90 850 800 78 69 (Available 24/7/365)
 • WhatsApp Help Desk: +90 555 800 78 69
-• Email Support: support@rumusky.com
+• Email Support: support@alphaairline.com
 • Online Feedback: Submit tickets directly through our web contact portal.
 
 Customer requests are typically answered within 15 minutes by our dedicated care specialists.`,
-    contactEmail: 'destek@rumusky.com',
+    contactEmail: 'destek@alphaairline.com',
     contactPhone: '+90 (850) 800 78 69',
     lastUpdated: '2026-11-06'
   },
@@ -535,7 +535,7 @@ Typographical spelling errors up to 3 characters can be resolved free of charge 
 • Promosyon biletlerde temel ücret iade edilmez; yalnızca tahsil edilen havalimanı vergileri eksiksiz iade edilir.
 
 2. Havayolu Kaynaklı İptaller:
-Hava muhalefeti veya operasyonel aksaklıklar sebebiyle RUMUSKY AIRLINES tarafından iptal edilen seferlerde kesintisiz %100 bilet iadesi banka kartınıza otomatik olarak yansıtılır.
+Hava muhalefeti veya operasyonel aksaklıklar sebebiyle Alpha Airline tarafından iptal edilen seferlerde kesintisiz %100 bilet iadesi banka kartınıza otomatik olarak yansıtılır.
 
 3. İade Süresi:
 Onaylanan iade tutarları 3 ila 7 iş günü içerisinde ödeme yaptığınız kartın hesabına aktarılır.`,
@@ -567,10 +567,10 @@ Refund credits reflect on original payment cards within 3 to 7 business banking 
     badgeEn: 'Compliance',
     summary: '6698 Sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve AB GDPR uyarınca verilerinizin güvenliği.',
     summaryEn: 'Protection and governance of passenger personal data under KVKK and EU GDPR frameworks.',
-    content: `RUMUSKY AIRLINES Gizlilik Bildirimi:
+    content: `Alpha Airline Gizlilik Bildirimi:
 
 Veri Sorumlusu:
-RUMUSKY Havacılık ve Taşımacılık A.Ş. olarak yolcularımızın kişisel verilerinin güvenliğine en üst düzeyde önem veriyoruz.
+Alpha Airline Havacılık ve Taşımacılık A.Ş. olarak yolcularımızın kişisel verilerinin güvenliğine en üst düzeyde önem veriyoruz.
 
 İşlenen Kişisel Veriler:
 • Kimlik Bilgileri: Ad, soyad, TC kimlik / Pasaport numarası, doğum tarihi, cinsiyet.
@@ -579,10 +579,10 @@ RUMUSKY Havacılık ve Taşımacılık A.Ş. olarak yolcularımızın kişisel v
 
 Verilerin İşlenme Amacı:
 Bilet düzenleme, rezervasyon yönetimi, uçuş güvenliği ve sivil havacılık mevzuatından doğan yasal yükümlülüklerin ifası amacıyla toplanmaktadır. Kişisel verileriniz yasal zorunluluklar (Sivil Havacılık Genel Müdürlüğü, Emniyet ve sınır otoriteleri) haricinde üçüncü şahıslarla paylaşılmaz.`,
-    contentEn: `RUMUSKY AIRLINES Privacy and Personal Data Notice:
+    contentEn: `Alpha Airline Privacy and Personal Data Notice:
 
 Data Controller:
-RUMUSKY Aviation Inc. prioritizes passenger privacy and data security at the highest modern standards.
+Alpha Airline Aviation Inc. prioritizes passenger privacy and data security at the highest modern standards.
 
 Processed Data:
 • Identity: Full name, national identity or passport number, date of birth, gender.
@@ -603,25 +603,25 @@ Data is collected exclusively to issue flight tickets, administer travel booking
     titleEn: 'Terms of Service & Platform Use',
     badge: 'Yasal Hükümler',
     badgeEn: 'Legal Notice',
-    summary: 'RUMUSKY AIRLINES platformunun, biletleme motorunun ve simülasyon sisteminin kullanım koşulları.',
-    summaryEn: 'Terms and conditions governing the use of the RUMUSKY AIRLINES booking and simulation engine.',
-    content: `RUMUSKY AIRLINES Web Platformu Kullanım Şartları:
+    summary: 'Alpha Airline platformunun, biletleme motorunun ve simülasyon sisteminin kullanım koşulları.',
+    summaryEn: 'Terms and conditions governing the use of the Alpha Airline booking and simulation engine.',
+    content: `Alpha Airline Web Platformu Kullanım Şartları:
 
 1. Hizmetin Niteliği ve Simülasyon Bildirimi:
 Bu platform bir akademik eğitim ve havayolu yönetim simülasyon projesidir. Sistemde yapılan uçuş rezervasyonları ve ödeme adımları tamamen eğitim amaçlı simülasyon niteliğindedir. Gerçek para tahsilatı yapılmaz.
 
 2. Fikri Mülkiyet Hakları:
-Web sitesindeki tüm logolar, grafikler, yazılım kodları, arayüz tasarımları ve içerikler RUMUSKY AIRLINES projesine aittir. İzinsiz kopyalanamaz veya çoğaltılamaz.
+Web sitesindeki tüm logolar, grafikler, yazılım kodları, arayüz tasarımları ve içerikler Alpha Airline projesine aittir. İzinsiz kopyalanamaz veya çoğaltılamaz.
 
 3. Kullanıcı Yükümlülükleri:
 Kullanıcılar biletleme ve rezervasyon formlarını doldururken doğru bilgi girmeyi, sistemin güvenliğini tehdit edecek girişimlerde bulunmamayı kabul ve taahhüt eder.`,
-    contentEn: `RUMUSKY AIRLINES Platform Terms & Conditions:
+    contentEn: `Alpha Airline Platform Terms & Conditions:
 
 1. Nature of Platform & Simulation Disclaimer:
 This platform is an academic engineering and aviation simulation project. All booking transactions, payment screens, and seat holds are simulated for educational demonstration. No real financial charges occur.
 
 2. Intellectual Property Rights:
-All logos, design assets, source code, and interface components belong to RUMUSKY AIRLINES and may not be reproduced without explicit attribution.
+All logos, design assets, source code, and interface components belong to Alpha Airline and may not be reproduced without explicit attribution.
 
 3. User Responsibilities:
 Visitors agree to provide truthful passenger information in test scenarios and refrain from actions that compromise platform integrity.`,
@@ -639,7 +639,7 @@ Visitors agree to provide truthful passenger information in test scenarios and r
     badgeEn: 'Cookie Policy',
     summary: 'Kullanıcı deneyiminizi iyileştirmek, dil seçiminizi hatırlamak ve rezervasyon oturumunu korumak için çerezler kullanılır.',
     summaryEn: 'Cookies used to enhance browsing experience, remember language preferences, and preserve seat holds.',
-    content: `RUMUSKY AIRLINES Çerez Aydınlatma Metni:
+    content: `Alpha Airline Çerez Aydınlatma Metni:
 
 Çerez Nedir?
 Çerezler, web sitemizi ziyaret ettiğinizde tarayıcınız aracılığıyla cihazınıza kaydedilen küçük metin dosyalarıdır.
@@ -651,7 +651,7 @@ Kullandığımız Çerez Türleri:
 
 Çerez Yönetimi:
 Tarayıcı ayarlarınızdan dilediğiniz zaman çerezleri silebilir veya engelleyebilirsiniz.`,
-    contentEn: `RUMUSKY AIRLINES Cookie Policy:
+    contentEn: `Alpha Airline Cookie Policy:
 
 What Are Cookies?
 Cookies are compact text files stored on your device via your web browser during site visits.
@@ -670,12 +670,12 @@ You may clear or block cookies anytime within your browser settings.`,
 export const INITIAL_NEWS: NewsItem[] = [
   {
     id: 'news-1',
-    title: 'RUMUSKY AIRLINES Filosuna Yeni Nesil Airbus A321neo Katıldı',
-    titleEn: 'RUMUSKY AIRLINES Welcomes Next-Generation Airbus A321neo to Fleet',
+    title: 'Alpha Airline Filosuna Yeni Nesil Airbus A321neo Katıldı',
+    titleEn: 'Alpha Airline Welcomes Next-Generation Airbus A321neo to Fleet',
     summary: 'Daha sessiz, %20 daha az yakıt tüketen ve geniş kabin konforu sunan yeni A321neo uçağımız sefere hazır.',
     summaryEn: 'Our new A321neo aircraft offering quieter flight, 20% lower fuel burn and extra cabin space is ready for service.',
-    content: 'RUMUSKY AIRLINES olarak filomuzu en yeni havacılık teknolojileriyle genişletmeye devam ediyoruz. Teslim aldığımız TC-RMK tescilli Airbus A321neo, yüksek hızlı uydu interneti ve geniş Business sınıfı koltuklarıyla yolcularımıza eşsiz bir seyahat deneyimi sunacak.',
-    contentEn: 'RUMUSKY AIRLINES continues to expand its fleet with cutting-edge aviation technologies. Our newly delivered Airbus A321neo registered TC-RMK features high-speed satellite Wi-Fi and spacious Business class seating.',
+    content: 'Alpha Airline olarak filomuzu en yeni havacılık teknolojileriyle genişletmeye devam ediyoruz. Teslim aldığımız TC-ALP tescilli Airbus A321neo, yüksek hızlı uydu interneti ve geniş Business sınıfı koltuklarıyla yolcularımıza eşsiz bir seyahat deneyimi sunacak.',
+    contentEn: 'Alpha Airline continues to expand its fleet with cutting-edge aviation technologies. Our newly delivered Airbus A321neo registered TC-ALP features high-speed satellite Wi-Fi and spacious Business class seating.',
     imageUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80',
     category: 'Filo',
     publishedAt: '2026-11-05',
@@ -740,7 +740,7 @@ export const INITIAL_STAFF_USERS: User[] = [
     id: 'usr-admin-1',
     name: 'Süper',
     surname: 'Admin',
-    email: 'admin@rumusky.com',
+    email: 'admin@alphaairline.com',
     role: 'super_admin',
     phone: '+90 555 100 2030'
   },
@@ -748,7 +748,7 @@ export const INITIAL_STAFF_USERS: User[] = [
     id: 'usr-flight-1',
     name: 'Ahmet',
     surname: 'Demir',
-    email: 'ops@rumusky.com',
+    email: 'ops@alphaairline.com',
     role: 'flight_manager',
     phone: '+90 555 200 3040'
   },
@@ -756,7 +756,7 @@ export const INITIAL_STAFF_USERS: User[] = [
     id: 'usr-booking-1',
     name: 'Elif',
     surname: 'Kaya',
-    email: 'booking@rumusky.com',
+    email: 'booking@alphaairline.com',
     role: 'booking_manager',
     phone: '+90 555 300 4050'
   },
@@ -764,7 +764,7 @@ export const INITIAL_STAFF_USERS: User[] = [
     id: 'usr-content-1',
     name: 'Selin',
     surname: 'Öztürk',
-    email: 'editor@rumusky.com',
+    email: 'editor@alphaairline.com',
     role: 'content_manager',
     phone: '+90 555 400 5060'
   }

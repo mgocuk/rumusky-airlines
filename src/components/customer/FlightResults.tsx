@@ -144,8 +144,8 @@ export const FlightResults: React.FC = () => {
           <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
           <span>
             {language === 'tr'
-              ? 'Seçtiğiniz tarih için tam eşleşen tarife bulunamadı; alternatif müsait RUMUSKY uçuşları listeleniyor.'
-              : 'Exact schedule not found for selected date; displaying available alternative RUMUSKY flights.'}
+              ? 'Seçtiğiniz tarih için tam eşleşen tarife bulunamadı; alternatif müsait Alpha Airline uçuşları listeleniyor.'
+              : 'Exact schedule not found for selected date; displaying available alternative Alpha Airline flights.'}
           </span>
         </div>
       )}
@@ -306,7 +306,7 @@ export const FlightResults: React.FC = () => {
 
                   <button
                     onClick={() => selectFlightForBooking(flight)}
-                    className="mt-4 w-full md:w-auto px-6 py-3 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-heading font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
+                    className="mt-4 w-full md:w-auto px-6 py-3 rounded-xl bg-brand-blue hover:bg-[#164657] text-white font-heading font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
                   >
                     <span>{t('results_select_flight')}</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

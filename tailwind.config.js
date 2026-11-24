@@ -8,14 +8,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          navy: '#0B2545',
-          blue: '#0D6EFD',
-          cyan: '#00B4DB',
-          bg: '#F4F8FC',
+          navy: '#12253E',
+          blue: '#1E5B70',
+          cyan: '#D2A54E',
+          gold: '#C49238',
+          goldLight: '#FBF4E4',
+          ivory: '#F4ECDC',
+          bg: '#FAF6EE',
           surface: '#FFFFFF',
-          text: '#172B49',
-          muted: '#5C6B7A',
-          border: '#DCE5EF'
+          text: '#1A2D45',
+          muted: '#655D50',
+          border: '#E6D8BD'
         }
       },
       fontFamily: {
@@ -26,8 +29,8 @@ export default {
         'card': '14px'
       },
       boxShadow: {
-        'subtle': '0 4px 20px -2px rgba(11, 37, 69, 0.06)',
-        'elevated': '0 10px 30px -5px rgba(11, 37, 69, 0.1)'
+        'subtle': '0 4px 20px -2px rgba(133, 98, 34, 0.07)',
+        'elevated': '0 10px 30px -5px rgba(18, 37, 62, 0.09)'
       }
     },
   },

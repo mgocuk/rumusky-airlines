@@ -86,8 +86,8 @@ export const AuthModal: React.FC = () => {
         {/* Brand & Security Header */}
         <div className="text-center mb-6">
           <Logo size="md" className="mx-auto mb-3" />
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-brand-navy text-brand-cyan mb-2">
-            <Shield className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-brand-goldLight text-brand-navy border border-brand-gold/50 mb-2">
+            <Shield className="w-3.5 h-3.5 text-brand-gold" />
             <span>{language === 'en' ? 'Staff & Operations Portal' : 'Yetkili Personel Portalı'}</span>
           </div>
           <h3 className="text-xl font-heading font-extrabold text-brand-navy">
@@ -191,7 +191,7 @@ export const AuthModal: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-brand-navy hover:bg-slate-800 text-white rounded-xl text-xs font-heading font-extrabold shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 bg-brand-blue hover:bg-[#164657] text-white rounded-xl text-xs font-heading font-extrabold shadow-md border border-brand-gold/30 transition-all flex items-center justify-center gap-2 mt-2"
           >
             <span>{language === 'en' ? 'Enter Management Panel' : 'Yönetim Paneline Giriş Yap'}</span>
             <ArrowRight className="w-4 h-4 text-brand-cyan" />

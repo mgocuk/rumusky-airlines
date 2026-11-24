@@ -77,7 +77,7 @@ export const CheckinView: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="Örn: RMK84A"
+                placeholder="Örn: ALP84A"
                 value={pnr}
                 onChange={(e) => setPnr(e.target.value.toUpperCase())}
                 className="w-full px-4 py-3 bg-brand-bg rounded-xl border border-brand-border text-base font-mono font-bold uppercase tracking-widest focus:border-brand-blue focus:outline-hidden"

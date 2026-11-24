@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { Booking, Flight, Ticket, TicketDesignConfig } from '../../types';
+import { Booking, Flight, Passenger, Ticket, TicketDesignConfig } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { realtimeSync } from '../../services/realtimeSync';
-import { Download, Share2, QrCode, Check } from 'lucide-react';
+import { Download, Share2, QrCode, Check, Sparkles, RotateCw } from 'lucide-react';
 
 interface TicketCardProps {
   booking: Booking;
@@ -14,6 +14,26 @@ interface TicketCardProps {
   showDownloadBtn?: boolean;
   isStandaloneView?: boolean;
   customTicketDesign?: TicketDesignConfig;
+}
+
+export function isChildPassenger(passenger?: Partial<Passenger> | null): boolean {
+  if (!passenger) return false;
+  if (passenger.passengerType === 'child' || passenger.passengerType === 'infant') {
+    return true;
+  }
+  if (passenger.dateOfBirth) {
+    const birth = new Date(passenger.dateOfBirth);
+    if (!Number.isNaN(birth.getTime())) {
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age -= 1;
+      }
+      return age < 12;
+    }
+  }
+  return false;
 }
 
 export function formatTicketDisplayFields(booking: Booking, flight: Flight, ticket: Ticket) {
@@ -36,7 +56,7 @@ export function formatTicketDisplayFields(booking: Booking, flight: Flight, tick
     .toLocaleUpperCase('tr-TR');
 
   const seatLabel = (ticket.seatNumber || booking.passengers?.[0]?.selectedSeat || 'TBA').toUpperCase();
-  const flightNo = (flight.flightNumber || 'RMK-101').toUpperCase();
+  const flightNo = (flight.flightNumber || 'ALP-101').toUpperCase();
   const gateCode = 'A-12';
 
   return {
@@ -61,7 +81,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   const { language } = useApp();
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [showQrBox, setShowQrBox] = useState(false);
+  const [showChildBack, setShowChildBack] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const isChild = isChildPassenger(ticket.passenger);
 
   const [ticketLiveUrl, setTicketLiveUrl] = useState<string>(
     `${window.location.origin}/#ticket=${booking.pnr}&tkt=${ticket.ticketNumber}`
@@ -94,7 +117,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             margin: 1,
             errorCorrectionLevel: 'M',
             color: {
-              dark: '#0B2545',
+              dark: '#12253E',
               light: '#FFFFFF'
             }
           });
@@ -116,7 +139,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Hatıra Biniş Kartı (${booking.pnr})`,
+          title: `Alpha Airline Hatıra Bileti (${booking.pnr})`,
           text: `${ticket.passenger.firstName} ${ticket.passenger.lastName} için ${flight.originAirport.city} - ${flight.destinationAirport.city} hatıra bileti.`,
           url: ticketLiveUrl
         });
@@ -141,6 +164,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           ? 1.18
           : 1.32;
 
+  const childTopFieldFontSizeCqw = (text: string) =>
+    text.length > 24 ? 1.55 : text.length > 18 ? 1.8 : 2.05;
+
   const fieldTypography: React.CSSProperties = {
     fontFamily: "'Times New Roman', Times, Georgia, serif",
     fontVariantNumeric: 'lining-nums tabular-nums',
@@ -150,140 +176,294 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
   return (
     <div className="w-full space-y-3">
-      {/* Exact 1:1 Souvenir Boarding Pass Visual */}
-      <div
-        className="relative w-full aspect-[941/293] select-none drop-shadow-2xl"
-        style={{ containerType: 'inline-size' }}
-      >
-        <img
-          src="/tickets/souvenir-ticket-template.png"
-          alt="Hatıra Biniş Kartı"
-          className="w-full h-full object-contain block pointer-events-none"
-          draggable={false}
-        />
-
-        {/* FROM value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
-          style={{
-            ...fieldTypography,
-            left: '40.3%',
-            top: '28.2%',
-            maxWidth: '37.5%',
-            fontSize: fields.fromText.length > 22 ? '1.95cqw' : '2.32cqw'
-          }}
-        >
-          {fields.fromText}
+      {/* Child Ticket Badge */}
+      {isChild && (
+        <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-brand-goldLight border border-brand-gold/40 text-xs">
+          <div className="flex items-center gap-2 font-bold text-brand-navy">
+            <Sparkles className="w-4 h-4 text-brand-gold" />
+            <span>
+              {language === 'en'
+                ? 'Special Young Travellers Child Ticket Design'
+                : 'Minik Gezginler İçin Özel Çocuk Hatıra Bileti'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowChildBack((prev) => !prev)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white hover:bg-brand-ivory text-brand-navy border border-brand-border font-bold text-[11px] transition-colors cursor-pointer"
+          >
+            <RotateCw className="w-3 h-3 text-brand-gold" />
+            <span>
+              {showChildBack
+                ? language === 'en'
+                  ? 'Show Front Pass'
+                  : 'Ön Yüzü (Biniş Kartı) Göster'
+                : language === 'en'
+                ? 'Show Back Card'
+                : 'Arka Yüzü (Dream Big) Gör'}
+            </span>
+          </button>
         </div>
+      )}
 
-        {/* TO value */}
+      {/* Exact 1:1 Souvenir Boarding Pass Visual (Child or Adult) */}
+      {isChild ? (
+        showChildBack ? (
+          <div className="relative w-full aspect-[959/254] select-none drop-shadow-2xl">
+            <img
+              src="/tickets/child-ticket-back.png"
+              alt="Çocuk Hatıra Bileti Arka Yüzü — Dream Big Fly High"
+              className="w-full h-full object-contain block pointer-events-none"
+              draggable={false}
+            />
+          </div>
+        ) : (
+          <div
+            className="relative w-full aspect-[962/292] select-none drop-shadow-2xl"
+            style={{ containerType: 'inline-size' }}
+          >
+            <img
+              src="/tickets/child-ticket-template.png"
+              alt="Çocuk Hatıra Biniş Kartı"
+              className="w-full h-full object-contain block pointer-events-none"
+              draggable={false}
+            />
+
+            {/* Passenger value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '48.8%',
+                top: '27.8%',
+                maxWidth: '30%',
+                fontSize: `${childTopFieldFontSizeCqw(fields.passengerName)}cqw`
+              }}
+              title={fields.passengerName}
+            >
+              {fields.passengerName}
+            </div>
+
+            {/* From value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '48.8%',
+                top: '41.5%',
+                maxWidth: '30%',
+                fontSize: `${childTopFieldFontSizeCqw(fields.fromText)}cqw`
+              }}
+            >
+              {fields.fromText}
+            </div>
+
+            {/* To value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '48.8%',
+                top: '54.6%',
+                maxWidth: '30%',
+                fontSize: `${childTopFieldFontSizeCqw(fields.toText)}cqw`
+              }}
+            >
+              {fields.toText}
+            </div>
+
+            {/* Flight Date value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '40.2%',
+                top: '75.2%',
+                maxWidth: '10.5%',
+                fontSize: '1.38cqw'
+              }}
+            >
+              {fields.formattedDate}
+            </div>
+
+            {/* Time value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '52.4%',
+                top: '75.2%',
+                maxWidth: '8.5%',
+                fontSize: '1.44cqw'
+              }}
+            >
+              {fields.depTime}
+            </div>
+
+            {/* Gate value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '63.8%',
+                top: '75.2%',
+                maxWidth: '8.5%',
+                fontSize: '1.44cqw'
+              }}
+            >
+              {fields.gateCode}
+            </div>
+
+            {/* Seat value */}
+            <div
+              className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+              style={{
+                ...fieldTypography,
+                left: '74.2%',
+                top: '75.2%',
+                maxWidth: '7%',
+                fontSize: '1.48cqw'
+              }}
+            >
+              {fields.seatLabel}
+            </div>
+          </div>
+        )
+      ) : (
         <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
-          style={{
-            ...fieldTypography,
-            left: '40.3%',
-            top: '42.9%',
-            maxWidth: '37.5%',
-            fontSize: fields.toText.length > 22 ? '1.95cqw' : '2.32cqw'
-          }}
+          className="relative w-full aspect-[941/293] select-none drop-shadow-2xl"
+          style={{ containerType: 'inline-size' }}
         >
-          {fields.toText}
-        </div>
+          <img
+            src="/tickets/souvenir-ticket-template.png"
+            alt="Hatıra Biniş Kartı"
+            className="w-full h-full object-contain block pointer-events-none"
+            draggable={false}
+          />
 
-        {/* FLIGHT value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '41.1%',
-            top: '60.8%',
-            maxWidth: '8.8%',
-            fontSize: '1.62cqw'
-          }}
-        >
-          {fields.flightNo}
-        </div>
+          {/* FROM value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
+            style={{
+              ...fieldTypography,
+              left: '40.3%',
+              top: '28.2%',
+              maxWidth: '37.5%',
+              fontSize: fields.fromText.length > 22 ? '1.95cqw' : '2.32cqw'
+            }}
+          >
+            {fields.fromText}
+          </div>
 
-        {/* DATE value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '53.6%',
-            top: '60.8%',
-            maxWidth: '10.6%',
-            fontSize: '1.62cqw'
-          }}
-        >
-          {fields.formattedDate}
-        </div>
+          {/* TO value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
+            style={{
+              ...fieldTypography,
+              left: '40.3%',
+              top: '42.9%',
+              maxWidth: '37.5%',
+              fontSize: fields.toText.length > 22 ? '1.95cqw' : '2.32cqw'
+            }}
+          >
+            {fields.toText}
+          </div>
 
-        {/* GATE value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '68.5%',
-            top: '60.8%',
-            maxWidth: '11%',
-            fontSize: '1.62cqw'
-          }}
-        >
-          {fields.gateCode}
-        </div>
+          {/* FLIGHT value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '41.1%',
+              top: '60.8%',
+              maxWidth: '8.8%',
+              fontSize: '1.62cqw'
+            }}
+          >
+            {fields.flightNo}
+          </div>
 
-        {/* PASSENGER value (unclipped diacritics, scales cleanly so long names never collide with TIME/SEAT) */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '36.3%',
-            top: '74.1%',
-            maxWidth: '13.4%',
-            fontSize: `${passengerFontSizeCqw}cqw`
-          }}
-          title={fields.passengerName}
-        >
-          {fields.passengerName}
-        </div>
+          {/* DATE value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '53.6%',
+              top: '60.8%',
+              maxWidth: '10.6%',
+              fontSize: '1.62cqw'
+            }}
+          >
+            {fields.formattedDate}
+          </div>
 
-        {/* TIME value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '53.6%',
-            top: '69.3%',
-            maxWidth: '12%',
-            fontSize: '1.62cqw'
-          }}
-        >
-          {fields.depTime}
-        </div>
+          {/* GATE value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '68.5%',
+              top: '60.8%',
+              maxWidth: '11%',
+              fontSize: '1.62cqw'
+            }}
+          >
+            {fields.gateCode}
+          </div>
 
-        {/* SEAT value */}
-        <div
-          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
-          style={{
-            ...fieldTypography,
-            left: '41.1%',
-            top: '77.4%',
-            maxWidth: '8.8%',
-            fontSize: '1.68cqw'
-          }}
-        >
-          {fields.seatLabel}
-        </div>
-      </div>
+          {/* PASSENGER value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '36.3%',
+              top: '74.1%',
+              maxWidth: '13.4%',
+              fontSize: `${passengerFontSizeCqw}cqw`
+            }}
+            title={fields.passengerName}
+          >
+            {fields.passengerName}
+          </div>
 
-      {/* External Action Bar (kept outside the ticket artwork so ticket stays 100% pure) */}
+          {/* TIME value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '53.6%',
+              top: '69.3%',
+              maxWidth: '12%',
+              fontSize: '1.62cqw'
+            }}
+          >
+            {fields.depTime}
+          </div>
+
+          {/* SEAT value */}
+          <div
+            className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
+            style={{
+              ...fieldTypography,
+              left: '41.1%',
+              top: '77.4%',
+              maxWidth: '8.8%',
+              fontSize: '1.68cqw'
+            }}
+          >
+            {fields.seatLabel}
+          </div>
+        </div>
+      )}
+
+      {/* External Action Bar */}
       {showDownloadBtn && (
-        <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white/90 backdrop-blur-xs px-4 py-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white/95 backdrop-blur-xs px-4 py-3 rounded-2xl border border-brand-border shadow-xs">
           <div className="flex items-center gap-3 text-xs">
-            <span className="font-mono font-black text-brand-navy bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+            <span className="font-mono font-black text-brand-navy bg-brand-ivory px-2.5 py-1 rounded-lg border border-brand-border">
               PNR: {booking.pnr}
             </span>
-            <span className="text-slate-500 font-mono hidden sm:inline">
+            <span className="text-brand-muted font-mono hidden sm:inline">
               {ticket.ticketNumber}
             </span>
           </div>
@@ -293,9 +473,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               <button
                 type="button"
                 onClick={() => setShowQrBox((prev) => !prev)}
-                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3 py-2 rounded-xl bg-brand-ivory/80 hover:bg-brand-ivory text-brand-navy border border-brand-border/80 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <QrCode className="w-3.5 h-3.5 text-brand-navy" />
+                <QrCode className="w-3.5 h-3.5 text-brand-gold" />
                 <span>{language === 'en' ? 'Verification QR' : 'Doğrulama QR'}</span>
               </button>
             )}
@@ -303,7 +483,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             <button
               type="button"
               onClick={handleShare}
-              className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-brand-ivory/80 hover:bg-brand-ivory text-brand-navy border border-brand-border/80 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5 text-brand-blue" />}
               <span>
@@ -321,10 +501,18 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               <button
                 type="button"
                 onClick={onDownloadPdf}
-                className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-400/30 font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl bg-brand-navy hover:bg-brand-blue text-brand-goldLight border border-brand-gold/50 font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
               >
-                <Download className="w-4 h-4" />
-                <span>{language === 'en' ? 'Download Souvenir Ticket (PDF)' : 'Hatıra Biletini İndir (PDF)'}</span>
+                <Download className="w-4 h-4 text-brand-cyan" />
+                <span>
+                  {isChild
+                    ? language === 'en'
+                      ? 'Download Child Ticket (PDF)'
+                      : 'Çocuk Biletini İndir (PDF)'
+                    : language === 'en'
+                    ? 'Download Souvenir Ticket (PDF)'
+                    : 'Hatıra Biletini İndir (PDF)'}
+                </span>
               </button>
             )}
           </div>
@@ -332,15 +520,15 @@ export const TicketCard: React.FC<TicketCardProps> = ({
       )}
 
       {showQrBox && qrCodeUrl && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-4 shadow-xs animate-fade-in">
+        <div className="bg-white rounded-2xl border border-brand-border p-4 flex items-center gap-4 shadow-xs animate-fade-in">
           <a href={ticketLiveUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
-            <img src={qrCodeUrl} alt="Doğrulama QR Kodu" className="w-24 h-24 rounded-lg border border-slate-200" />
+            <img src={qrCodeUrl} alt="Doğrulama QR Kodu" className="w-24 h-24 rounded-lg border border-brand-border" />
           </a>
-          <div className="text-xs text-slate-600 space-y-1">
+          <div className="text-xs text-brand-muted space-y-1">
             <div className="font-bold text-brand-navy">
               {language === 'en' ? 'Live Ticket Verification Link' : 'Canlı Bilet Doğrulama Bağlantısı'}
             </div>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-brand-muted">
               {language === 'en'
                 ? 'Scan this QR code with your phone camera to view and verify this souvenir ticket online.'
                 : 'Telefon kameranızla okutarak bu hatıra biletini canlı olarak görüntüleyebilirsiniz.'}

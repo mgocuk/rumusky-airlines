@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Logo } from './Logo';
+import { CentralAsianBorder } from './CentralAsianMotif';
 import {
   Shield,
   Menu,
@@ -10,8 +11,6 @@ import {
   FileText,
   LogOut,
   Newspaper,
-  UserCheck,
-  Radio,
   LogIn
 } from 'lucide-react';
 
@@ -19,7 +18,6 @@ export const Navbar: React.FC = () => {
   const {
     language,
     setLanguage,
-    t,
     activeView,
     setActiveView,
     isAdmin,
@@ -27,17 +25,15 @@ export const Navbar: React.FC = () => {
     activeUser,
     setAuthModalOpen,
     logoutUser,
-    siteContent,
-    connectedClientsCount,
-    setShareModalOpen
+    siteContent
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navCfg = siteContent?.navbar || {
-    companyName: siteContent?.companyName || 'RUMUSKY',
-    companySubtitle: siteContent?.companySubtitle || 'AIRLINES',
-    customLogoUrl: siteContent?.customLogoUrl || '',
+    companyName: siteContent?.companyName || 'Alpha Airline',
+    companySubtitle: siteContent?.companySubtitle || 'FLY BEYOND BORDERS',
+    customLogoUrl: siteContent?.customLogoUrl || '/logos/alpha-airline-logo.png',
     navSearchFlights: 'Uçuş Ara',
     navSearchFlightsEn: 'Search Flights',
     navMyBookings: 'Rezervasyonlarım',
@@ -48,8 +44,8 @@ export const Navbar: React.FC = () => {
     navNewsEn: 'News & Media',
     navTravelInfo: 'Seyahat Bilgileri',
     navTravelInfoEn: 'Travel Information',
-    navAbout: 'RUMUSKY',
-    navAboutEn: 'RUMUSKY',
+    navAbout: 'Alpha Airline',
+    navAboutEn: 'Alpha Airline',
     navAdminButtonText: 'Admin Paneli',
     navAdminButtonTextEn: 'Admin Portal'
   };
@@ -69,11 +65,11 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-brand-border/60 shadow-xs h-[72px] flex items-center">
-      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-[#FFFDF8]/95 backdrop-blur-md shadow-xs">
+      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 h-[74px] flex items-center justify-between">
         
         {/* Left: Brand Logo */}
-        <div 
+        <div
           onClick={() => {
             setActiveView('home');
             setMobileMenuOpen(false);
@@ -84,7 +80,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Center: Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+        <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
           {navItems.map((item) => {
             const isActive = activeView === item.view && !isAdmin;
             return (
@@ -93,18 +89,18 @@ export const Navbar: React.FC = () => {
                 onClick={() => setActiveView(item.view as any)}
                 className={`px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                   isActive
-                    ? 'text-brand-blue bg-blue-50/80 font-semibold shadow-xs'
-                    : 'text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70'
+                    ? 'text-brand-navy bg-brand-goldLight border border-brand-gold/40 font-semibold shadow-2xs'
+                    : 'text-brand-navy/80 hover:text-brand-navy hover:bg-brand-ivory/70'
                 }`}
               >
                 {item.label}
               </button>
             );
           })}
-          
+
           <button
             onClick={() => setActiveView('home')}
-            className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-slate-100/70 transition-all"
+            className="px-3.5 py-2 rounded-full text-sm font-medium text-brand-navy/80 hover:text-brand-navy hover:bg-brand-ivory/70 transition-all"
           >
             {labelTravelInfo}
           </button>
@@ -113,23 +109,23 @@ export const Navbar: React.FC = () => {
         {/* Right: TR/EN Selector, Admin Access */}
         <div className="hidden lg:flex items-center gap-3">
           {/* Language Selector */}
-          <div className="flex items-center bg-brand-bg rounded-lg p-1 border border-brand-border/60">
+          <div className="flex items-center bg-brand-ivory/80 rounded-xl p-1 border border-brand-border">
             <button
               onClick={() => setLanguage('tr')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
                 language === 'tr'
-                  ? 'bg-white text-brand-blue shadow-xs'
-                  : 'text-brand-muted hover:text-brand-text'
+                  ? 'bg-white text-brand-navy shadow-xs border border-brand-gold/30'
+                  : 'text-brand-muted hover:text-brand-navy'
               }`}
             >
               TR
             </button>
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
                 language === 'en'
-                  ? 'bg-white text-brand-blue shadow-xs'
-                  : 'text-brand-muted hover:text-brand-text'
+                  ? 'bg-white text-brand-navy shadow-xs border border-brand-gold/30'
+                  : 'text-brand-muted hover:text-brand-navy'
               }`}
             >
               EN
@@ -141,10 +137,10 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
               <button
                 onClick={toggleAdminMode}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
                   isAdmin
-                    ? 'bg-brand-navy text-white ring-2 ring-brand-blue/30'
-                    : 'bg-brand-blue text-white hover:bg-blue-600'
+                    ? 'bg-brand-navy text-white ring-2 ring-brand-gold/40'
+                    : 'bg-brand-blue text-white hover:bg-[#164657]'
                 }`}
                 title="Yönetim Paneli ile Canlı Site Arasında Geçiş Yap"
               >
@@ -153,7 +149,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2 pl-1">
-                <div className="w-8 h-8 rounded-full bg-slate-900 text-brand-cyan flex items-center justify-center font-bold text-xs shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-brand-navy text-brand-cyan border border-brand-gold/50 flex items-center justify-center font-bold text-xs shadow-xs">
                   {activeUser.role === 'super_admin' ? 'SA' : 'OP'}
                 </div>
                 <div className="flex flex-col text-left">
@@ -167,7 +163,7 @@ export const Navbar: React.FC = () => {
 
                 <button
                   onClick={logoutUser}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1"
+                  className="p-1.5 rounded-lg text-brand-muted hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1"
                   title="Yetkili Oturumunu Kapat"
                 >
                   <LogOut className="w-4 h-4" />
@@ -178,10 +174,10 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-brand-blue hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-sm"
+                className="px-4 py-1.5 rounded-xl bg-brand-blue hover:bg-[#164657] text-white border border-brand-gold/30 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-sm"
                 title={language === 'en' ? 'Login' : 'Giriş Yap'}
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <LogIn className="w-3.5 h-3.5 text-brand-cyan" />
                 <span>{language === 'en' ? 'Login' : 'Giriş Yap'}</span>
               </button>
             </div>
@@ -192,22 +188,25 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-2 md:hidden">
           <button
             onClick={() => setLanguage(language === 'tr' ? 'en' : 'tr')}
-            className="px-2 py-1 text-xs font-bold rounded bg-slate-100 text-brand-navy"
+            className="px-2 py-1 text-xs font-bold rounded-lg bg-brand-ivory border border-brand-border text-brand-navy"
           >
             {language.toUpperCase()}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-brand-navy hover:bg-slate-100 rounded-lg"
+            className="p-2 text-brand-navy hover:bg-brand-ivory rounded-lg"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
+      {/* Central Asian Ornamental Bottom Border */}
+      <CentralAsianBorder opacity={0.55} />
+
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-[72px] left-0 w-full bg-white border-b border-brand-border p-4 shadow-xl flex flex-col gap-2.5 animate-fade-in z-50">
+        <div className="md:hidden absolute top-[78px] left-0 w-full bg-[#FFFDF8] border-b border-brand-border p-4 shadow-xl flex flex-col gap-2.5 animate-fade-in z-50">
           {navItems.map((item) => (
             <button
               key={item.key}
@@ -215,7 +214,7 @@ export const Navbar: React.FC = () => {
                 setActiveView(item.view as any);
                 setMobileMenuOpen(false);
               }}
-              className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50 flex items-center gap-2.5"
+              className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-brand-goldLight flex items-center gap-2.5"
             >
               <item.icon className="w-4 h-4 text-brand-blue" />
               {item.label}
@@ -227,13 +226,13 @@ export const Navbar: React.FC = () => {
               setActiveView('home');
               setMobileMenuOpen(false);
             }}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-slate-50"
+            className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-navy hover:bg-brand-goldLight"
           >
             {labelTravelInfo}
           </button>
-          
+
           {activeUser && activeUser.role !== 'customer' ? (
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-2 border-t border-brand-border flex items-center justify-between">
               <button
                 onClick={() => {
                   toggleAdminMode();
@@ -256,15 +255,15 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-brand-border">
               <button
                 onClick={() => {
                   setAuthModalOpen(true);
                   setMobileMenuOpen(false);
                 }}
-                className="w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-blue hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-xs transition-all"
+                className="w-full px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-blue hover:bg-[#164657] text-white flex items-center justify-center gap-2 shadow-xs transition-all"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-4 h-4 text-brand-cyan" />
                 <span>{language === 'en' ? 'Login' : 'Giriş Yap'}</span>
               </button>
             </div>

@@ -88,34 +88,34 @@ export const TicketView: React.FC = () => {
           </div>
         </div>
 
-        {/* Header Title & University Badge */}
+        {/* Header Title & Heritage Badge */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs font-black uppercase tracking-wider shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Gaziantep Üniversitesi • Hatıra Bileti Görüntüleme Portalı</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-goldLight border border-brand-gold/50 text-brand-navy text-xs font-black uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
+            <span>Alpha Airline • Hatıra Bileti Görüntüleme Portalı</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-black text-brand-navy">
             Elektronik Hatıra Biniş Kartı
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-brand-muted max-w-xl mx-auto">
             Bu ekran, bilet üzerindeki QR kod telefon kamerası ile tarandığında açılan resmi dijital görüntüleme ve doğrulama sayfasıdır.
           </p>
         </div>
 
-        {/* PNR Search Box (if user wants to search another PNR) */}
+        {/* PNR Search Box */}
         <form onSubmit={handleSearchSubmit} className="max-w-md mx-auto">
-          <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-300 shadow-xs">
+          <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-brand-border shadow-xs">
             <input
               type="text"
               value={pnrInput}
               onChange={(e) => setPnrInput(e.target.value.toUpperCase())}
-              placeholder="Farklı bir PNR kodu girin (örn. RMKQ92)"
+              placeholder="Farklı bir PNR kodu girin (örn. ALPQ92)"
               maxLength={8}
               className="flex-1 px-3 py-2 text-xs font-mono font-bold text-brand-navy uppercase focus:outline-hidden"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="px-4 py-2 bg-brand-blue hover:bg-[#164657] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
               Bileti Getir
             </button>
@@ -163,7 +163,7 @@ export const TicketView: React.FC = () => {
                   seatNumber: booking.passengers[0]?.selectedSeat || '12A',
                   cabinClass: 'economy',
                   baggageKg: 20,
-                  qrCodeData: `RUMUSKY|${booking.pnr}`,
+                  qrCodeData: `ALPHA-AIRLINE|${booking.pnr}`,
                   status: 'issued',
                   issuedAt: booking.createdAt
                 }}

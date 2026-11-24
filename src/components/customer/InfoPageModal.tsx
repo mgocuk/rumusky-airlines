@@ -33,7 +33,7 @@ export const InfoPageModal: React.FC = () => {
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
       case 'rumusky':
-        return language === 'en' ? 'About RUMUSKY' : 'RUMUSKY Kurumsal';
+        return language === 'en' ? 'About Alpha Airline' : 'Alpha Airline Kurumsal';
       case 'travel_info':
         return language === 'en' ? 'Travel Guidelines' : 'Seyahat Bilgileri';
       case 'help_support':
@@ -41,7 +41,7 @@ export const InfoPageModal: React.FC = () => {
       case 'legal':
         return language === 'en' ? 'Legal & Terms' : 'Yasal Bilgiler';
       default:
-        return 'RUMUSKY';
+        return 'Alpha Airline';
     }
   };
 

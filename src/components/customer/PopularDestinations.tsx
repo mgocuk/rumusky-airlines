@@ -1,7 +1,8 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { PopularDestination } from '../../types';
-import { Plane, ArrowUpRight } from 'lucide-react';
+import { CentralAsianDivider } from '../common/CentralAsianMotif';
+import { ArrowUpRight } from 'lucide-react';
 
 export const PopularDestinations: React.FC = () => {
   const { destinations, language, t, setSearchQuery } = useApp();
@@ -25,6 +26,8 @@ export const PopularDestinations: React.FC = () => {
 
   return (
     <section className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 py-8">
+      <CentralAsianDivider className="mb-8" />
+
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
         <div>
           <h3 className="text-xl sm:text-2xl font-bold text-brand-navy font-heading">
@@ -45,16 +48,16 @@ export const PopularDestinations: React.FC = () => {
             <div
               key={dest.id}
               onClick={() => handleDestinationClick(dest)}
-              className="group bg-white rounded-2xl overflow-hidden border border-brand-border/80 shadow-subtle hover:shadow-elevated hover:border-brand-blue/30 transition-all duration-300 cursor-pointer flex flex-col"
+              className="group bg-white rounded-2xl overflow-hidden border border-brand-border shadow-subtle hover:shadow-elevated hover:border-brand-gold/70 transition-all duration-300 cursor-pointer flex flex-col"
             >
               {/* Image Container */}
-              <div className="relative h-36 sm:h-44 overflow-hidden bg-slate-100">
+              <div className="relative h-36 sm:h-44 overflow-hidden bg-brand-ivory">
                 <img
                   src={dest.imageUrl}
                   alt={cityName}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-brand-navy/85 backdrop-blur-xs text-white text-[10px] sm:text-xs font-bold tracking-wider">
+                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-white/95 backdrop-blur-xs text-brand-navy border border-brand-gold/50 text-[10px] sm:text-xs font-bold tracking-wider shadow-xs">
                   {dest.iataCode}
                 </div>
               </div>
@@ -68,7 +71,7 @@ export const PopularDestinations: React.FC = () => {
                   <p className="text-[11px] sm:text-xs text-brand-muted mt-0.5 truncate">{countryName}</p>
                 </div>
 
-                <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-brand-border/60 flex items-center justify-between">
                   <div>
                     <span className="text-[9px] sm:text-[10px] text-brand-muted uppercase tracking-wider block">
                       {t('starting_from')}
@@ -77,8 +80,8 @@ export const PopularDestinations: React.FC = () => {
                       {dest.startingPrice.toLocaleString('tr-TR')} {dest.currency}
                     </span>
                   </div>
-                  
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-goldLight text-brand-gold border border-brand-gold/30 flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
                     <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
