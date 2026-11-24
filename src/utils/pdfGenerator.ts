@@ -22,10 +22,10 @@ function drawFittedText(
   minFontSize: number
 ) {
   let size = initialFontSize;
-  ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+  ctx.font = `700 ${size}px "Times New Roman", Times, Georgia, serif`;
   while (size > minFontSize && ctx.measureText(text).width > maxWidth) {
     size -= 1;
-    ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+    ctx.font = `700 ${size}px "Times New Roman", Times, Georgia, serif`;
   }
   ctx.fillText(text, x, y, maxWidth);
 }
@@ -72,14 +72,14 @@ export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenge
   ctx.fillStyle = '#182230';
   ctx.textBaseline = 'top';
 
-  drawFittedText(ctx, fields.fromText, w * 0.405, h * 0.296, w * 0.37, Math.round(w * 0.0162), 18);
-  drawFittedText(ctx, fields.toText, w * 0.405, h * 0.444, w * 0.37, Math.round(w * 0.0162), 18);
-  drawFittedText(ctx, fields.flightNo, w * 0.415, h * 0.617, w * 0.085, Math.round(w * 0.0116), 14);
-  drawFittedText(ctx, fields.formattedDate, w * 0.542, h * 0.617, w * 0.10, Math.round(w * 0.0116), 14);
-  drawFittedText(ctx, fields.gateCode, w * 0.688, h * 0.617, w * 0.09, Math.round(w * 0.0116), 14);
-  drawFittedText(ctx, fields.passengerName, w * 0.364, h * 0.748, w * 0.14, Math.round(w * 0.0096), 12);
-  drawFittedText(ctx, fields.depTime, w * 0.542, h * 0.703, w * 0.10, Math.round(w * 0.0116), 14);
-  drawFittedText(ctx, fields.seatLabel, w * 0.415, h * 0.784, w * 0.085, Math.round(w * 0.0116), 14);
+  drawFittedText(ctx, fields.fromText, w * 0.403, h * 0.282, w * 0.375, Math.round(w * 0.0232), 24);
+  drawFittedText(ctx, fields.toText, w * 0.403, h * 0.429, w * 0.375, Math.round(w * 0.0232), 24);
+  drawFittedText(ctx, fields.flightNo, w * 0.411, h * 0.608, w * 0.088, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.formattedDate, w * 0.536, h * 0.608, w * 0.106, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.gateCode, w * 0.685, h * 0.608, w * 0.11, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.passengerName, w * 0.363, h * 0.741, w * 0.134, Math.round(w * 0.0132), 15);
+  drawFittedText(ctx, fields.depTime, w * 0.536, h * 0.693, w * 0.12, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.seatLabel, w * 0.411, h * 0.774, w * 0.088, Math.round(w * 0.0168), 18);
 
   const imgDataUrl = canvas.toDataURL('image/png');
 

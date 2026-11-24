@@ -132,9 +132,20 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
   const fields = formatTicketDisplayFields(booking, flight, ticket);
 
+  const passengerFontSizeCqw =
+    fields.passengerName.length > 22
+      ? 0.9
+      : fields.passengerName.length > 16
+        ? 1.05
+        : fields.passengerName.length > 12
+          ? 1.18
+          : 1.32;
+
   const fieldTypography: React.CSSProperties = {
-    fontFamily: "'Georgia', 'Times New Roman', serif",
-    color: '#182230'
+    fontFamily: "'Times New Roman', Times, Georgia, serif",
+    fontVariantNumeric: 'lining-nums tabular-nums',
+    color: '#182230',
+    lineHeight: 1.12
   };
 
   return (
@@ -153,13 +164,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* FROM value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
           style={{
             ...fieldTypography,
-            left: '40.5%',
-            top: '29.6%',
-            maxWidth: '37%',
-            fontSize: '1.62cqw'
+            left: '40.3%',
+            top: '28.2%',
+            maxWidth: '37.5%',
+            fontSize: fields.fromText.length > 22 ? '1.95cqw' : '2.32cqw'
           }}
         >
           {fields.fromText}
@@ -167,13 +178,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* TO value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
           style={{
             ...fieldTypography,
-            left: '40.5%',
-            top: '44.4%',
-            maxWidth: '37%',
-            fontSize: '1.62cqw'
+            left: '40.3%',
+            top: '42.9%',
+            maxWidth: '37.5%',
+            fontSize: fields.toText.length > 22 ? '1.95cqw' : '2.32cqw'
           }}
         >
           {fields.toText}
@@ -181,13 +192,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* FLIGHT value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '41.5%',
-            top: '61.7%',
-            maxWidth: '8.5%',
-            fontSize: '1.16cqw'
+            left: '41.1%',
+            top: '60.8%',
+            maxWidth: '8.8%',
+            fontSize: '1.62cqw'
           }}
         >
           {fields.flightNo}
@@ -195,13 +206,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* DATE value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '54.2%',
-            top: '61.7%',
-            maxWidth: '10%',
-            fontSize: '1.16cqw'
+            left: '53.6%',
+            top: '60.8%',
+            maxWidth: '10.6%',
+            fontSize: '1.62cqw'
           }}
         >
           {fields.formattedDate}
@@ -209,27 +220,27 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* GATE value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '68.8%',
-            top: '61.7%',
-            maxWidth: '9%',
-            fontSize: '1.16cqw'
+            left: '68.5%',
+            top: '60.8%',
+            maxWidth: '11%',
+            fontSize: '1.62cqw'
           }}
         >
           {fields.gateCode}
         </div>
 
-        {/* PASSENGER value (cleanly below PASSENGER label so long names never collide with TIME) */}
+        {/* PASSENGER value (unclipped diacritics, scales cleanly so long names never collide with TIME/SEAT) */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '36.4%',
-            top: '74.8%',
-            maxWidth: '14%',
-            fontSize: '0.96cqw'
+            left: '36.3%',
+            top: '74.1%',
+            maxWidth: '13.4%',
+            fontSize: `${passengerFontSizeCqw}cqw`
           }}
           title={fields.passengerName}
         >
@@ -238,13 +249,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* TIME value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '54.2%',
-            top: '70.3%',
-            maxWidth: '10%',
-            fontSize: '1.16cqw'
+            left: '53.6%',
+            top: '69.3%',
+            maxWidth: '12%',
+            fontSize: '1.62cqw'
           }}
         >
           {fields.depTime}
@@ -252,13 +263,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {/* SEAT value */}
         <div
-          className="absolute font-bold uppercase tracking-wide truncate leading-none"
+          className="absolute font-bold uppercase tracking-wide whitespace-nowrap"
           style={{
             ...fieldTypography,
-            left: '41.5%',
-            top: '78.4%',
-            maxWidth: '8.5%',
-            fontSize: '1.16cqw'
+            left: '41.1%',
+            top: '77.4%',
+            maxWidth: '8.8%',
+            fontSize: '1.68cqw'
           }}
         >
           {fields.seatLabel}
