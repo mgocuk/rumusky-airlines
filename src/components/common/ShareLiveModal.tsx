@@ -22,7 +22,7 @@ interface ShareLiveModalProps {
 }
 
 export const ShareLiveModal: React.FC<ShareLiveModalProps> = ({ isOpen, onClose }) => {
-  const { connectedClientsCount, isRealtimeConnected } = useApp();
+  const { connectedClientsCount, isRealtimeConnected, isCloudStorageConfigured } = useApp();
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -53,7 +53,7 @@ export const ShareLiveModal: React.FC<ShareLiveModalProps> = ({ isOpen, onClose 
 
   if (!isOpen) return null;
 
-  const currentUrl = networkInfo?.url || `http://${window.location.hostname}:${window.location.port || '3000'}`;
+  const currentUrl = networkInfo?.url || window.location.origin;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(currentUrl);
@@ -96,11 +96,15 @@ export const ShareLiveModal: React.FC<ShareLiveModalProps> = ({ isOpen, onClose 
           {/* Live Status Bar */}
           <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="flex items-center gap-2.5">
-              <span className={`w-3 h-3 rounded-full ${isRealtimeConnected ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+              <span className={`w-3 h-3 rounded-full ${isRealtimeConnected && isCloudStorageConfigured ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
               <div className="text-xs">
                 <span className="font-bold text-brand-navy">Canlı Senkronizasyon: </span>
-                <span className="text-emerald-700 font-semibold">
-                  {isRealtimeConnected ? 'Aktif & Senkronize' : 'Yerel Mod'}
+                <span className={`${isRealtimeConnected && isCloudStorageConfigured ? 'text-emerald-700' : 'text-amber-700'} font-semibold`}>
+                  {isRealtimeConnected && isCloudStorageConfigured
+                    ? 'Aktif & Senkronize'
+                    : isCloudStorageConfigured
+                    ? 'Yerel Mod'
+                    : 'Bulut Veritabanı Gerekli'}
                 </span>
               </div>
             </div>

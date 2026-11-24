@@ -233,10 +233,12 @@ export const AdminDashboard: React.FC = () => {
     deleteStaffUser,
     switchActiveStaffRole,
     activeUser,
+    addAirport,
     addFlight,
     updateFlightStatus,
     cancelFlight,
     cancelBooking,
+    clearAllBookings,
     syncAllFlights,
     resetAllData,
     toggleAdminMode,
@@ -244,7 +246,9 @@ export const AdminDashboard: React.FC = () => {
     language,
     connectedClientsCount,
     setShareModalOpen,
-    isRealtimeConnected
+    refreshServerSync,
+    isRealtimeConnected,
+    isCloudStorageConfigured
   } = useApp();
 
   const { showToast } = useToast();
@@ -252,6 +256,12 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     'overview' | 'flights' | 'fleet' | 'bookings' | 'cms' | 'ticket_design' | 'footer_pages' | 'news' | 'airports' | 'rbac' | 'settings'
   >('overview');
+
+  useEffect(() => {
+    if (activeTab === 'overview' || activeTab === 'bookings') {
+      void refreshServerSync();
+    }
+  }, [activeTab]);
 
   // Hatıra Bileti Customizer Form States
   const tDesign = siteContent.ticketDesign || {
@@ -351,6 +361,7 @@ export const AdminDashboard: React.FC = () => {
   const [staffName, setStaffName] = useState('');
   const [staffSurname, setStaffSurname] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
+  const [staffPassword, setStaffPassword] = useState('');
   const [staffRole, setStaffRole] = useState<UserRole>('flight_manager');
 
   // CMS Form States
@@ -521,6 +532,17 @@ export const AdminDashboard: React.FC = () => {
 
   const activeFlightsCount = flights.filter((f) => f.bookingStatus === 'open').length;
 
+  const totalOpenCapacity = flights
+    .filter((f) => f.bookingStatus === 'open')
+    .reduce((sum, f) => {
+      const ac = aircrafts.find((a) => a.id === f.aircraftId);
+      return sum + (ac?.totalCapacity || 180);
+    }, 0);
+
+  const occupancyRate = totalOpenCapacity > 0
+    ? Math.min(100, (totalPassengers / totalOpenCapacity) * 100)
+    : 0;
+
   const destCounts: Record<string, number> = {};
   flights.forEach((f) => {
     destCounts[f.destinationAirport.iataCode] = (destCounts[f.destinationAirport.iataCode] || 0) + 1;
@@ -564,8 +586,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleCreateAirport = (e: React.FormEvent) => {
     e.preventDefault();
-    const newApt: Airport = {
-      id: `apt-${Date.now()}`,
+    addAirport({
       iataCode: newIata.toUpperCase(),
       icaoCode: newIcao.toUpperCase(),
       name: newAirportName,
@@ -575,10 +596,9 @@ export const AdminDashboard: React.FC = () => {
       countryEn: newCountry,
       timezone: 'Europe/Istanbul',
       isActive: true
-    };
-    airports.push(newApt);
+    });
     setShowAddAirportModal(false);
-    showToast(`${newApt.iataCode} havalimanı sisteme kaydedildi!`, 'success');
+    showToast(`${newIata.toUpperCase()} havalimanı sisteme kaydedildi!`, 'success');
   };
 
   const handleApplyAircraftTemplate = (tpl: typeof AIRCRAFT_TEMPLATES[0]) => {
@@ -877,9 +897,10 @@ export const AdminDashboard: React.FC = () => {
   const handleAddStaff = (e: React.FormEvent) => {
     e.preventDefault();
     addStaffUser({
-      name: staffName,
-      surname: staffSurname,
-      email: staffEmail,
+      name: staffName.trim(),
+      surname: staffSurname.trim(),
+      email: staffEmail.trim().toLowerCase(),
+      password: staffPassword,
       role: staffRole,
       phone: '+90 555 000 0000'
     });
@@ -887,6 +908,7 @@ export const AdminDashboard: React.FC = () => {
     setStaffName('');
     setStaffSurname('');
     setStaffEmail('');
+    setStaffPassword('');
     showToast('Yeni personel ve yetki ataması yapıldı!', 'success');
   };
 
@@ -909,6 +931,12 @@ export const AdminDashboard: React.FC = () => {
     { key: 'manage_settings', label: 'Sistem Parametreleri & Vergi Oranları' },
     { key: 'manage_roles', label: 'Süper Admin: Yetki Matrisi & Personel Atama' }
   ];
+
+  if (!activeUser || activeUser.role === 'customer') {
+    return null;
+  }
+
+  const canSwitchTestRole = (activeUser as { loginRole?: UserRole })?.loginRole === 'super_admin' || activeUser.role === 'super_admin';
 
   return (
     <div className="bg-slate-50 min-h-screen pb-16 font-sans">
@@ -957,22 +985,24 @@ export const AdminDashboard: React.FC = () => {
               </span>
             </button>
 
-            <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700 text-xs">
-              <span className="text-[11px] text-slate-400 px-2 font-medium">Test Rolü:</span>
-              {(['super_admin', 'flight_manager', 'booking_manager', 'content_manager'] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => switchActiveStaffRole(r)}
-                  className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
-                    activeUser?.role === r
-                      ? 'bg-brand-blue text-white shadow-xs'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  {r === 'super_admin' ? 'Süper Admin' : r === 'flight_manager' ? 'Uçuş Şefi' : r === 'booking_manager' ? 'Biletçi' : 'İçerik'}
-                </button>
-              ))}
-            </div>
+            {canSwitchTestRole && (
+              <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700 text-xs">
+                <span className="text-[11px] text-slate-400 px-2 font-medium">Test Rolü:</span>
+                {(['super_admin', 'flight_manager', 'booking_manager', 'content_manager'] as UserRole[]).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => switchActiveStaffRole(r)}
+                    className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
+                      activeUser?.role === r
+                        ? 'bg-brand-blue text-white shadow-xs'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {r === 'super_admin' ? 'Süper Admin' : r === 'flight_manager' ? 'Uçuş Şefi' : r === 'booking_manager' ? 'Biletçi' : 'İçerik'}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={() => {
@@ -1051,16 +1081,24 @@ export const AdminDashboard: React.FC = () => {
                   <Radio className="w-6 h-6 animate-pulse" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h4 className="font-heading font-black text-sm text-white">
-                      Eşzamanlı Çok Kullanıcılı Canlı Senkronizasyon (SSE & Event Stream)
+                      Eşzamanlı Çok Kullanıcılı Canlı Senkronizasyon
                     </h4>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                      Canlı & Dinamik
-                    </span>
+                    {isCloudStorageConfigured ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        {isRealtimeConnected ? 'Canlı & Dinamik' : 'Senkronizasyon Hazır'}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                        Bulut Veritabanı Bağlı Değil
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-300 mt-0.5">
-                    Öğrenciler telefonlarından bilet satın aldıklarında veya siz yönetici olarak bir değişiklik yaptığınızda tüm ekranlar anında senkronize olur.
+                    {isCloudStorageConfigured
+                      ? 'Başka bir cihazdan veya Vercel üzerinden bilet satın alındığında tüm yönetici ekranları otomatik güncellenir.'
+                      : 'Vercel üzerinde cihazlar arası ortak veri görmek için Vercel Dashboard > Storage bölümünden Upstash Redis (KV) veritabanı bağlayıp Redeploy yapın.'}
                   </p>
                 </div>
               </div>
@@ -1129,10 +1167,10 @@ export const AdminDashboard: React.FC = () => {
                   <TrendingUp className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="text-3xl font-black font-heading text-brand-navy">
-                  %82.1
+                  %{occupancyRate.toFixed(1)}
                 </div>
-                <div className="text-[11px] text-emerald-600 mt-1 font-semibold">
-                  Yüksek Kapasite Verimi
+                <div className="text-[11px] text-slate-500 mt-1 font-semibold">
+                  {totalPassengers} / {totalOpenCapacity} Satılan Koltuk
                 </div>
               </div>
             </div>
@@ -2249,7 +2287,14 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => window.open('/#ticket=RMKQ92', '_blank')}
+                  onClick={() => {
+                    const latestPnr = bookings[0]?.pnr;
+                    if (latestPnr) {
+                      window.open(`/#ticket=${latestPnr}`, '_blank');
+                    } else {
+                      showToast('Henüz canlı bilet kaydı bulunmuyor. Bilet satın alındığında buradan doğrulayabilirsiniz.', 'info');
+                    }
+                  }}
                   className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer border border-slate-200"
                 >
                   <Eye className="w-4 h-4 text-brand-blue" />
@@ -2752,7 +2797,7 @@ export const AdminDashboard: React.FC = () => {
                     <span>Gerçek QR Kod & Canlı Doğrulama Mekanizması:</span>
                   </div>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Biletin sağındaki QR kod gerçek bir bağlantıdır (<code className="font-mono bg-white px-1.5 py-0.5 rounded text-brand-blue border">#ticket=RMKQ92</code>). Cep telefonu kamerasıyla okutulduğunda doğrudan bu bilete özel dijital doğrulama sayfasını açar.
+                    Biletin sağındaki QR kod gerçek bir bağlantıdır (<code className="font-mono bg-white px-1.5 py-0.5 rounded text-brand-blue border">#ticket={bookings[0]?.pnr || 'RMK000'}</code>). Cep telefonu kamerasıyla okutulduğunda doğrudan bu bilete özel dijital doğrulama sayfasını açar.
                   </p>
                 </div>
               </div>
@@ -3473,19 +3518,34 @@ export const AdminDashboard: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-3 text-right">
-                          <select
-                            value={u.role}
-                            onChange={(e) => {
-                              updateUserRole(u.id, e.target.value as UserRole);
-                              showToast(`${u.name} kullanıcısının rolü güncellendi!`, 'info');
-                            }}
-                            className="px-2 py-1 rounded-lg border border-slate-300 text-xs font-semibold bg-white"
-                          >
-                            <option value="super_admin">Süper Admin</option>
-                            <option value="flight_manager">Uçuş Şefi (Flight Manager)</option>
-                            <option value="booking_manager">Biletçi (Booking Manager)</option>
-                            <option value="content_manager">İçerik Editörü (Content Manager)</option>
-                          </select>
+                          <div className="inline-flex items-center gap-2">
+                            <select
+                              value={u.role}
+                              onChange={(e) => {
+                                updateUserRole(u.id, e.target.value as UserRole);
+                                showToast(`${u.name} kullanıcısının rolü güncellendi!`, 'info');
+                              }}
+                              className="px-2 py-1 rounded-lg border border-slate-300 text-xs font-semibold bg-white"
+                            >
+                              <option value="super_admin">Süper Admin</option>
+                              <option value="flight_manager">Uçuş Şefi (Flight Manager)</option>
+                              <option value="booking_manager">Biletçi (Booking Manager)</option>
+                              <option value="content_manager">İçerik Editörü (Content Manager)</option>
+                            </select>
+                            {u.id !== activeUser.id && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  deleteStaffUser(u.id);
+                                  showToast(`${u.name} ${u.surname} personel listesinden kaldırıldı.`, 'info');
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Personeli Sil"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -3655,41 +3715,71 @@ export const AdminDashboard: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Filter Pills */}
-                  <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                  {/* Filter Pills & Live Actions */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setBookingFilterStatus('all')}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${
+                          bookingFilterStatus === 'all'
+                            ? 'bg-white text-brand-navy shadow-xs'
+                            : 'text-slate-500 hover:text-brand-navy'
+                        }`}
+                      >
+                        Tümü ({bookings.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBookingFilterStatus('confirmed')}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${
+                          bookingFilterStatus === 'confirmed'
+                            ? 'bg-white text-emerald-700 shadow-xs'
+                            : 'text-slate-500 hover:text-brand-navy'
+                        }`}
+                      >
+                        Onaylı ({bookings.filter((b) => b.status === 'confirmed').length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBookingFilterStatus('cancelled')}
+                        className={`px-3 py-1.5 rounded-lg transition-all ${
+                          bookingFilterStatus === 'cancelled'
+                            ? 'bg-white text-rose-700 shadow-xs'
+                            : 'text-slate-500 hover:text-brand-navy'
+                        }`}
+                      >
+                        İptal Edilenler ({bookings.filter((b) => b.status === 'cancelled').length})
+                      </button>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => setBookingFilterStatus('all')}
-                      className={`px-3 py-1.5 rounded-lg transition-all ${
-                        bookingFilterStatus === 'all'
-                          ? 'bg-white text-brand-navy shadow-xs'
-                          : 'text-slate-500 hover:text-brand-navy'
-                      }`}
+                      onClick={() => {
+                        void refreshServerSync();
+                        showToast('Diğer cihazlardan gelen biletler senkronize edildi.', 'info');
+                      }}
+                      className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-brand-blue border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      Tümü ({bookings.length})
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Canlı Yenile</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setBookingFilterStatus('confirmed')}
-                      className={`px-3 py-1.5 rounded-lg transition-all ${
-                        bookingFilterStatus === 'confirmed'
-                          ? 'bg-white text-emerald-700 shadow-xs'
-                          : 'text-slate-500 hover:text-brand-navy'
-                      }`}
-                    >
-                      Onaylı ({bookings.filter((b) => b.status === 'confirmed').length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBookingFilterStatus('cancelled')}
-                      className={`px-3 py-1.5 rounded-lg transition-all ${
-                        bookingFilterStatus === 'cancelled'
-                          ? 'bg-white text-rose-700 shadow-xs'
-                          : 'text-slate-500 hover:text-brand-navy'
-                      }`}
-                    >
-                      İptal Edilenler ({bookings.filter((b) => b.status === 'cancelled').length})
-                    </button>
+
+                    {bookings.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm('Tüm rezervasyon ve bilet kayıtları temizlensin mi?')) {
+                            clearAllBookings();
+                            showToast('Tüm rezervasyon ve bilet kayıtları temizlendi.', 'info');
+                          }
+                        }}
+                        className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Tümünü Temizle</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -4721,9 +4811,22 @@ export const AdminDashboard: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder="personel@rumusky.com"
+                  autoComplete="off"
                   value={staffEmail}
                   onChange={(e) => setStaffEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-brand-muted block mb-1">Giriş Parolası</label>
+                <input
+                  type="password"
+                  required
+                  minLength={4}
+                  autoComplete="new-password"
+                  value={staffPassword}
+                  onChange={(e) => setStaffPassword(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold"
                 />
               </div>

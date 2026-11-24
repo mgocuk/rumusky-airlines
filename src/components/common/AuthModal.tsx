@@ -1,30 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Lock, Mail, Shield, ArrowRight, AlertCircle } from 'lucide-react';
+import { X, Lock, Mail, Shield, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Logo } from './Logo';
 
 export const AuthModal: React.FC = () => {
   const { authModalOpen, setAuthModalOpen, loginStaff, language } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const clearFormState = () => {
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
+    setErrorMessage('');
+  };
+
+  useEffect(() => {
+    if (authModalOpen) {
+      clearFormState();
+    }
+  }, [authModalOpen]);
+
+  const handleClose = () => {
+    clearFormState();
+    if (['#admin', '#staff', '#login'].includes(window.location.hash)) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    setAuthModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (!authModalOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [authModalOpen]);
 
   if (!authModalOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    const result = loginStaff(email, password);
-    if (!result.success) {
-      setErrorMessage(result.message || (language === 'en' ? 'Unauthorized email or invalid credentials.' : 'Yetkisiz e-posta adresi veya geçersiz giriş bilgisi.'));
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setErrorMessage(
+        language === 'en'
+          ? 'Please enter a valid corporate email address.'
+          : 'Lütfen geçerli bir kurumsal e-posta adresi giriniz.'
+      );
+      return;
     }
-  };
-
-  const handleClose = () => {
-    setEmail('');
-    setPassword('');
-    setErrorMessage('');
-    setAuthModalOpen(false);
+    const result = loginStaff(cleanEmail, password);
+    if (!result.success) {
+      setErrorMessage(
+        result.message ||
+          (language === 'en'
+            ? 'Invalid email address or password.'
+            : 'Yetkisiz e-posta adresi veya geçersiz parola.')
+      );
+    } else {
+      clearFormState();
+    }
   };
 
   return (
@@ -33,9 +75,10 @@ export const AuthModal: React.FC = () => {
         
         {/* Close Button */}
         <button
+          type="button"
           onClick={handleClose}
           className="absolute top-5 right-5 p-2 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-colors"
-          title="Kapat"
+          title={language === 'en' ? 'Close' : 'Kapat'}
         >
           <X className="w-5 h-5" />
         </button>
@@ -52,8 +95,8 @@ export const AuthModal: React.FC = () => {
           </h3>
           <p className="text-xs text-brand-muted mt-1.5 leading-relaxed">
             {language === 'en'
-              ? 'Please enter your corporate email address. Your role and permissions will be automatically configured upon login.'
-              : 'Lütfen kurumsal e-posta adresinizi giriniz. Sistem yetkileriniz girilen e-postaya göre otomatik olarak tanımlanacaktır.'}
+              ? 'Please enter your authorized corporate email address and password to access the management panel.'
+              : 'Yönetim paneline erişmek için yetkili kurumsal e-posta adresinizi ve parolanızı giriniz.'}
           </p>
         </div>
 
@@ -65,42 +108,35 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
-        {/* Quick Super Admin Sign In Pill */}
-        <div className="mb-4 p-3 bg-blue-50/80 border border-blue-200/80 rounded-2xl flex items-center justify-between gap-3">
-          <div className="text-left">
-            <span className="text-xs font-bold text-brand-navy block">
-              {language === 'en' ? 'Quick Super Admin Sign In' : 'Süper Admin Hızlı Giriş'}
-            </span>
-            <span className="text-[11px] text-brand-muted font-mono">admin@rumusky.com</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              loginStaff('admin@rumusky.com', 'admin123');
-            }}
-            className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1.5"
-          >
-            <Shield className="w-3.5 h-3.5 text-brand-cyan" />
-            <span>{language === 'en' ? 'Sign In' : 'Giriş Yap'}</span>
-          </button>
-        </div>
-
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
           <div>
-            <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+            <label
+              htmlFor="rumusky-staff-email"
+              className="text-[11px] font-bold text-brand-muted uppercase block mb-1"
+            >
               {language === 'en' ? 'Corporate Email' : 'Kurumsal E-Posta'}
             </label>
             <div className="relative">
               <input
-                type="email"
+                id="rumusky-staff-email"
+                name="rumusky-staff-email"
+                type="text"
+                inputMode="email"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 required
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (errorMessage) setErrorMessage('');
                 }}
-                placeholder={language === 'en' ? 'name@rumusky.com' : 'ad.soyad@rumusky.com'}
+                placeholder=""
                 className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-brand-border text-xs font-semibold focus:border-brand-blue focus:outline-hidden pl-9 font-mono"
               />
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -108,22 +144,48 @@ export const AuthModal: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-brand-muted uppercase block mb-1">
+            <label
+              htmlFor="rumusky-staff-password"
+              className="text-[11px] font-bold text-brand-muted uppercase block mb-1"
+            >
               {language === 'en' ? 'Password' : 'Yetkili Parola'}
             </label>
             <div className="relative">
               <input
-                type="password"
+                id="rumusky-staff-password"
+                name="rumusky-staff-password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 required
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errorMessage) setErrorMessage('');
                 }}
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-brand-border text-xs font-semibold focus:border-brand-blue focus:outline-hidden pl-9"
+                placeholder=""
+                className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-brand-border text-xs font-semibold focus:border-brand-blue focus:outline-hidden pl-9 pr-10"
               />
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2.5 top-2 p-1 text-slate-400 hover:text-brand-navy rounded-lg transition-colors"
+                aria-label={
+                  showPassword
+                    ? language === 'en'
+                      ? 'Hide password'
+                      : 'Parolayı gizle'
+                    : language === 'en'
+                    ? 'Show password'
+                    : 'Parolayı göster'
+                }
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

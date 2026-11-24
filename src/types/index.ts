@@ -22,6 +22,7 @@ export interface User {
   name: string;
   surname: string;
   email: string;
+  passwordHash?: string;
   role: UserRole;
   phone?: string;
 }

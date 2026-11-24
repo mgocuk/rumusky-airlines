@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import {
   Language,
   Airport,
@@ -23,6 +23,12 @@ import { INITIAL_SITE_CONTENT, INITIAL_NEWS, DEFAULT_ROLE_PERMISSIONS, INITIAL_S
 import { translations } from '../utils/translations';
 import { useToast } from '../components/common/Toast';
 import { realtimeSync, SyncAction } from '../services/realtimeSync';
+import {
+  AUTH_SESSION_VERSION,
+  StaffSessionUser,
+  authenticateStaffCredentials,
+  hashStaffPassword
+} from '../utils/auth';
 
 export type AppView = 
   | 'home' 
@@ -75,7 +81,7 @@ interface AppContextType {
   updateRolePermissions: (role: UserRole, perms: PermissionKey[]) => void;
   hasPermission: (perm: PermissionKey) => boolean;
   staffUsers: User[];
-  addStaffUser: (user: Omit<User, 'id'>) => void;
+  addStaffUser: (user: Omit<User, 'id'> & { password?: string }) => void;
   updateUserRole: (userId: string, newRole: UserRole) => void;
   deleteStaffUser: (userId: string) => void;
   switchActiveStaffRole: (role: UserRole) => void;
@@ -104,8 +110,10 @@ interface AppContextType {
   // Multi-User Realtime Sync & Share
   connectedClientsCount: number;
   isRealtimeConnected: boolean;
+  isCloudStorageConfigured: boolean;
   shareModalOpen: boolean;
   setShareModalOpen: (open: boolean) => void;
+  refreshServerSync: () => Promise<void>;
   // Modals & Enhanced Features
   flightDetailsModal: Flight | null;
   setFlightDetailsModal: (flight: Flight | null) => void;
@@ -116,10 +124,12 @@ interface AppContextType {
   logoutUser: () => void;
   checkinFlight: (pnr: string, surname: string) => Ticket | null;
   // Admin actions
+  addAirport: (airport: Omit<Airport, 'id'>) => void;
   addFlight: (flight: Omit<Flight, 'id' | 'availableEconomySeats' | 'availableBusinessSeats'>) => void;
   updateFlightStatus: (flightId: string, status: OperationalStatus) => void;
   cancelFlight: (flightId: string) => void;
   cancelBooking: (bookingId: string) => void;
+  clearAllBookings: () => void;
   syncAllFlights: () => void;
   resetAllData: () => void;
 }
@@ -280,6 +290,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [flightDetailsModal, setFlightDetailsModal] = useState<Flight | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  // Auth rate-limiting state for staff login
+  const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
+  const [loginLockedUntil, setLoginLockedUntil] = useState<number>(0);
+
   // User & Admin Mode
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [activeUser, setActiveUser] = useState<User | null>(() => {
@@ -287,7 +301,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.role && parsed.role !== 'customer' && parsed.isExplicitLogin) {
+        if (
+          parsed &&
+          parsed.role &&
+          parsed.role !== 'customer' &&
+          parsed.isExplicitLogin === true &&
+          parsed.authVersion === AUTH_SESSION_VERSION
+        ) {
           return parsed;
         }
       } catch (e) {
@@ -298,54 +318,133 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return null;
   });
 
+  // Ensure admin mode or admin view can never remain active without an authenticated staff session
+  useEffect(() => {
+    if (!activeUser || activeUser.role === 'customer') {
+      if (isAdmin) setIsAdmin(false);
+      if (activeView === 'admin') setActiveView('home');
+    }
+  }, [activeUser, isAdmin, activeView]);
+
   const { showToast } = useToast();
+  const activeUserRef = useRef<User | null>(activeUser);
+  activeUserRef.current = activeUser;
+  const aircraftsRef = useRef<Aircraft[]>(aircrafts);
+  aircraftsRef.current = aircrafts;
+  const bookingsRef = useRef<Booking[]>(bookings);
+  bookingsRef.current = bookings;
+  const hasHydratedRef = useRef<boolean>(false);
 
   // Multi-user & Share state
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [connectedClientsCount, setConnectedClientsCount] = useState(realtimeSync.getConnectedClientsCount());
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(realtimeSync.getIsConnected());
+  const [isCloudStorageConfigured, setIsCloudStorageConfigured] = useState(realtimeSync.getIsStorageConfigured());
+
+  const restoreFlightSeatCapacities = (flightsList: Flight[], aircraftsList: Aircraft[]): Flight[] => {
+    return flightsList.map((f) => {
+      const ac = aircraftsList.find((a) => a.id === f.aircraftId);
+      const cols = ac?.seatsPerRow?.length || 6;
+      const econCap = ac?.economyRows ? ac.economyRows * cols : 156;
+      const bizCap = ac?.businessRows ? ac.businessRows * cols : 24;
+      return {
+        ...f,
+        availableEconomySeats: econCap,
+        availableBusinessSeats: bizCap
+      };
+    });
+  };
+
+  const applyServerState = (serverState: Record<string, any>, notifyNewBookings = false) => {
+    if (!serverState || Object.keys(serverState).length === 0) return;
+
+    if (Array.isArray(serverState.flights)) {
+      setFlights(syncFlightsWithCurrentTime(serverState.flights));
+    }
+    if (Array.isArray(serverState.bookings)) {
+      if (notifyNewBookings && hasHydratedRef.current) {
+        const existingIds = new Set(bookingsRef.current.map((b) => b.id));
+        const newlyAdded = serverState.bookings.filter((b: Booking) => !existingIds.has(b.id));
+        const isStaffActive = Boolean(activeUserRef.current && activeUserRef.current.role !== 'customer');
+        if (newlyAdded.length > 0 && isStaffActive) {
+          const newest = newlyAdded[0];
+          showToast(
+            `⚡ Canlı Rezervasyon: PNR: ${newest?.pnr} - ${newest?.passengers?.[0]?.firstName || 'Yolcu'} ${newest?.passengers?.[0]?.lastName || ''} (${newest?.passengers?.length || 1} Bilet Satın Alındı)`,
+            'info'
+          );
+        }
+      }
+      setBookings(serverState.bookings);
+    }
+    if (Array.isArray(serverState.tickets)) {
+      setTickets(serverState.tickets);
+    }
+    if (serverState.siteContent) {
+      setSiteContent({
+        ...INITIAL_SITE_CONTENT,
+        ...serverState.siteContent,
+        navbar: {
+          ...INITIAL_SITE_CONTENT.navbar,
+          ...(serverState.siteContent.navbar || {})
+        }
+      });
+    }
+    if (Array.isArray(serverState.news)) setNews(serverState.news);
+    if (Array.isArray(serverState.airports)) setAirports(serverState.airports);
+    if (Array.isArray(serverState.aircrafts)) setAircrafts(serverState.aircrafts);
+    if (Array.isArray(serverState.infoPages)) setInfoPages(serverState.infoPages);
+    if (serverState.rolePermissions) setRolePermissions(serverState.rolePermissions);
+    if (Array.isArray(serverState.staffUsers)) setStaffUsers(serverState.staffUsers);
+  };
+
+  const refreshServerSync = async () => {
+    const serverState = await realtimeSync.syncFromServerIfChanged();
+    if (serverState) {
+      applyServerState(serverState, true);
+    }
+  };
 
   // Real-time synchronization lifecycle
   useEffect(() => {
     // 1. Connection status listener
-    const unsubscribeConn = realtimeSync.onConnectionChange((connected, count) => {
+    const unsubscribeConn = realtimeSync.onConnectionChange((connected, count, storageConfigured) => {
       setIsRealtimeConnected(connected);
       setConnectedClientsCount(count);
+      setIsCloudStorageConfigured(storageConfigured);
     });
 
     // 2. Fetch server state on initial load
-    realtimeSync.fetchServerState().then((serverState) => {
+    realtimeSync.fetchServerState().then(({ state: serverState, storageConfigured }) => {
+      setIsCloudStorageConfigured(storageConfigured);
       if (serverState && Object.keys(serverState).length > 0) {
-        if (serverState.flights) setFlights(serverState.flights);
-        if (serverState.bookings) setBookings(serverState.bookings);
-        if (serverState.tickets) setTickets(serverState.tickets);
-        if (serverState.siteContent) setSiteContent(serverState.siteContent);
-        if (serverState.news) setNews(serverState.news);
-        if (serverState.airports) setAirports(serverState.airports);
-        if (serverState.aircrafts) setAircrafts(serverState.aircrafts);
-        if (serverState.infoPages) setInfoPages(serverState.infoPages);
-        if (serverState.rolePermissions) setRolePermissions(serverState.rolePermissions);
-        if (serverState.staffUsers) setStaffUsers(serverState.staffUsers);
-      } else {
-        // Server store is empty, push client's state to server
+        applyServerState(serverState, false);
+      } else if (storageConfigured) {
+        // Server store is empty, push clean initial state to server
         realtimeSync.initializeServerStateIfEmpty({
-          flights,
-          bookings,
-          tickets,
-          siteContent,
-          news,
-          airports,
-          aircrafts,
-          infoPages,
-          rolePermissions,
-          staffUsers
+          flights: getInitialFlights(),
+          bookings: [],
+          tickets: [],
+          siteContent: INITIAL_SITE_CONTENT,
+          news: INITIAL_NEWS,
+          airports: INITIAL_AIRPORTS,
+          aircrafts: INITIAL_AIRCRAFTS,
+          infoPages: INITIAL_INFO_PAGES,
+          rolePermissions: DEFAULT_ROLE_PERMISSIONS,
+          staffUsers: INITIAL_STAFF_USERS
         });
       }
+      hasHydratedRef.current = true;
+    });
+
+    // 2b. Listen for state refresh updates (reconnect / Vercel cloud poll / tab focus)
+    const unsubscribeRefresh = realtimeSync.onStateRefresh((serverState) => {
+      applyServerState(serverState, true);
     });
 
     // 3. Listen to incoming sync actions from other clients / server
     const unsubscribeSync = realtimeSync.subscribe((action: SyncAction) => {
       const { type, payload } = action;
+      const isStaffActive = Boolean(activeUserRef.current && activeUserRef.current.role !== 'customer');
 
       switch (type) {
         case 'BOOKING_CREATED': {
@@ -360,10 +459,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (updatedFlight) {
             setFlights((prev) => prev.map((f) => (f.id === updatedFlight.id ? { ...f, ...updatedFlight } : f)));
           }
-          showToast(
-            `⚡ Canlı Rezervasyon: PNR: ${booking?.pnr} - ${booking?.passengers?.[0]?.firstName || 'Yolcu'} ${booking?.passengers?.[0]?.lastName || ''} (${booking?.passengers?.length || 1} Bilet Satın Alındı)`,
-            'info'
-          );
+          if (isStaffActive) {
+            showToast(
+              `⚡ Canlı Rezervasyon: PNR: ${booking?.pnr} - ${booking?.passengers?.[0]?.firstName || 'Yolcu'} ${booking?.passengers?.[0]?.lastName || ''} (${booking?.passengers?.length || 1} Bilet Satın Alındı)`,
+              'info'
+            );
+          }
           break;
         }
 
@@ -375,7 +476,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (updatedFlight) {
             setFlights((prev) => prev.map((f) => (f.id === updatedFlight.id ? { ...f, ...updatedFlight } : f)));
           }
-          showToast(`⚡ Canlı Bildirim: ${pnr} PNR'lı rezervasyon iptal edildi.`, 'info');
+          if (isStaffActive) {
+            showToast(`⚡ Canlı Bildirim: ${pnr} PNR'lı rezervasyon iptal edildi.`, 'info');
+          }
+          break;
+        }
+
+        case 'BOOKINGS_CLEARED': {
+          setBookings([]);
+          setTickets([]);
+          setFlights((prev) => restoreFlightSeatCapacities(prev, aircraftsRef.current));
+          if (isStaffActive) {
+            showToast('⚡ Tüm rezervasyon ve bilet kayıtları temizlendi.', 'info');
+          }
           break;
         }
 
@@ -390,20 +503,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               )
             );
           }
-          showToast(`⚡ Canlı Check-in: PNR: ${pnr} - ${passengerName || 'Yolcu'} koltuğu: ${seatNumber}`, 'info');
+          if (isStaffActive) {
+            showToast(`⚡ Canlı Check-in: PNR: ${pnr} - ${passengerName || 'Yolcu'} koltuğu: ${seatNumber}`, 'info');
+          }
           break;
         }
 
         case 'SITE_CONTENT_UPDATED': {
           setSiteContent((prev) => ({ ...prev, ...payload }));
-          showToast(`⚡ Canlı Güncelleme: Firma adı, logo ve üst menü ayarları güncellendi.`, 'success');
+          if (isStaffActive) {
+            showToast(`⚡ Canlı Güncelleme: Firma adı, logo ve üst menü ayarları güncellendi.`, 'success');
+          }
           break;
         }
 
         case 'FLIGHT_ADDED': {
           if (payload.flight) {
             setFlights((prev) => [payload.flight, ...prev.filter((f) => f.id !== payload.flight.id)]);
-            showToast(`⚡ Canlı Güncelleme: Yeni uçuş seferi eklendi (${payload.flight.flightNumber})`, 'success');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Yeni uçuş seferi eklendi (${payload.flight.flightNumber})`, 'success');
+            }
           }
           break;
         }
@@ -417,7 +536,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                   : f
               )
             );
-            showToast(`⚡ Canlı Güncelleme: Bir uçuş seferi iptal edildi.`, 'info');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Bir uçuş seferi iptal edildi.`, 'info');
+            }
           }
           break;
         }
@@ -425,7 +546,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         case 'FLIGHTS_UPDATED': {
           if (Array.isArray(payload.flights)) {
             setFlights(payload.flights);
-            if (payload.actionDescription) {
+            if (isStaffActive && payload.actionDescription) {
               showToast(`⚡ Canlı Güncelleme: ${payload.actionDescription}`, 'info');
             }
           }
@@ -435,15 +556,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         case 'AIRCRAFTS_UPDATED': {
           if (Array.isArray(payload.aircrafts)) {
             setAircrafts(payload.aircrafts);
-            showToast(`⚡ Canlı Güncelleme: Uçak filosu güncellendi.`, 'info');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Uçak filosu güncellendi.`, 'info');
+            }
           }
           break;
         }
 
         case 'AIRPORT_ADDED': {
           if (payload.airport) {
-            setAirports((prev) => [...prev, payload.airport]);
-            showToast(`⚡ Canlı Güncelleme: Yeni havalimanı eklendi (${payload.airport.iataCode})`, 'info');
+            setAirports((prev) => [...prev.filter((a) => a.id !== payload.airport.id), payload.airport]);
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Yeni havalimanı eklendi (${payload.airport.iataCode})`, 'info');
+            }
           }
           break;
         }
@@ -451,7 +576,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         case 'NEWS_UPDATED': {
           if (Array.isArray(payload.news)) {
             setNews(payload.news);
-            showToast(`⚡ Canlı Güncelleme: Haber ve basın bültenleri güncellendi.`, 'info');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Haber ve basın bültenleri güncellendi.`, 'info');
+            }
           }
           break;
         }
@@ -466,7 +593,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         case 'ROLE_PERMISSIONS_UPDATED': {
           if (payload.rolePermissions) {
             setRolePermissions(payload.rolePermissions);
-            showToast(`⚡ Canlı Güncelleme: Rol yetki matrisi güncellendi.`, 'info');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Rol yetki matrisi güncellendi.`, 'info');
+            }
           }
           break;
         }
@@ -474,12 +603,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         case 'STAFF_USERS_UPDATED': {
           if (Array.isArray(payload.staffUsers)) {
             setStaffUsers(payload.staffUsers);
-            showToast(`⚡ Canlı Güncelleme: Personel listesi güncellendi.`, 'info');
+            if (isStaffActive) {
+              showToast(`⚡ Canlı Güncelleme: Personel listesi güncellendi.`, 'info');
+            }
           }
           break;
         }
 
         case 'RESET_ALL_DATA': {
+          localStorage.clear();
           window.location.reload();
           break;
         }
@@ -491,9 +623,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     return () => {
       unsubscribeConn();
+      unsubscribeRefresh();
       unsubscribeSync();
     };
   }, []);
+
+  // Local Storage Sync
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.AIRPORTS, JSON.stringify(airports));
+  }, [airports]);
 
   // Local Storage Sync
   useEffect(() => {
@@ -659,9 +797,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDestinations((prev) => prev.map((d) => (d.id === id ? { ...d, ...updated } : d)));
   };
 
-  const addStaffUser = (newUser: Omit<User, 'id'>) => {
+  const addStaffUser = (newUser: Omit<User, 'id'> & { password?: string }) => {
+    const { password, ...rest } = newUser;
     const user: User = {
-      ...newUser,
+      ...rest,
+      passwordHash: password ? hashStaffPassword(password) : rest.passwordHash,
       id: `usr-staff-${Date.now()}`
     };
     setStaffUsers((prev) => {
@@ -691,6 +831,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const switchActiveStaffRole = (role: UserRole) => {
+    const currentLoginRole = (activeUser as StaffSessionUser | null)?.loginRole || activeUser?.role;
+    if (!activeUser || currentLoginRole !== 'super_admin') {
+      return;
+    }
+
     const matchingStaff = staffUsers.find((u) => u.role === role) || {
       id: `usr-${role}`,
       name: role.toUpperCase(),
@@ -698,69 +843,85 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       email: `${role}@rumusky.com`,
       role
     };
-    setActiveUser(matchingStaff);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(matchingStaff));
+    const { passwordHash: _ignoredHash, ...safeStaff } = matchingStaff;
+    const sessionUser: StaffSessionUser = {
+      ...safeStaff,
+      role,
+      isExplicitLogin: true,
+      authVersion: AUTH_SESSION_VERSION,
+      loginRole: 'super_admin'
+    };
+    setActiveUser(sessionUser);
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(sessionUser));
   };
 
   const loginStaff = (email: string, password?: string): { success: boolean; message?: string } => {
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail) {
-      return { success: false, message: 'Lütfen yetkili e-posta adresinizi giriniz.' };
-    }
-
-    // 1. Look up matching staff in staffUsers list
-    const matchingStaff = staffUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-
-    let assignedRole: UserRole | null = null;
-    let staffName = 'Yetkili';
-    let staffSurname = 'Personel';
-
-    if (matchingStaff) {
-      assignedRole = matchingStaff.role;
-      staffName = matchingStaff.name;
-      staffSurname = matchingStaff.surname;
-    } else if (cleanEmail.includes('admin') || cleanEmail.includes('super')) {
-      assignedRole = 'super_admin';
-      staffName = 'Süper';
-      staffSurname = 'Admin';
-    } else if (cleanEmail.includes('ops') || cleanEmail.includes('flight') || cleanEmail.includes('sefer')) {
-      assignedRole = 'flight_manager';
-      staffName = 'Uçuş';
-      staffSurname = 'Şefi';
-    } else if (cleanEmail.includes('booking') || cleanEmail.includes('bilet') || cleanEmail.includes('rezervasyon')) {
-      assignedRole = 'booking_manager';
-      staffName = 'Rezervasyon';
-      staffSurname = 'Sorumlusu';
-    } else if (cleanEmail.includes('editor') || cleanEmail.includes('content') || cleanEmail.includes('basin') || cleanEmail.includes('haber')) {
-      assignedRole = 'content_manager';
-      staffName = 'İçerik';
-      staffSurname = 'Editörü';
-    } else {
+    const now = Date.now();
+    if (loginLockedUntil > now) {
+      const remainingSeconds = Math.ceil((loginLockedUntil - now) / 1000);
       return {
         success: false,
-        message: 'Bu e-posta adresi yetkili personel sisteminde kayıtlı değildir.'
+        message:
+          language === 'en'
+            ? `Too many failed attempts. Please wait ${remainingSeconds} seconds.`
+            : `Çok fazla hatalı giriş denemesi. Lütfen ${remainingSeconds} saniye bekleyiniz.`
       };
     }
 
-    const sessionUser: User & { isExplicitLogin: boolean } = {
-      id: matchingStaff ? matchingStaff.id : `usr-staff-${Date.now()}`,
-      name: staffName,
-      surname: staffSurname,
-      email: cleanEmail,
-      role: assignedRole,
-      isExplicitLogin: true
-    };
+    const result = authenticateStaffCredentials({
+      email,
+      password,
+      staffUsers,
+      language
+    });
 
-    setActiveUser(sessionUser);
+    if (!result.success) {
+      const nextFailures = failedLoginAttempts + 1;
+      if (nextFailures >= 5) {
+        setFailedLoginAttempts(0);
+        setLoginLockedUntil(Date.now() + 15000);
+        return {
+          success: false,
+          message:
+            language === 'en'
+              ? 'Too many failed attempts. Login temporarily locked for 15 seconds.'
+              : 'Çok fazla hatalı deneme yapıldı. Giriş 15 saniye süreyle kilitlendi.'
+        };
+      }
+      setFailedLoginAttempts(nextFailures);
+      return { success: false, message: result.message };
+    }
+
+    setFailedLoginAttempts(0);
+    setLoginLockedUntil(0);
+    setActiveUser(result.user);
     setIsAdmin(true);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(sessionUser));
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.user));
     setAuthModalOpen(false);
     setActiveView('admin');
+    if (['#admin', '#staff', '#login'].includes(window.location.hash)) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    showToast(
+      language === 'en'
+        ? `Welcome, ${result.user.name} ${result.user.surname}. Admin session started.`
+        : `Hoş geldiniz, ${result.user.name} ${result.user.surname}. Yönetici oturumu açıldı.`,
+      'success'
+    );
     return { success: true };
   };
 
   const loginUser = (email: string, name: string) => {
-    loginStaff(email);
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) return;
+    setActiveUser({
+      id: `usr-cust-${Date.now()}`,
+      name: name.trim() || 'Yolcu',
+      surname: '',
+      email: cleanEmail,
+      role: 'customer'
+    });
+    setIsAdmin(false);
   };
 
   const logoutUser = () => {
@@ -768,10 +929,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsAdmin(false);
     localStorage.removeItem(STORAGE_KEYS.USER);
     setActiveView('home');
+    if (['#admin', '#staff', '#login'].includes(window.location.hash)) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    showToast(
+      language === 'en' ? 'Staff session closed.' : 'Yetkili oturumu kapatıldı.',
+      'info'
+    );
   };
 
   const toggleAdminMode = () => {
     if (!activeUser || activeUser.role === 'customer') {
+      setIsAdmin(false);
       setAuthModalOpen(true);
       return;
     }
@@ -780,6 +949,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setActiveView(next ? 'admin' : 'home');
       return next;
     });
+  };
+
+  const handleSetActiveView = (view: AppView) => {
+    if (view === 'admin' && (!activeUser || activeUser.role === 'customer')) {
+      setIsAdmin(false);
+      setAuthModalOpen(true);
+      return;
+    }
+    setActiveView(view);
   };
 
   // Actions
@@ -903,7 +1081,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const updatedFlightObj: Flight = {
       ...selectedFlight,
-      availableEconomySeats: Math.max(0, selectedFlight.availableEconomySeats - passengers.length)
+      availableEconomySeats: isBusiness
+        ? selectedFlight.availableEconomySeats
+        : Math.max(0, selectedFlight.availableEconomySeats - passengers.length),
+      availableBusinessSeats: isBusiness
+        ? Math.max(0, selectedFlight.availableBusinessSeats - passengers.length)
+        : selectedFlight.availableBusinessSeats
     };
 
     setFlights((prev) =>
@@ -978,6 +1161,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // Admin Actions
+  const addAirport = (newAptData: Omit<Airport, 'id'>) => {
+    const newApt: Airport = {
+      ...newAptData,
+      id: `apt-${Date.now()}`
+    };
+    setAirports((prev) => {
+      const next = [...prev, newApt];
+      realtimeSync.dispatchAction('AIRPORT_ADDED', { airport: newApt });
+      return next;
+    });
+  };
+
   const addFlight = (newFlightData: Omit<Flight, 'id' | 'availableEconomySeats' | 'availableBusinessSeats'>) => {
     const newFlight: Flight = {
       ...newFlightData,
@@ -1036,6 +1231,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
+  const clearAllBookings = () => {
+    setBookings([]);
+    setTickets([]);
+    setCurrentBooking(null);
+    setFlights((prev) => restoreFlightSeatCapacities(prev, aircrafts));
+    realtimeSync.dispatchAction('BOOKINGS_CLEARED', {});
+  };
+
   const resetAllData = () => {
     localStorage.clear();
     setAirports(INITIAL_AIRPORTS);
@@ -1051,6 +1254,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setStaffUsers(INITIAL_STAFF_USERS);
     setBookings([]);
     setTickets([]);
+    setActiveUser(null);
+    setIsAdmin(false);
     setActiveView('home');
     realtimeSync.dispatchAction('RESET_ALL_DATA', {});
   };
@@ -1062,7 +1267,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setLanguage,
         t,
         activeView,
-        setActiveView,
+        setActiveView: handleSetActiveView,
         airports,
         aircrafts,
         addAircraft,
@@ -1117,8 +1322,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         getTicketsForBooking,
         connectedClientsCount,
         isRealtimeConnected,
+        isCloudStorageConfigured,
         shareModalOpen,
         setShareModalOpen,
+        refreshServerSync,
         flightDetailsModal,
         setFlightDetailsModal,
         authModalOpen,
@@ -1127,10 +1334,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         loginUser,
         logoutUser,
         checkinFlight,
+        addAirport,
         addFlight,
         updateFlightStatus,
         cancelFlight,
         cancelBooking,
+        clearAllBookings,
         syncAllFlights,
         resetAllData
       }}

@@ -32,16 +32,16 @@
       },
       "aircraftId": "ac-1",
       "aircraftModel": "Airbus A320-200neo",
-      "departureTime": "2026-11-09T10:30:00",
-      "arrivalTime": "2026-11-09T12:45:00",
+      "departureTime": "2026-11-25T10:30:00",
+      "arrivalTime": "2026-11-25T12:45:00",
       "durationMinutes": 255,
       "priceEconomy": 2999,
       "priceBusiness": 7499,
       "baggageAllowanceKg": 25,
       "operationalStatus": "Scheduled",
       "bookingStatus": "open",
-      "availableEconomySeats": 149,
-      "availableBusinessSeats": 16
+      "availableEconomySeats": 156,
+      "availableBusinessSeats": 24
     },
     {
       "id": "fl-2",
@@ -75,8 +75,8 @@
       },
       "aircraftId": "ac-2",
       "aircraftModel": "Boeing 737-800",
-      "departureTime": "2026-11-11T18:15:00",
-      "arrivalTime": "2026-11-11T20:30:00",
+      "departureTime": "2026-11-27T18:15:00",
+      "arrivalTime": "2026-11-27T20:30:00",
       "durationMinutes": 255,
       "priceEconomy": 3250,
       "priceBusiness": 7990,
@@ -118,8 +118,8 @@
       },
       "aircraftId": "ac-1",
       "aircraftModel": "Airbus A320-200neo",
-      "departureTime": "2026-11-09T08:00:00",
-      "arrivalTime": "2026-11-09T10:45:00",
+      "departureTime": "2026-11-25T08:00:00",
+      "arrivalTime": "2026-11-25T10:45:00",
       "durationMinutes": 225,
       "priceEconomy": 3499,
       "priceBusiness": 8200,
@@ -161,8 +161,8 @@
       },
       "aircraftId": "ac-2",
       "aircraftModel": "Boeing 737-800",
-      "departureTime": "2026-11-11T13:45:00",
-      "arrivalTime": "2026-11-11T15:25:00",
+      "departureTime": "2026-11-27T13:45:00",
+      "arrivalTime": "2026-11-27T15:25:00",
       "durationMinutes": 160,
       "priceEconomy": 2750,
       "priceBusiness": 6500,
@@ -204,8 +204,8 @@
       },
       "aircraftId": "ac-1",
       "aircraftModel": "Airbus A320-200neo",
-      "departureTime": "2026-11-13T12:00:00",
-      "arrivalTime": "2026-11-13T16:30:00",
+      "departureTime": "2026-11-29T12:00:00",
+      "arrivalTime": "2026-11-29T16:30:00",
       "durationMinutes": 630,
       "priceEconomy": 12900,
       "priceBusiness": 28500,
@@ -247,8 +247,8 @@
       },
       "aircraftId": "ac-2",
       "aircraftModel": "Boeing 737-800",
-      "departureTime": "2026-11-09T21:00:00",
-      "arrivalTime": "2026-11-09T02:30:00",
+      "departureTime": "2026-11-25T21:00:00",
+      "arrivalTime": "2026-11-25T02:30:00",
       "durationMinutes": 270,
       "priceEconomy": 4200,
       "priceBusiness": 9800,
@@ -290,8 +290,8 @@
       },
       "aircraftId": "ac-1",
       "aircraftModel": "Airbus A320-200neo",
-      "departureTime": "2026-11-13T14:00:00",
-      "arrivalTime": "2026-11-13T20:15:00",
+      "departureTime": "2026-11-29T14:00:00",
+      "arrivalTime": "2026-11-29T20:15:00",
       "durationMinutes": 255,
       "priceEconomy": 3100,
       "priceBusiness": 7750,
@@ -333,8 +333,8 @@
       },
       "aircraftId": "ac-1",
       "aircraftModel": "Airbus A320-200neo",
-      "departureTime": "2026-11-15T12:30:00",
-      "arrivalTime": "2026-11-15T17:05:00",
+      "departureTime": "2026-12-01T12:30:00",
+      "arrivalTime": "2026-12-01T17:05:00",
       "durationMinutes": 215,
       "priceEconomy": 3600,
       "priceBusiness": 8500,
@@ -345,366 +345,35 @@
       "availableBusinessSeats": 16
     }
   ],
-  "bookings": [
-    {
-      "id": "bk-test-1794163378717",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T18:42:58.717Z"
-    },
-    {
-      "id": "bk-test-1794163166289",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T18:39:26.289Z"
-    },
-    {
-      "id": "bk-test-1794162898744",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T18:34:58.744Z"
-    },
-    {
-      "id": "bk-test-1794160577029",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:56:17.029Z"
-    },
-    {
-      "id": "bk-test-1794160303863",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:51:43.863Z"
-    },
-    {
-      "id": "bk-test-1794159328938",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:35:28.938Z"
-    },
-    {
-      "id": "bk-test-1794158845753",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:27:25.753Z"
-    },
-    {
-      "id": "bk-test-1794158647768",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:24:07.768Z"
-    },
-    {
-      "id": "bk-test-1794158167460",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:16:07.460Z"
-    },
-    {
-      "id": "bk-test-1794158146098",
-      "pnr": "RMK99T",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1",
-          "firstName": "Mehmet",
-          "lastName": "Demir",
-          "selectedSeat": "14C"
-        }
-      ],
-      "totalAmount": 3250,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T17:15:46.098Z"
-    },
-    {
-      "id": "bk-1794157184421",
-      "pnr": "RMKQ92",
-      "flightId": "fl-1",
-      "passengers": [
-        {
-          "id": "p-1794157128207-0",
-          "firstName": "asd",
-          "lastName": "asd",
-          "gender": "M",
-          "dateOfBirth": "1995-05-15",
-          "passengerType": "adult",
-          "nationality": "TR",
-          "idOrPassportNo": "111 111 11111",
-          "cabinClass": "economy",
-          "selectedSeat": "2C"
-        }
-      ],
-      "contactEmail": "11@gg.c",
-      "contactPhone": "1111111111",
-      "totalAmount": 3539,
-      "currency": "₺",
-      "status": "confirmed",
-      "createdAt": "2026-11-08T16:59:44.421Z",
-      "expiresAt": "2026-12-08T16:59:44.421Z",
-      "paymentDetails": {
-        "id": "pay-1794157184421",
-        "bookingId": "bk-1794157184421",
-        "transactionRef": "TRX-1794157184421",
-        "cardLastFour": "0001",
-        "cardBrand": "Visa Test",
-        "amount": 3539,
-        "currency": "₺",
-        "status": "successful",
-        "paidAt": "2026-11-08T16:59:44.421Z"
-      }
-    }
-  ],
-  "tickets": [
-    {
-      "id": "tkt-test-1794163378718",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794163378717",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794163166290",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794163166289",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794162898745",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794162898744",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794160577030",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794160577029",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794160303864",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794160303863",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794159328939",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794159328938",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794158845754",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794158845753",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794158647769",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794158647768",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794158167461",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794158167460",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-test-1794158146099",
-      "ticketNumber": "235-9876543210",
-      "bookingId": "bk-test-1794158146098",
-      "pnr": "RMK99T",
-      "seatNumber": "14C",
-      "status": "issued"
-    },
-    {
-      "id": "tkt-1794157184421-0",
-      "ticketNumber": "235-5120845284",
-      "bookingId": "bk-1794157184421",
-      "pnr": "RMKQ92",
-      "passenger": {
-        "id": "p-1794157128207-0",
-        "firstName": "asd",
-        "lastName": "asd",
-        "gender": "M",
-        "dateOfBirth": "1995-05-15",
-        "passengerType": "adult",
-        "nationality": "TR",
-        "idOrPassportNo": "111 111 11111",
-        "cabinClass": "economy",
-        "selectedSeat": "2C"
-      },
-      "flight": {
-        "id": "fl-1",
-        "flightNumber": "RMK-101",
-        "routeId": "rt-1",
-        "originAirport": {
-          "id": "apt-1",
-          "iataCode": "IST",
-          "icaoCode": "LTFM",
-          "name": "İstanbul Havalimanı",
-          "city": "İstanbul",
-          "cityEn": "Istanbul",
-          "country": "Türkiye",
-          "countryEn": "Turkey",
-          "timezone": "Europe/Istanbul",
-          "terminalInfo": "Ana Terminal / Gate A-B-C",
-          "isActive": true
-        },
-        "destinationAirport": {
-          "id": "apt-3",
-          "iataCode": "LHR",
-          "icaoCode": "EGLL",
-          "name": "Heathrow Airport",
-          "city": "Londra",
-          "cityEn": "London",
-          "country": "Birleşik Krallık",
-          "countryEn": "United Kingdom",
-          "timezone": "Europe/London",
-          "terminalInfo": "Terminal 2 (The Queen's Terminal)",
-          "isActive": true
-        },
-        "aircraftId": "ac-1",
-        "aircraftModel": "Airbus A320-200neo",
-        "departureTime": "2026-11-09T10:30:00",
-        "arrivalTime": "2026-11-09T12:45:00",
-        "durationMinutes": 255,
-        "priceEconomy": 2999,
-        "priceBusiness": 7499,
-        "baggageAllowanceKg": 25,
-        "operationalStatus": "Scheduled",
-        "bookingStatus": "open",
-        "availableEconomySeats": 142,
-        "availableBusinessSeats": 16
-      },
-      "seatNumber": "2C",
-      "cabinClass": "economy",
-      "baggageKg": 25,
-      "qrCodeData": "RUMUSKY-TICKET|RMKQ92|235-5120845284|asd asd|RMK-101|IST-LHR",
-      "status": "issued",
-      "issuedAt": "2026-11-08T16:59:44.421Z"
-    }
-  ],
+  "bookings": [],
+  "tickets": [],
   "siteContent": {
+    "companyName": "RUMUSKY",
+    "companySubtitle": "AIRLINES",
+    "customLogoUrl": "/logos/rumusky-brand-logo.png",
+    "navbar": {
+      "companyName": "RUMUSKY",
+      "companySubtitle": "AIRLINES",
+      "customLogoUrl": "/logos/rumusky-brand-logo.png",
+      "navSearchFlights": "Uçuş Ara",
+      "navSearchFlightsEn": "Search Flights",
+      "navMyBookings": "Rezervasyonlarım",
+      "navMyBookingsEn": "My Bookings",
+      "navCheckin": "Online Check-in",
+      "navCheckinEn": "Online Check-in",
+      "navNews": "Haberler & Basın",
+      "navNewsEn": "News & Media",
+      "navTravelInfo": "Seyahat Bilgileri",
+      "navTravelInfoEn": "Travel Information",
+      "navAbout": "RUMUSKY",
+      "navAboutEn": "RUMUSKY",
+      "navAdminButtonText": "Admin Paneli",
+      "navAdminButtonTextEn": "Admin Portal"
+    },
     "heroBackgroundUrl": "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=2000&q=80",
+    "heroOverlayOpacity": 25,
+    "searchCardOpacity": 70,
+    "searchCardBlur": 12,
     "heroBadgeText": "RUMUSKY AIRLINES — Gökyüzündeki Güvenli Eviniz",
     "heroBadgeTextEn": "RUMUSKY AIRLINES — Your Safe Home in the Skies",
     "heroTitle": "Dünyaya RUMUSKY ile Uçun",
@@ -746,21 +415,13 @@
       }
     ],
     "announcementBanner": {
-      "enabled": false,
+      "enabled": true,
       "badge": "YENİ SEFERLER",
       "text": "Tokyo, Dubai ve Londra direkt seferlerimiz avantajlı tanıtım fiyatlarıyla satışa açıldı!",
       "textEn": "Direct flights to Tokyo, Dubai, and London are now on sale with special introductory fares!"
     },
     "footerDesc": "RUMUSKY AIRLINES — Gökyüzündeki güvenli, konforlu ve ayrıcalıklı yolculuğunuz. Yolculuğunuz, Bizim Gökyüzümüz.",
-    "footerDescEn": "RUMUSKY AIRLINES — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky.",
-    "companyName": "RUMUSKY TEST",
-    "companySubtitle": "GLOBAL AIRWAYS",
-    "customLogoUrl": "",
-    "navbar": {
-      "companyName": "RUMUSKY TEST",
-      "navSearchFlights": "Bilet Bul",
-      "navSearchFlightsEn": "Find Tickets"
-    }
+    "footerDescEn": "RUMUSKY AIRLINES — Your safe, comfortable and privileged journey in the skies. Your Journey, Our Sky."
   },
   "news": [
     {

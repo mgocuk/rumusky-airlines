@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useApp } from './context/AppContext';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
@@ -24,14 +24,32 @@ import { ShareLiveModal } from './components/common/ShareLiveModal';
 import { TicketView } from './components/customer/TicketView';
 
 export const App: React.FC = () => {
-  const { activeView, setActiveView, isAdmin, setAuthModalOpen, shareModalOpen, setShareModalOpen } = useApp();
+  const {
+    activeView,
+    setActiveView,
+    isAdmin,
+    activeUser,
+    toggleAdminMode,
+    setAuthModalOpen,
+    shareModalOpen,
+    setShareModalOpen
+  } = useApp();
+
+  const isAuthorizedStaff = Boolean(activeUser && activeUser.role !== 'customer');
+  const authStateRef = useRef({ isAuthorizedStaff, isAdmin, toggleAdminMode });
+  authStateRef.current = { isAuthorizedStaff, isAdmin, toggleAdminMode };
 
   useEffect(() => {
     // Secret shortcut for administrator/staff login: Alt + A or Ctrl + Shift + A
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.altKey && (e.key === 'a' || e.key === 'A')) || (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a'))) {
         e.preventDefault();
-        setAuthModalOpen(true);
+        const { isAuthorizedStaff: staff, toggleAdminMode: toggle } = authStateRef.current;
+        if (staff) {
+          toggle();
+        } else {
+          setAuthModalOpen(true);
+        }
       }
     };
 
@@ -39,7 +57,12 @@ export const App: React.FC = () => {
     const handleHash = () => {
       const h = window.location.hash;
       if (h === '#admin' || h === '#staff' || h === '#login') {
-        setAuthModalOpen(true);
+        const { isAuthorizedStaff: staff, isAdmin: adminMode, toggleAdminMode: toggle } = authStateRef.current;
+        if (!staff) {
+          setAuthModalOpen(true);
+        } else if (!adminMode) {
+          toggle();
+        }
       } else if (h.includes('ticket=') || h.includes('bilet=') || h.includes('pnr=')) {
         setActiveView('ticket_view');
       }
@@ -62,7 +85,7 @@ export const App: React.FC = () => {
 
       {/* Main View Switcher */}
       <main className="flex-1">
-        {isAdmin || activeView === 'admin' ? (
+        {isAdmin && isAuthorizedStaff ? (
           <AdminDashboard />
         ) : (
           <>
@@ -103,7 +126,7 @@ export const App: React.FC = () => {
       <ShareLiveModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} />
 
       {/* Universal Footer */}
-      {!isAdmin && activeView !== 'admin' && activeView !== 'seats' && <Footer />}
+      {!(isAdmin && isAuthorizedStaff) && activeView !== 'seats' && <Footer />}
     </div>
   );
 };
