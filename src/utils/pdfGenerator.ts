@@ -1,158 +1,100 @@
 import { jsPDF } from 'jspdf';
-import QRCode from 'qrcode';
 import { Ticket, Flight, Passenger } from '../types';
-import { realtimeSync } from '../services/realtimeSync';
+import { formatTicketDisplayFields } from '../components/customer/TicketCard';
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = src;
+  });
+}
+
+function drawFittedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  initialFontSize: number,
+  minFontSize: number
+) {
+  let size = initialFontSize;
+  ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+  while (size > minFontSize && ctx.measureText(text).width > maxWidth) {
+    size -= 1;
+    ctx.font = `700 ${size}px Georgia, "Times New Roman", serif`;
+  }
+  ctx.fillText(text, x, y, maxWidth);
+}
 
 export async function generateTicketPDF(ticket: Ticket, flight: Flight, passenger: Passenger): Promise<void> {
+  const templateImg = await loadImage('/tickets/souvenir-ticket-template.png');
+
+  // Render at 3x template resolution for crisp print quality and native Unicode/Turkish font support
+  const scale = 3;
+  const w = (templateImg.naturalWidth || 941) * scale;
+  const h = (templateImg.naturalHeight || 293) * scale;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Could not initialize canvas context for PDF generation');
+  }
+
+  ctx.drawImage(templateImg, 0, 0, w, h);
+
+  const syntheticBooking = {
+    id: ticket.bookingId,
+    pnr: ticket.pnr,
+    flightId: flight.id,
+    passengers: [passenger],
+    contactEmail: '',
+    contactPhone: '',
+    totalAmount: 0,
+    currency: '₺',
+    status: 'confirmed' as const,
+    createdAt: ticket.issuedAt,
+    expiresAt: ticket.issuedAt
+  };
+
+  const ticketForFormatting: Ticket = {
+    ...ticket,
+    passenger
+  };
+
+  const fields = formatTicketDisplayFields(syntheticBooking, flight, ticketForFormatting);
+
+  ctx.fillStyle = '#182230';
+  ctx.textBaseline = 'top';
+
+  drawFittedText(ctx, fields.fromText, w * 0.405, h * 0.296, w * 0.37, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.toText, w * 0.405, h * 0.444, w * 0.37, Math.round(w * 0.0162), 18);
+  drawFittedText(ctx, fields.flightNo, w * 0.415, h * 0.617, w * 0.085, Math.round(w * 0.0116), 14);
+  drawFittedText(ctx, fields.formattedDate, w * 0.542, h * 0.617, w * 0.10, Math.round(w * 0.0116), 14);
+  drawFittedText(ctx, fields.gateCode, w * 0.688, h * 0.617, w * 0.09, Math.round(w * 0.0116), 14);
+  drawFittedText(ctx, fields.passengerName, w * 0.364, h * 0.748, w * 0.14, Math.round(w * 0.0096), 12);
+  drawFittedText(ctx, fields.depTime, w * 0.542, h * 0.703, w * 0.10, Math.round(w * 0.0116), 14);
+  drawFittedText(ctx, fields.seatLabel, w * 0.415, h * 0.784, w * 0.085, Math.round(w * 0.0116), 14);
+
+  const imgDataUrl = canvas.toDataURL('image/png');
+
+  // Landscape PDF matching the exact 941:293 aspect ratio cleanly centered with subtle page margins
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
-    format: [210, 100] // Standard IATA boarding pass aspect ratio (210mm x 100mm)
+    format: [220, 80]
   });
 
-  // Generate QR Code data URL with live verification link
-  let base = typeof window !== 'undefined' ? window.location.origin : 'http://192.168.137.252:3000';
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    try {
-      const netInfo = await realtimeSync.fetchNetworkInfo();
-      if (netInfo && netInfo.url) {
-        base = netInfo.url;
-      }
-    } catch {
-      // fallback
-    }
-  }
+  const targetWidthMm = 204;
+  const targetHeightMm = targetWidthMm * (h / w);
+  const offsetX = (220 - targetWidthMm) / 2;
+  const offsetY = (80 - targetHeightMm) / 2;
 
-  const qrUrl = `${base}/#ticket=${ticket.pnr}&tkt=${ticket.ticketNumber}`;
-
-  const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-    margin: 1,
-    width: 200,
-    errorCorrectionLevel: 'M',
-    color: {
-      dark: '#0B2545',
-      light: '#FFFFFF'
-    }
-  });
-
-  // Navy Top Header Bar
-  doc.setFillColor(11, 37, 69); // #0B2545 Primary Navy
-  doc.rect(0, 0, 210, 18, 'F');
-
-  // Brand Name
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('RUMUSKY AIRLINES', 12, 12);
-
-  // Subtitle / Document Type - Commemorative Pass
-  doc.setFontSize(8.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(245, 158, 11); // Amber / Gold
-  doc.text('HATIRA BİLETİ • GAZİANTEP ÜNİVERSİTESİ ÖZEL BİNİŞ KARTI', 60, 12);
-
-  // PNR on Header Right
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.text(`PNR: ${ticket.pnr}`, 175, 12);
-
-  // Perforation Divider Line (for ticket stub effect)
-  doc.setDrawColor(200, 215, 230);
-  doc.setLineDashPattern([2, 2], 0);
-  doc.line(152, 18, 152, 100);
-  doc.setLineDashPattern([], 0); // reset
-
-  // --- MAIN FLIGHT SECTION (Left) ---
-  doc.setTextColor(23, 43, 73); // Main text
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.text(flight.originAirport.iataCode, 14, 34);
-
-  doc.setTextColor(13, 110, 253); // Blue arrow
-  doc.text('----->', 42, 34);
-
-  doc.setTextColor(23, 43, 73);
-  doc.text(flight.destinationAirport.iataCode, 78, 34);
-
-  // City Names Under Airport Codes
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(92, 107, 122);
-  doc.text(flight.originAirport.city, 14, 40);
-  doc.text(flight.destinationAirport.city, 78, 40);
-
-  // Passenger Name
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(92, 107, 122);
-  doc.text('YOLCU / PASSENGER', 14, 48);
-  doc.setFontSize(12);
-  doc.setTextColor(11, 37, 69);
-  doc.text(`${passenger.firstName.toUpperCase()} ${passenger.lastName.toUpperCase()}`, 14, 54);
-
-  // Flight Details Grid (Row 1)
-  doc.setFontSize(7.5);
-  doc.setTextColor(92, 107, 122);
-  doc.text('UÇUŞ / FLIGHT', 14, 63);
-  doc.text('TARİH / DATE', 45, 63);
-  doc.text('KALKIŞ / DEP', 80, 63);
-  doc.text('KABİN / CLASS', 115, 63);
-
-  doc.setFontSize(10.5);
-  doc.setTextColor(11, 37, 69);
-  doc.setFont('helvetica', 'bold');
-  doc.text(flight.flightNumber, 14, 69);
-  doc.text(flight.departureTime.split('T')[0], 45, 69);
-  doc.text(flight.departureTime.split('T')[1].substring(0, 5), 80, 69);
-  doc.text(ticket.cabinClass.toUpperCase(), 115, 69);
-
-  // Flight Details Grid (Row 2)
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(92, 107, 122);
-  doc.text('KOLTUK / SEAT', 14, 78);
-  doc.text('KAPI / GATE', 45, 78);
-  doc.text('BİNİŞ / BOARDING', 80, 78);
-  doc.text('BAGAJ / BAGGAGE', 115, 78);
-
-  doc.setFontSize(12);
-  doc.setTextColor(13, 110, 253);
-  doc.setFont('helvetica', 'bold');
-  doc.text(ticket.seatNumber, 14, 85);
-  doc.setTextColor(11, 37, 69);
-  doc.setFontSize(10.5);
-  doc.text(flight.originAirport.terminalInfo ? 'A-12' : 'TBA', 45, 85);
-  
-  // Calculate boarding time (45 mins before departure)
-  const [depH, depM] = flight.departureTime.split('T')[1].substring(0, 5).split(':').map(Number);
-  const boardingMin = depM - 45;
-  const boardingTimeStr = `${boardingMin < 0 ? depH - 1 : depH}:${(boardingMin < 0 ? boardingMin + 60 : boardingMin).toString().padStart(2, '0')}`;
-  doc.text(boardingTimeStr, 80, 85);
-  doc.text(`${ticket.baggageKg} KG`, 115, 85);
-
-  // Footer Disclaimer & Commemorative Note
-  doc.setFontSize(6.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(140, 150, 165);
-  doc.text('* Gaziantep Üniversitesi Projesi Hatıra Belgesidir. QR kodu kameranızla okutarak canlı doğrulayabilirsiniz.', 14, 94);
-
-  // --- STUB / PASSENGER COUPON (Right) ---
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(11, 37, 69);
-  doc.text('BİNİŞ KUPONU', 158, 26);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(92, 107, 122);
-  doc.text(`${passenger.firstName.toUpperCase()} ${passenger.lastName.toUpperCase()}`, 158, 31);
-  doc.text(`${flight.originAirport.iataCode} - ${flight.destinationAirport.iataCode}`, 158, 36);
-  doc.text(`Uçuş: ${flight.flightNumber}`, 158, 41);
-  doc.text(`Koltuk: ${ticket.seatNumber}`, 158, 46);
-
-  // Stamp QR Code onto the stub
-  doc.addImage(qrDataUrl, 'PNG', 158, 50, 42, 42);
-
-  // Save the PDF file to user browser
-  doc.save(`RUMUSKY-Ticket-${ticket.pnr}-${ticket.seatNumber}.pdf`);
+  doc.addImage(imgDataUrl, 'PNG', offsetX, offsetY, targetWidthMm, targetHeightMm);
+  doc.save(`Hatira-Bileti-${ticket.pnr}-${fields.seatLabel}.pdf`);
 }

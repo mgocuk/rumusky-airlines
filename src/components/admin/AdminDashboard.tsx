@@ -79,6 +79,7 @@ import {
   Award
 } from 'lucide-react';
 import { TicketCard } from '../customer/TicketCard';
+import { generateTicketPDF } from '../../utils/pdfGenerator';
 
 const PRESET_HERO_BACKGROUNDS = [
   {
@@ -1037,7 +1038,7 @@ export const AdminDashboard: React.FC = () => {
             { id: 'airports', label: `Havalimanları (${airports.length})`, icon: Building, perm: 'manage_airports' },
             { id: 'bookings', label: `Rezervasyonlar (${bookings.length})`, icon: Calendar, perm: 'manage_bookings' },
             { id: 'cms', label: 'Site Görselleri & Metinler', icon: ImageIcon, perm: 'manage_cms' },
-            { id: 'ticket_design', label: 'Hatıra Bileti & Tasarım', icon: Award, perm: 'manage_cms' },
+            { id: 'ticket_design', label: 'Hatıra Bileti Önizleme', icon: Award, perm: 'manage_cms' },
             { id: 'footer_pages', label: `Kurumsal Sayfalar & Footer (${infoPages.length})`, icon: FileText, perm: 'manage_cms' },
             { id: 'news', label: `Haberler (${news.length})`, icon: Newspaper, perm: 'manage_news' },
             { id: 'rbac', label: 'Rol & Yetki Matrisi (SüperAdmin)', icon: Lock, perm: 'manage_roles' },
@@ -2266,545 +2267,174 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* 2.4 HATIRA BİLETİ & BİNİŞ KARTI TASARIM YÖNETİMİ TAB */}
-        {activeTab === 'ticket_design' && hasPermission('manage_cms') && (
-          <div className="space-y-8 animate-fade-in">
-            {/* Header Card */}
-            <div className="bg-white p-6 rounded-3xl border border-brand-border shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 mb-2 shadow-2xs">
-                  <Award className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Hatıra Bileti Özelleştirme Portalı</span>
+        {/* 2.4 HATIRA BİLETİ ÖRNEK YAPI & ÖNİZLEME TAB */}
+        {activeTab === 'ticket_design' && hasPermission('manage_cms') && (() => {
+          const sampleFlight: Flight = flights[0] || {
+            id: 'fl-sample',
+            flightNumber: 'RMK-101',
+            routeId: 'rt-sample',
+            originAirport: airports[0] || {
+              id: 'ap-1',
+              iataCode: 'IST',
+              icaoCode: 'LTFM',
+              name: 'İstanbul Havalimanı',
+              city: 'İstanbul',
+              cityEn: 'Istanbul',
+              country: 'Türkiye',
+              countryEn: 'Turkey',
+              timezone: 'Europe/Istanbul',
+              isActive: true
+            },
+            destinationAirport: airports[2] || {
+              id: 'ap-3',
+              iataCode: 'LHR',
+              icaoCode: 'EGLL',
+              name: 'Heathrow Airport',
+              city: 'Londra',
+              cityEn: 'London',
+              country: 'Birleşik Krallık',
+              countryEn: 'United Kingdom',
+              timezone: 'Europe/London',
+              isActive: true
+            },
+            aircraftId: 'ac-1',
+            aircraftModel: 'Airbus A320-200neo',
+            departureTime: `${getFutureDateString(1)}T10:30:00`,
+            arrivalTime: `${getFutureDateString(1)}T12:45:00`,
+            durationMinutes: 255,
+            priceEconomy: 2999,
+            priceBusiness: 7499,
+            baggageAllowanceKg: 25,
+            operationalStatus: 'Scheduled',
+            bookingStatus: 'open',
+            availableEconomySeats: 156,
+            availableBusinessSeats: 24
+          };
+
+          const activeBooking = bookings[0];
+          const sampleFlightForCard = activeBooking
+            ? flights.find((f) => f.id === activeBooking.flightId) || sampleFlight
+            : sampleFlight;
+
+          const samplePassenger: Passenger = activeBooking?.passengers?.[0] || {
+            id: 'p-sample-1',
+            firstName: 'RÜMEYSA',
+            lastName: 'GÖÇÜK',
+            gender: 'F',
+            dateOfBirth: '2001-05-15',
+            passengerType: 'adult',
+            nationality: 'TR',
+            idOrPassportNo: '12345678901',
+            cabinClass: 'economy',
+            selectedSeat: '10A'
+          };
+
+          const sampleBooking: Booking = activeBooking || {
+            id: 'bk-sample',
+            pnr: 'RMK101',
+            flightId: sampleFlightForCard.id,
+            passengers: [samplePassenger],
+            contactEmail: 'yolcu@rumusky.com',
+            contactPhone: '+90 555 000 0000',
+            totalAmount: sampleFlightForCard.priceEconomy,
+            currency: '₺',
+            status: 'confirmed',
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 86400000).toISOString()
+          };
+
+          const sampleTicket: TicketType = (activeBooking && tickets.find((tkt) => tkt.bookingId === activeBooking.id)) || {
+            id: 'tkt-sample',
+            bookingId: sampleBooking.id,
+            flight: sampleFlightForCard,
+            ticketNumber: '235-0000000101',
+            pnr: sampleBooking.pnr,
+            passenger: samplePassenger,
+            seatNumber: samplePassenger.selectedSeat || '10A',
+            cabinClass: samplePassenger.cabinClass || 'economy',
+            baggageKg: sampleFlightForCard.baggageAllowanceKg,
+            qrCodeData: `RUMUSKY|${sampleBooking.pnr}`,
+            status: 'issued',
+            issuedAt: new Date().toISOString()
+          };
+
+          return (
+            <div className="space-y-6 animate-fade-in">
+              {/* Header Card */}
+              <div className="bg-white p-6 rounded-3xl border border-brand-border shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 mb-2 shadow-2xs">
+                    <Award className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Özel Hatıra Bileti Şablonu</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-brand-navy">
+                    Hatıra Bileti Yapısı & Örnek Görünüm
+                  </h2>
+                  <p className="text-xs text-brand-muted mt-1 max-w-2xl leading-relaxed">
+                    Tüm bilet satın alımlarında müşterilere sunulan resmi hatıra bileti tasarımıdır. Tema, renk ve şekil yapısı sabit tutulur; uçuş, tarih, kapı, yolcu adı, saat ve koltuk bilgileri otomatik olarak yerleştirilir.
+                  </p>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-brand-navy">
-                  Hatıra Bileti & Biniş Kartı Tasarım Yönetimi
-                </h2>
-                <p className="text-xs text-brand-muted mt-1 max-w-2xl leading-relaxed">
-                  Bilet üzerindeki Gaziantep Üniversitesi ve Havayolu logolarını, tüm başlıkları, hatıra metinlerini ve biletin renk temasını buradan özelleştirebilirsiniz. Sağ panelde yapılan değişiklikleri gerçek zamanlı canlı bilet üzerinde anında görebilirsiniz.
-                </p>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {bookings[0]?.pnr && (
+                    <button
+                      type="button"
+                      onClick={() => window.open(`/#ticket=${bookings[0].pnr}`, '_blank')}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer border border-slate-200"
+                    >
+                      <Eye className="w-4 h-4 text-brand-blue" />
+                      <span>Canlı Doğrulama Sayfasını Aç</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const latestPnr = bookings[0]?.pnr;
-                    if (latestPnr) {
-                      window.open(`/#ticket=${latestPnr}`, '_blank');
-                    } else {
-                      showToast('Henüz canlı bilet kaydı bulunmuyor. Bilet satın alındığında buradan doğrulayabilirsiniz.', 'info');
-                    }
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer border border-slate-200"
-                >
-                  <Eye className="w-4 h-4 text-brand-blue" />
-                  <span>Canlı Doğrulama Sayfasını Aç</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Two Column Layout: Editor Form (Left) & Sticky Live Preview (Right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
-              {/* LEFT COLUMN: Customizer Form (7 Cols) */}
-              <form onSubmit={handleSaveTicketDesign} className="lg:col-span-6 space-y-6">
-                
-                {/* 1. Başlık ve Rozet Ayarları */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
-                      Bilet Başlığı & Rozet Metinleri
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 block mb-1">
-                        Bilet Rozet Başlığı (Türkçe)
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={ticketBadgeTitle}
-                        onChange={(e) => setTicketBadgeTitle(e.target.value)}
-                        placeholder="Örn: HATIRA BİLETİ"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-black uppercase text-brand-navy focus:border-brand-blue focus:outline-hidden"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 block mb-1">
-                        Bilet Rozet Başlığı (İngilizce)
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={ticketBadgeTitleEn}
-                        onChange={(e) => setTicketBadgeTitleEn(e.target.value)}
-                        placeholder="Örn: COMMEMORATIVE SOUVENIR PASS"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-black uppercase text-brand-navy focus:border-brand-blue focus:outline-hidden"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 block mb-1">
-                        Alt Başlık / Proje Tanımı (Türkçe)
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={ticketSubTitle}
-                        onChange={(e) => setTicketSubTitle(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-700 focus:border-brand-blue focus:outline-hidden"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 block mb-1">
-                        Alt Başlık (İngilizce)
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={ticketSubTitleEn}
-                        onChange={(e) => setTicketSubTitleEn(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-700 focus:border-brand-blue focus:outline-hidden"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Üniversite ve Havayolu Logoları */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-5">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Building className="w-4 h-4 text-brand-blue" />
-                    <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
-                      Üniversite & Havayolu Logoları
-                    </h3>
-                  </div>
-
-                  {/* Üniversite Logosu & İsmi */}
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-brand-navy">
-                        Üniversite Resmi Bilgileri
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTicketUniName('Gaziantep Üniversitesi');
-                          setTicketUniLogo('/logos/gaziantep-universitesi-logo.png');
-                        }}
-                        className="text-[10px] text-brand-blue font-bold hover:underline cursor-pointer"
-                      >
-                        Gaziantep Üniversitesi Logosu Yap
-                      </button>
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                        Üniversite Adı:
-                      </label>
-                      <input
-                        type="text"
-                        value={ticketUniName}
-                        onChange={(e) => setTicketUniName(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                      <div className="sm:col-span-2">
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                          Üniversite Logo URL / Yolu:
-                        </label>
-                        <input
-                          type="text"
-                          value={ticketUniLogo}
-                          onChange={(e) => setTicketUniLogo(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                          Cihazdan Logo Yükle:
-                        </label>
-                        <label className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-300 hover:border-brand-blue rounded-xl text-xs font-semibold text-brand-navy cursor-pointer hover:bg-slate-100 transition-colors">
-                          <Upload className="w-3.5 h-3.5 text-brand-blue" />
-                          <span>Gözat</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (reader.result) setTicketUniLogo(reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Havayolu / Uygulama Logosu */}
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-brand-navy">
-                        Uygulama / Havayolu Logosu
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setTicketAirlineLogo('/logos/rumusky-brand-logo.png')}
-                        className="text-[10px] text-brand-blue font-bold hover:underline cursor-pointer"
-                      >
-                        Yeni RUMUSKY Logosu Yap
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                      <div className="sm:col-span-2">
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                          Havayolu Logo URL / Yolu:
-                        </label>
-                        <input
-                          type="text"
-                          value={ticketAirlineLogo}
-                          onChange={(e) => setTicketAirlineLogo(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                          Cihazdan Logo Yükle:
-                        </label>
-                        <label className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-300 hover:border-brand-blue rounded-xl text-xs font-semibold text-brand-navy cursor-pointer hover:bg-slate-100 transition-colors">
-                          <Upload className="w-3.5 h-3.5 text-brand-blue" />
-                          <span>Gözat</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  if (reader.result) setTicketAirlineLogo(reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Bilet Renk Teması & Stili */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2">
-                      <Sliders className="w-4 h-4 text-purple-600" />
-                      <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
-                        Bilet Renk Teması (Stil Seçimi)
-                      </h3>
-                    </div>
-                    <span className="text-[11px] font-bold text-slate-500">
-                      Özel Tasarım Koleksiyonu
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      {
-                        id: 'navy_gold',
-                        name: 'Klasik Lacivert & Altın Yaldız',
-                        desc: 'Prestijli hatıra bilet baskısı (Önerilen)',
-                        header: 'bg-slate-950 border-amber-400',
-                        accent: 'bg-amber-400 text-slate-950'
-                      },
-                      {
-                        id: 'modern_blue',
-                        name: 'Kurumsal Gök Mavisi',
-                        desc: 'Modern havacılık mavi ve turkuaz tonları',
-                        header: 'bg-brand-navy border-sky-400',
-                        accent: 'bg-brand-blue text-white'
-                      },
-                      {
-                        id: 'emerald',
-                        name: 'Zümrüt Yeşili & Platin',
-                        desc: 'Seçkin ve çevreci havacılık stili',
-                        header: 'bg-emerald-950 border-emerald-400',
-                        accent: 'bg-emerald-600 text-white'
-                      },
-                      {
-                        id: 'burgundy',
-                        name: 'Asil Bordo & Gümüş',
-                        desc: 'Klasik akademi & üniversite tören stili',
-                        header: 'bg-rose-950 border-rose-400',
-                        accent: 'bg-rose-700 text-white'
-                      }
-                    ].map((theme) => (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => setTicketThemeStyle(theme.id as any)}
-                        className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
-                          ticketThemeStyle === theme.id
-                            ? 'border-brand-blue bg-blue-50/50 shadow-md ring-2 ring-brand-blue/20'
-                            : 'border-slate-200 hover:border-slate-300 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${theme.accent}`}>
-                            {theme.name}
-                          </span>
-                          {ticketThemeStyle === theme.id && (
-                            <CheckCircle className="w-4 h-4 text-brand-blue" />
-                          )}
-                        </div>
-                        <p className="text-[10px] text-slate-500 leading-snug">
-                          {theme.desc}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 4. Özel Hatıra Notu / Mesajı */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <FileText className="w-4 h-4 text-emerald-600" />
-                    <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
-                      Bilet Altındaki Hatıra Notu
-                    </h3>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Hatıra Belgesi Mesajı (Türkçe)
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={ticketNote}
-                      onChange={(e) => setTicketNote(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 font-medium focus:border-brand-blue focus:outline-hidden"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Hatıra Belgesi Mesajı (İngilizce)
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={ticketNoteEn}
-                      onChange={(e) => setTicketNoteEn(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 font-medium focus:border-brand-blue focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* Kaydet Butonu */}
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-brand-blue hover:bg-blue-600 text-white rounded-2xl font-heading font-black text-sm shadow-elevated flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Hatıra Bileti Tasarımını Canlıya Kaydet</span>
-                </button>
-              </form>
-
-              {/* RIGHT COLUMN: Live Realtime Ticket Card Preview (6 Cols) */}
-              <div className="lg:col-span-6 space-y-4 sticky top-24">
-                <div className="flex items-center justify-between px-1">
+              {/* Sample Souvenir Ticket Showcase */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-brand-border shadow-subtle space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Eye className="w-4 h-4 text-brand-blue" />
                     <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">
-                      Canlı Bilet Önizlemesi (Gerçek Zamanlı)
+                      {activeBooking ? 'Son Biletin Örnek Görünümü' : 'Örnek Hatıra Bileti Yapısı'}
                     </h3>
                   </div>
-                  <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    Anlık Simülasyon
+                  <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                    Birebir Orijinal Tasarım (PDF & Web)
                   </span>
                 </div>
 
-                {/* Render TicketCard with current draft values */}
-                <div className="transform scale-[0.96] sm:scale-100 origin-top">
+                <div className="max-w-4xl mx-auto">
                   <TicketCard
-                    booking={{
-                      id: 'bk-preview',
-                      pnr: 'RMKQ92',
-                      flightId: flights[0]?.id || 'fl-1',
-                      passengers: [
-                        {
-                          id: 'p-prev-1',
-                          firstName: 'RÜMEYSA',
-                          lastName: 'GÖÇÜK',
-                          gender: 'F',
-                          dateOfBirth: '2001-05-15',
-                          passengerType: 'adult',
-                          nationality: 'TR',
-                          idOrPassportNo: '12345678901',
-                          cabinClass: 'economy',
-                          selectedSeat: '2C'
-                        }
-                      ],
-                      contactEmail: 'rumeysa@rumusky.com',
-                      contactPhone: '+90 555 123 4567',
-                      totalAmount: 2999,
-                      currency: 'TRY',
-                      status: 'confirmed',
-                      createdAt: new Date().toISOString(),
-                      expiresAt: new Date(Date.now() + 86400000).toISOString()
-                    }}
-                    flight={flights[0] || {
-                      id: 'fl-1',
-                      flightNumber: 'RMK-101',
-                      originAirport: airports[0] || {
-                        id: 'ap-1',
-                        iataCode: 'IST',
-                        icaoCode: 'LTFM',
-                        name: 'İstanbul Havalimanı',
-                        city: 'İstanbul',
-                        cityEn: 'Istanbul',
-                        country: 'Türkiye',
-                        countryEn: 'Turkey',
-                        timezone: 'Europe/Istanbul',
-                        isActive: true
-                      },
-                      destinationAirport: airports[2] || {
-                        id: 'ap-3',
-                        iataCode: 'LHR',
-                        icaoCode: 'EGLL',
-                        name: 'Heathrow Airport',
-                        city: 'Londra',
-                        cityEn: 'London',
-                        country: 'Birleşik Krallık',
-                        countryEn: 'United Kingdom',
-                        timezone: 'Europe/London',
-                        isActive: true
-                      },
-                      aircraftId: 'ac-1',
-                      aircraftModel: 'Airbus A321-200neo',
-                      departureTime: '2026-11-09T10:30:00',
-                      arrivalTime: '2026-11-09T12:45:00',
-                      durationMinutes: 255,
-                      priceEconomy: 2999,
-                      priceBusiness: 7499,
-                      baggageAllowanceKg: 25,
-                      operationalStatus: 'Scheduled',
-                      bookingStatus: 'open',
-                      availableEconomySeats: 142,
-                      availableBusinessSeats: 12
-                    }}
-                    ticket={{
-                      id: 'tkt-prev',
-                      bookingId: 'bk-preview',
-                      flight: flights[0] || {
-                        id: 'fl-1',
-                        flightNumber: 'RMK-101',
-                        originAirport: airports[0] || {
-                          id: 'ap-1',
-                          iataCode: 'IST',
-                          icaoCode: 'LTFM',
-                          name: 'İstanbul Havalimanı',
-                          city: 'İstanbul',
-                          cityEn: 'Istanbul',
-                          country: 'Türkiye',
-                          countryEn: 'Turkey',
-                          timezone: 'Europe/Istanbul',
-                          isActive: true
-                        },
-                        destinationAirport: airports[2] || {
-                          id: 'ap-3',
-                          iataCode: 'LHR',
-                          icaoCode: 'EGLL',
-                          name: 'Heathrow Airport',
-                          city: 'Londra',
-                          cityEn: 'London',
-                          country: 'Birleşik Krallık',
-                          countryEn: 'United Kingdom',
-                          timezone: 'Europe/London',
-                          isActive: true
-                        },
-                        aircraftId: 'ac-1',
-                        aircraftModel: 'Airbus A321-200neo',
-                        departureTime: '2026-11-09T10:30:00',
-                        arrivalTime: '2026-11-09T12:45:00',
-                        durationMinutes: 255,
-                        priceEconomy: 2999,
-                        priceBusiness: 7499,
-                        baggageAllowanceKg: 25,
-                        operationalStatus: 'Scheduled',
-                        bookingStatus: 'open',
-                        availableEconomySeats: 142,
-                        availableBusinessSeats: 12
-                      },
-                      ticketNumber: '235-5120845284',
-                      pnr: 'RMKQ92',
-                      passenger: {
-                        id: 'p-prev-1',
-                        firstName: 'RÜMEYSA',
-                        lastName: 'GÖÇÜK',
-                        gender: 'F',
-                        dateOfBirth: '2001-05-15',
-                        passengerType: 'adult',
-                        nationality: 'TR',
-                        idOrPassportNo: '12345678901',
-                        cabinClass: 'economy',
-                        selectedSeat: '2C'
-                      },
-                      seatNumber: '2C',
-                      cabinClass: 'economy',
-                      baggageKg: 25,
-                      qrCodeData: 'RUMUSKY|RMKQ92',
-                      status: 'issued',
-                      issuedAt: new Date().toISOString()
-                    }}
-                    customTicketDesign={{
-                      badgeTitle: ticketBadgeTitle,
-                      badgeTitleEn: ticketBadgeTitleEn,
-                      subTitle: ticketSubTitle,
-                      subTitleEn: ticketSubTitleEn,
-                      universityName: ticketUniName,
-                      universityLogoUrl: ticketUniLogo,
-                      airlineLogoUrl: ticketAirlineLogo,
-                      commemorativeNote: ticketNote,
-                      commemorativeNoteEn: ticketNoteEn,
-                      themeStyle: ticketThemeStyle
-                    }}
+                    booking={sampleBooking}
+                    flight={sampleFlightForCard}
+                    ticket={sampleTicket}
                     showDownloadBtn={true}
-                    onDownloadPdf={() => {}}
+                    onDownloadPdf={() => void generateTicketPDF(sampleTicket, sampleFlightForCard, samplePassenger)}
                   />
                 </div>
 
-                <div className="bg-blue-50/70 p-4 rounded-2xl border border-blue-200 text-xs text-brand-navy space-y-1.5">
-                  <div className="font-bold flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span>Gerçek QR Kod & Canlı Doğrulama Mekanizması:</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 text-[11px]">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="font-bold text-slate-400 uppercase block text-[10px]">FROM / TO</span>
+                    <span className="font-bold text-brand-navy">Kalkış & Varış Şehri (IATA)</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Biletin sağındaki QR kod gerçek bir bağlantıdır (<code className="font-mono bg-white px-1.5 py-0.5 rounded text-brand-blue border">#ticket={bookings[0]?.pnr || 'RMK000'}</code>). Cep telefonu kamerasıyla okutulduğunda doğrudan bu bilete özel dijital doğrulama sayfasını açar.
-                  </p>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="font-bold text-slate-400 uppercase block text-[10px]">FLIGHT / GATE</span>
+                    <span className="font-bold text-brand-navy">Sefer Kodu & Kapı</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="font-bold text-slate-400 uppercase block text-[10px]">DATE / TIME</span>
+                    <span className="font-bold text-brand-navy">Uçuş Tarihi & Saati</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="font-bold text-slate-400 uppercase block text-[10px]">PASSENGER / SEAT</span>
+                    <span className="font-bold text-brand-navy">Yolcu Adı & Koltuk No</span>
+                  </div>
                 </div>
               </div>
-
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 2.5 KURUMSAL SAYFALAR & FOOTER YÖNETİMİ TAB */}
         {activeTab === 'footer_pages' && hasPermission('manage_cms') && (
