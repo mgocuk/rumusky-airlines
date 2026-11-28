@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { X, Lock, Mail, Shield, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Logo } from './Logo';
+import { CentralAsianCorner } from './CentralAsianMotif';
 
 export const AuthModal: React.FC = () => {
   const { authModalOpen, setAuthModalOpen, loginStaff, language } = useApp();
@@ -71,13 +72,18 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-border relative">
-        
+      <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-[#C49238]/55 relative overflow-hidden">
+        <div className="pointer-events-none absolute top-0 inset-x-10 h-[2px] bg-gradient-to-r from-transparent via-[#E6C376]/85 to-transparent z-10" />
+        <CentralAsianCorner position="tl" className="absolute top-1.5 left-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="tr" className="absolute top-1.5 right-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="bl" className="absolute bottom-1.5 left-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="br" className="absolute bottom-1.5 right-1.5 w-8 h-8 opacity-75 z-10" />
+
         {/* Close Button */}
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-colors"
+          className="absolute top-5 right-5 z-20 p-2 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-colors"
           title={language === 'en' ? 'Close' : 'Kapat'}
         >
           <X className="w-5 h-5" />

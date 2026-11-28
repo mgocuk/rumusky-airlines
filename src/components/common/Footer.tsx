@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Logo } from './Logo';
-import { CentralAsianBorder } from './CentralAsianMotif';
+import { CentralAsianBorder, CentralAsianCorner } from './CentralAsianMotif';
 import { ShieldCheck, Apple, Play } from 'lucide-react';
 import { INITIAL_SITE_CONTENT } from '../../data/seedContent';
 
@@ -31,8 +31,10 @@ export const Footer: React.FC = () => {
   const legalPages = infoPages.filter((p) => p.category === 'legal');
 
   return (
-    <footer className="bg-[#F2E9D8] bg-central-asian-lattice text-brand-text border-t border-brand-gold/40 mt-auto">
-      <CentralAsianBorder opacity={0.65} />
+    <footer className="relative overflow-hidden bg-[#F2E9D8] bg-central-asian-lattice text-brand-text border-t border-[#C49238]/55 mt-auto">
+      <CentralAsianBorder variant="dark" opacity={0.9} withMedallion />
+      <CentralAsianCorner position="bl" className="hidden sm:block absolute bottom-2 left-2 w-10 h-10 opacity-65 z-10" />
+      <CentralAsianCorner position="br" className="hidden sm:block absolute bottom-2 right-2 w-10 h-10 opacity-65 z-10" />
 
       <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 pt-14 pb-10">
         {/* Main Columns */}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Campaign } from '../../types';
-import { CentralAsianDivider } from '../common/CentralAsianMotif';
+import { CentralAsianCorner, CentralAsianDivider } from '../common/CentralAsianMotif';
 import { Sparkles } from 'lucide-react';
 
 export const Campaigns: React.FC = () => {
@@ -59,10 +59,17 @@ export const Campaigns: React.FC = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/85 via-brand-navy/35 to-transparent" />
 
+              {/* Samruk Inner Frame & 4-Corner Accents */}
+              <div className="pointer-events-none absolute inset-2.5 rounded-xl border border-[#E6C376]/40 group-hover:border-[#E6C376]/75 transition-colors z-10" />
+              <CentralAsianCorner position="tl" variant="light" className="absolute top-2.5 left-2.5 w-9 h-9 opacity-80 z-10" />
+              <CentralAsianCorner position="tr" variant="light" className="absolute top-2.5 right-2.5 w-9 h-9 opacity-80 z-10" />
+              <CentralAsianCorner position="bl" variant="light" className="absolute bottom-2.5 left-2.5 w-9 h-9 opacity-80 z-10" />
+              <CentralAsianCorner position="br" variant="light" className="absolute bottom-2.5 right-2.5 w-9 h-9 opacity-80 z-10" />
+
               {/* Content */}
               <div className="relative z-10 flex flex-col items-start gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-gold text-white shadow-xs">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#071628]/90 text-[#ECC97E] border border-[#C49238]/65 shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#E6C376]" />
                   {badge}
                 </span>
 

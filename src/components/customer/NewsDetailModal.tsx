@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { X, Calendar, Share2, Newspaper } from 'lucide-react';
+import { CentralAsianCorner } from '../common/CentralAsianMotif';
 
 export const NewsDetailModal: React.FC = () => {
   const { selectedNewsArticle, setSelectedNewsArticle, language } = useApp();
@@ -13,10 +14,15 @@ export const NewsDetailModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-brand-navy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-border max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[#C49238]/55 max-h-[90vh] overflow-y-auto relative">
+        <div className="pointer-events-none absolute top-0 inset-x-10 h-[2px] bg-gradient-to-r from-transparent via-[#E6C376]/85 to-transparent z-10" />
+        <CentralAsianCorner position="tl" className="absolute top-1.5 left-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="tr" className="absolute top-1.5 right-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="bl" className="absolute bottom-1.5 left-1.5 w-8 h-8 opacity-75 z-10" />
+        <CentralAsianCorner position="br" className="absolute bottom-1.5 right-1.5 w-8 h-8 opacity-75 z-10" />
         <button
           onClick={() => setSelectedNewsArticle(null)}
-          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-brand-navy hover:bg-slate-100 transition-colors"
+          className="absolute top-5 right-5 z-20 p-2 rounded-xl text-slate-400 hover:text-brand-navy hover:bg-slate-100 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>

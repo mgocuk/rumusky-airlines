@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Booking, Flight } from '../../types';
 import { generateTicketPDF } from '../../utils/pdfGenerator';
 import { Search, Download, AlertCircle, Plane, CheckCircle2 } from 'lucide-react';
+import { SamrukFrame } from '../common/CentralAsianMotif';
 
 export const ManageBooking: React.FC = () => {
   const { findBooking, flights, tickets, t, language } = useApp();
@@ -41,7 +42,7 @@ export const ManageBooking: React.FC = () => {
       </div>
 
       {/* Lookup Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-border shadow-elevated mb-8">
+      <SamrukFrame className="mb-8" innerClassName="p-6 sm:p-8" showCrown>
         <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
           <div className="sm:col-span-5">
             <label className="text-xs font-bold text-brand-muted uppercase tracking-wider block mb-1">
@@ -74,14 +75,14 @@ export const ManageBooking: React.FC = () => {
           <div className="sm:col-span-2">
             <button
               type="submit"
-              className="w-full py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all"
+              className="w-full py-3 bg-gradient-to-r from-[#08182B] via-[#1E5B70] to-[#08182B] hover:brightness-110 text-white border border-[#D8AE58]/60 font-bold rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 text-[#E6C376]" />
               <span>Bul</span>
             </button>
           </div>
         </form>
-      </div>
+      </SamrukFrame>
 
       {/* Not Found State */}
       {searched && !foundBooking && (
@@ -96,20 +97,20 @@ export const ManageBooking: React.FC = () => {
         const isPastFlight = new Date(bookedFlight.departureTime).getTime() <= Date.now();
 
         return (
-          <div className="bg-white rounded-3xl border border-brand-border shadow-elevated overflow-hidden animate-fade-in">
-            <div className="bg-brand-ivory border-b border-brand-gold/40 text-brand-navy px-6 py-4 flex items-center justify-between">
+          <SamrukFrame className="animate-fade-in">
+            <div className="bg-gradient-to-r from-[#071628] via-[#0E243E] to-[#071628] border-b border-[#C49238]/50 text-[#FFFDF8] px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Plane className="w-5 h-5 text-brand-gold" />
-                <span className="font-heading font-bold text-sm">
+                <Plane className="w-5 h-5 text-[#E6C376]" />
+                <span className="font-heading font-bold text-sm tracking-wide">
                   PNR: {foundBooking.pnr} • {bookedFlight.flightNumber}
                 </span>
               </div>
               {isPastFlight ? (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200/80 text-slate-700 border border-slate-300">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-[#E8DFCE] border border-white/20">
                   Geçmiş Sefer (Tamamlandı)
                 </span>
               ) : (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E6C376]/20 text-[#F3DC99] border border-[#E6C376]/50">
                   Onaylandı (Aktif Sefer)
                 </span>
               )}
@@ -169,7 +170,7 @@ export const ManageBooking: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+          </SamrukFrame>
       ); })()}
     </div>
   );

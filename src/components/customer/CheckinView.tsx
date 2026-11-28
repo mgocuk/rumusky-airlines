@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { generateTicketPDF } from '../../utils/pdfGenerator';
 import { CheckCircle2, Search, Download, AlertCircle, Plane, Sparkles } from 'lucide-react';
+import { SamrukFrame } from '../common/CentralAsianMotif';
 
 export const CheckinView: React.FC = () => {
   const { checkinFlight, findBooking, flights, t, language, setActiveView } = useApp();
@@ -61,7 +62,7 @@ export const CheckinView: React.FC = () => {
 
       {/* Input Card */}
       {!checkedTicket ? (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-border shadow-elevated">
+        <SamrukFrame innerClassName="p-6 sm:p-8" showCrown>
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -101,17 +102,17 @@ export const CheckinView: React.FC = () => {
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all text-xs"
+                className="w-full py-3 bg-gradient-to-r from-[#08182B] via-[#1E5B70] to-[#08182B] hover:brightness-110 text-white border border-[#D8AE58]/60 font-bold rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all text-xs"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 text-[#E6C376]" />
                 <span>Check-in</span>
               </button>
             </div>
           </form>
-        </div>
+        </SamrukFrame>
       ) : (
         /* Checked-In Success Boarding Pass View */
-        <div className="bg-white rounded-3xl border border-brand-border shadow-elevated p-6 sm:p-8 animate-fade-in text-center">
+        <SamrukFrame className="animate-fade-in" innerClassName="p-6 sm:p-8 text-center" showCrown>
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -147,7 +148,7 @@ export const CheckinView: React.FC = () => {
               Ana Sayfaya Dön
             </button>
           </div>
-        </div>
+        </SamrukFrame>
       )}
     </div>
   );

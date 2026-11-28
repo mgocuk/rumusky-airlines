@@ -48,10 +48,14 @@ export const Logo: React.FC<LogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2.5 select-none cursor-pointer ${className}`}>
-      {/* Uploaded Alpha Central Asian Phoenix Emblem */}
+      {/* Samruk Emblem framed with double gold borders and corner notches */}
       <div
-        className={`${symbolClass} rounded-xl flex items-center justify-center shrink-0 overflow-hidden transition-transform duration-200 group-hover:scale-105 bg-[#061322] border border-brand-gold/60 shadow-subtle ring-1 ring-brand-gold/25`}
+        className={`relative ${symbolClass} rounded-xl flex items-center justify-center shrink-0 overflow-hidden transition-transform duration-200 group-hover:scale-105 bg-[#061322] border border-[#D8AE58]/80 ring-1 ring-[#C49238]/30 shadow-[0_0_16px_rgba(196,146,56,0.22)]`}
       >
+        <span className="pointer-events-none absolute top-0.5 left-0.5 w-1.5 h-1.5 border-t border-l border-[#F3DC99]/80 rounded-tl-[2px] z-10" />
+        <span className="pointer-events-none absolute top-0.5 right-0.5 w-1.5 h-1.5 border-t border-r border-[#F3DC99]/80 rounded-tr-[2px] z-10" />
+        <span className="pointer-events-none absolute bottom-0.5 left-0.5 w-1.5 h-1.5 border-b border-l border-[#F3DC99]/80 rounded-bl-[2px] z-10" />
+        <span className="pointer-events-none absolute bottom-0.5 right-0.5 w-1.5 h-1.5 border-b border-r border-[#F3DC99]/80 rounded-br-[2px] z-10" />
         <img
           src={logoImage}
           alt={companyName}
@@ -65,19 +69,26 @@ export const Logo: React.FC<LogoProps> = ({
           <div className="flex items-center tracking-wide">
             <span
               className={`font-heading font-extrabold tracking-wide whitespace-nowrap ${textClass} ${
-                isWhite ? 'text-white' : 'text-brand-navy'
+                isWhite ? 'text-[#FFFDF8]' : 'text-brand-navy'
               }`}
             >
               {companyName}
             </span>
           </div>
-          <span
-            className={`font-semibold tracking-[0.2em] -mt-0.5 uppercase ${subClass} ${
-              isWhite ? 'text-brand-cyan' : 'text-brand-gold'
-            }`}
-          >
-            {companySubtitle}
-          </span>
+          <div className="flex items-center gap-1 -mt-0.5">
+            {isWhite && (
+              <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 shrink-0 text-[#E6C376]" fill="currentColor" aria-hidden="true">
+                <path d="M6 0.5 L7.1 4.4 L10.2 2.4 L8.1 5.3 L11.5 6 L8.1 6.7 L10.2 9.6 L7.1 7.6 L6 11.5 L4.9 7.6 L1.8 9.6 L3.9 6.7 L0.5 6 L3.9 5.3 L1.8 2.4 L4.9 4.4 Z" />
+              </svg>
+            )}
+            <span
+              className={`font-semibold tracking-[0.2em] uppercase ${subClass} ${
+                isWhite ? 'text-[#E6C376]' : 'text-brand-gold'
+              }`}
+            >
+              {companySubtitle}
+            </span>
+          </div>
         </div>
       )}
     </div>

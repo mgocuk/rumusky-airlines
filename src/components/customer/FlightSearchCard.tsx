@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { SearchQuery, Airport } from '../../types';
+import { SearchQuery } from '../../types';
 import { getFutureDateString } from '../../data/seedData';
+import { CentralAsianCorner, SamrukCrest } from '../common/CentralAsianMotif';
 import {
   PlaneTakeoff,
   PlaneLanding,
@@ -154,14 +155,27 @@ export const FlightSearchCard: React.FC = () => {
         backdropFilter: `blur(${configuredBlur}px)`,
         WebkitBackdropFilter: `blur(${configuredBlur}px)`
       }}
-      className={`rounded-3xl border transition-all duration-300 p-5 sm:p-7 text-left ${
+      className={`relative overflow-visible rounded-3xl border transition-all duration-300 p-5 sm:p-7 text-left ${
         isActive
-          ? 'border-brand-gold/70 shadow-2xl ring-2 ring-brand-gold/25 scale-[1.002]'
-          : 'border-brand-border shadow-xl hover:border-brand-gold/60 hover:shadow-2xl'
+          ? 'border-[#C49238]/80 shadow-2xl ring-2 ring-[#C49238]/25 scale-[1.002]'
+          : 'border-[#C49238]/55 shadow-xl hover:border-[#C49238]/80 hover:shadow-2xl'
       }`}
     >
+      {/* Samruk Otağ Frame Accents (pointer-events-none so dropdowns stay clickable & unclipped) */}
+      <div className="pointer-events-none absolute top-0 inset-x-10 h-[2px] bg-gradient-to-r from-transparent via-[#E6C376]/85 to-transparent" />
+      <div className="pointer-events-none absolute inset-1.5 rounded-[20px] border border-[#C49238]/25" />
+      <CentralAsianCorner position="tl" className="absolute top-1.5 left-1.5 w-8 h-8 opacity-80" />
+      <CentralAsianCorner position="tr" className="absolute top-1.5 right-1.5 w-8 h-8 opacity-80" />
+      <CentralAsianCorner position="bl" className="absolute bottom-1.5 left-1.5 w-8 h-8 opacity-80" />
+      <CentralAsianCorner position="br" className="absolute bottom-1.5 right-1.5 w-8 h-8 opacity-80" />
+
+      {/* Top Centered Samruk Crown Badge */}
+      <div className="pointer-events-none absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-[#071628] border border-[#E6C376]/75 shadow-[0_2px_10px_rgba(6,19,34,0.28)] flex items-center justify-center">
+        <SamrukCrest className="w-10 h-5" />
+      </div>
+
       {/* Top Bar: Trip Types & Cabin & Idle State Indicator */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-brand-border/60">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-brand-border/60">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -388,7 +402,7 @@ export const FlightSearchCard: React.FC = () => {
                 min={getFutureDateString(0)}
                 value={departureDate}
                 onChange={(e) => setDepartureDate(e.target.value)}
-                className={`w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold text-brand-navy rounded-xl border transition-all focus:border-brand-blue focus:outline-hidden ${
+                className={`w-full h-[58px] px-2 sm:px-2.5 py-2 text-xs font-bold text-brand-navy rounded-xl border transition-all focus:border-brand-blue focus:outline-hidden ${
                   isActive
                     ? 'bg-slate-50 border-slate-200/90 focus:bg-white'
                     : 'bg-white/70 hover:bg-white/95 border-white/80'
@@ -409,7 +423,7 @@ export const FlightSearchCard: React.FC = () => {
                 min={departureDate}
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
-                className={`w-full h-[58px] px-3 py-2 text-xs sm:text-sm font-bold rounded-xl border transition-all focus:outline-hidden ${
+                className={`w-full h-[58px] px-2 sm:px-2.5 py-2 text-xs font-bold rounded-xl border transition-all focus:outline-hidden ${
                   tripType === 'one-way'
                     ? 'bg-slate-100/60 text-slate-400 cursor-not-allowed border-transparent'
                     : isActive
@@ -513,9 +527,9 @@ export const FlightSearchCard: React.FC = () => {
         <div className="lg:col-span-12 mt-2">
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-brand-blue hover:bg-[#164657] text-white font-heading font-bold text-base shadow-elevated border border-brand-gold/30 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#08182B] via-[#1E5B70] to-[#08182B] hover:brightness-110 text-white font-heading font-bold text-base shadow-elevated border border-[#D8AE58]/70 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
           >
-            <Search className="w-5 h-5 stroke-[2.5] text-brand-cyan" />
+            <Search className="w-5 h-5 stroke-[2.5] text-[#E6C376]" />
             <span>{t('search_btn')}</span>
           </button>
         </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { PopularDestination } from '../../types';
-import { CentralAsianDivider } from '../common/CentralAsianMotif';
+import { CentralAsianCorner, CentralAsianDivider } from '../common/CentralAsianMotif';
 import { ArrowUpRight } from 'lucide-react';
 
 export const PopularDestinations: React.FC = () => {
@@ -48,8 +48,13 @@ export const PopularDestinations: React.FC = () => {
             <div
               key={dest.id}
               onClick={() => handleDestinationClick(dest)}
-              className="group bg-white rounded-2xl overflow-hidden border border-brand-border shadow-subtle hover:shadow-elevated hover:border-brand-gold/70 transition-all duration-300 cursor-pointer flex flex-col"
+              className="relative group bg-white rounded-2xl overflow-hidden border border-[#D8C7A4] shadow-subtle hover:shadow-elevated hover:border-[#C49238]/80 transition-all duration-300 cursor-pointer flex flex-col"
             >
+              {/* Altın üst şerit ve köşe motifleri */}
+              <div className="pointer-events-none absolute top-0 inset-x-6 h-[2px] bg-gradient-to-r from-transparent via-[#E6C376]/85 to-transparent z-20" />
+              <CentralAsianCorner position="bl" className="absolute bottom-1 left-1 w-6 h-6 opacity-50 z-20" />
+              <CentralAsianCorner position="br" className="absolute bottom-1 right-1 w-6 h-6 opacity-50 z-20" />
+
               {/* Image Container */}
               <div className="relative h-36 sm:h-44 overflow-hidden bg-brand-ivory">
                 <img
@@ -57,7 +62,7 @@ export const PopularDestinations: React.FC = () => {
                   alt={cityName}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-white/95 backdrop-blur-xs text-brand-navy border border-brand-gold/50 text-[10px] sm:text-xs font-bold tracking-wider shadow-xs">
+                <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 sm:py-1 rounded-md bg-[#071628]/90 backdrop-blur-xs text-[#ECC97E] border border-[#C49238]/65 text-[10px] sm:text-xs font-bold tracking-wider shadow-xs">
                   {dest.iataCode}
                 </div>
               </div>
